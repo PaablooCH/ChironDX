@@ -2,10 +2,13 @@
 //
 
 #include <iostream>
+#include "SDL.h"
 
-int main()
+int main(int argc, char** argv)
 {
     std::cout << "Hello World!\n";
+
+    return 1;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
