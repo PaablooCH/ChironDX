@@ -13,10 +13,9 @@ namespace Chiron
 
 	void Chiron::Application::Run()
 	{
+		LOG_DEBUG("aaaaaa");
 		while (true)
 		{
-
 		}
 	}
-
 }

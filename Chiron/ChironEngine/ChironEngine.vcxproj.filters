@@ -12,7 +12,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\ChironClasses\ChironLog.cpp">
+    <ClCompile Include="Source\ChironClasses\Log.cpp">
       <Filter>Source\ChironClasses</Filter>
     </ClCompile>
     <ClCompile Include="Source\Auxiliar\Formatter.cpp">
@@ -26,7 +26,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\ChironClasses\ChironLog.h">
+    <ClInclude Include="Source\ChironClasses\Log.h">
       <Filter>Source\ChironClasses</Filter>
     </ClInclude>
     <ClInclude Include="Source\ChironClasses\ChironTodo.h">

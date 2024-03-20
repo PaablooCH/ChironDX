@@ -3,18 +3,16 @@
 class Sandbox : public Chiron::Application
 {
 public:
-    Sandbox()
-    {
+	Sandbox()
+	{
+	}
 
-    }
-
-    ~Sandbox()
-    {
-
-    }
+	~Sandbox()
+	{
+	}
 };
 
 Chiron::Application* Chiron::CreateApplication()
 {
-    return new Sandbox();
+	return new Sandbox();
 }

@@ -15,5 +15,3 @@ namespace Chiron
 
 	Application* CreateApplication();
 }
-
-

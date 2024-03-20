@@ -22,6 +22,9 @@
     <Filter Include="MathGeoLib\Time">
       <UniqueIdentifier>{0c0d0a25-559f-4186-aae1-07a50d183b5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spdlog">
+      <UniqueIdentifier>{14c561be-ed78-4072-a3c3-a3b89402b922}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MathGeoLib\Include\Algorithm\Random\LCG.cpp">

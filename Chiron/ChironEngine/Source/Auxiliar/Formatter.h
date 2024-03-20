@@ -1,7 +1,7 @@
 #pragma once
-#include "ChironClasses/ChironTodo.h"
+#include "Core.h"
 
-namespace chiron
+namespace Chiron
 {
 	namespace detail
 	{
@@ -19,21 +19,19 @@ namespace chiron
 	std::string Format(const std::string& format, Args&&... args)
 	{
 		std::string formattedString = format;
-		CHIRON_TODO("change asserts to SDL_Assert")
-		
+
 		(
 			[&]()
 			{
-				if (!detail::Format(formattedString, args))
+				if (!Chiron::detail::Format(formattedString, args))
 				{
 					assert(false && "Too many arguments in log call!");
 				}
 			}(),
-			...); // variadic parameter unpacking
+				...); // variadic parameter unpacking
 
-		assert(detail::FindPositionKey(formattedString) == std::string::npos && "Too few arguments in log call!");
+		assert(Chiron::detail::FindPositionKey(formattedString) == std::string::npos && "Too few arguments in log call!");
 
 		return formattedString;
 	}
 }
-
