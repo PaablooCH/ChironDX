@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{15b83601-7286-42d6-bb97-b917d18e8fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ChironClasses">
+      <UniqueIdentifier>{99679a2a-c93a-4912-917a-eda4ba931496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Auxiliar">
+      <UniqueIdentifier>{97556bf5-f634-409a-9197-1b6a1396fc21}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\ChironClasses\ChironLog.cpp">
+      <Filter>Source\ChironClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Formatter.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pch.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\ChironClasses\ChironLog.h">
+      <Filter>Source\ChironClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ChironClasses\ChironTodo.h">
+      <Filter>Source\ChironClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Formatter.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="ChironEngine.h" />
+    <ClInclude Include="Source\Application.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Pch.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EntryPoint.h" />
+  </ItemGroup>
+</Project>
