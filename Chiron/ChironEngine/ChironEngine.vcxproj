@@ -182,8 +182,8 @@
       <PreprocessorDefinitions>CRN_PLATFORM_WINDOW;ENGINE;CRN_BUILD_DLL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>..\ChironEngine\Source;..\ExternalDependencies;..\ExternalDependencies\Vulkan\Include;..\ExternalDependencies\SDL\include;..\ExternalDependencies\MathGeoLib\Include;..\ExternalDependencies\ImGui</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>..\ChironEngine\Source;..\ExternalDependencies\Vulkan\Include;..\ExternalDependencies\SDL\include;..\ExternalDependencies\MathGeoLib\Include;..\ExternalDependencies\ImGui</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -192,8 +192,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\ExternalDependencies\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ExternalDependencies.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>

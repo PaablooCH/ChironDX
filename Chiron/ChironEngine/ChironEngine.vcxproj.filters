@@ -45,6 +45,8 @@
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\EntryPoint.h" />
+    <ClInclude Include="Source\EntryPoint.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
