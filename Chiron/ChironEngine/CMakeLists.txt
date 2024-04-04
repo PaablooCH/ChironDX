@@ -58,17 +58,17 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 ################################################################################
 if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        TARGET_NAME_DEBUGENGINE   "${TARGET_NAME}$ENV{TargetExt}"
-        TARGET_NAME_DEBUGGAME     "${TARGET_NAME}$ENV{TargetExt}"
-        TARGET_NAME_RELEASEENGINE "${TARGET_NAME}$ENV{TargetExt}"
-        TARGET_NAME_RELEASEGAME   "${TARGET_NAME}$ENV{TargetExt}"
+        TARGET_NAME_DEBUGENGINE   "${PROJECT__NAME}$ENV{TargetExt}"
+        TARGET_NAME_DEBUGGAME     "${PROJECT__NAME}$ENV{TargetExt}"
+        TARGET_NAME_RELEASEENGINE "${PROJECT__NAME}$ENV{TargetExt}"
+        TARGET_NAME_RELEASEGAME   "${PROJECT__NAME}$ENV{TargetExt}"
     )
 elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        TARGET_NAME_DEBUGENGINE   "${TARGET_NAME}$ENV{TargetExt}"
-        TARGET_NAME_DEBUGGAME     "${TARGET_NAME}$ENV{TargetExt}"
-        TARGET_NAME_RELEASEENGINE "${TARGET_NAME}$ENV{TargetExt}"
-        TARGET_NAME_RELEASEGAME   "${TARGET_NAME}$ENV{TargetExt}"
+        TARGET_NAME_DEBUGENGINE   "${PROJECT__NAME}$ENV{TargetExt}"
+        TARGET_NAME_DEBUGGAME     "${PROJECT__NAME}$ENV{TargetExt}"
+        TARGET_NAME_RELEASEENGINE "${PROJECT__NAME}$ENV{TargetExt}"
+        TARGET_NAME_RELEASEGAME   "${PROJECT__NAME}$ENV{TargetExt}"
     )
 endif()
 ################################################################################
@@ -200,6 +200,7 @@ if(MSVC)
                 /Gy
             >
             /permissive-;
+            /std:c++20;
             /sdl;
             /W3;
             ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
@@ -217,6 +218,7 @@ if(MSVC)
                 /Gy
             >
             /permissive-;
+            /std:c++20;
             /sdl;
             /W3;
             ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
@@ -259,27 +261,12 @@ endif()
 ################################################################################
 # Post build events
 ################################################################################
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    add_custom_command_if(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMANDS
-        COMMAND   $<CONFIG:DebugEngine> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-        COMMAND     $<CONFIG:DebugGame> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-        COMMAND $<CONFIG:ReleaseEngine> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-        COMMAND   $<CONFIG:ReleaseGame> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-    )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    add_custom_command_if(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMANDS
-        COMMAND   $<CONFIG:DebugEngine> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-        COMMAND     $<CONFIG:DebugGame> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-        COMMAND $<CONFIG:ReleaseEngine> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-        COMMAND   $<CONFIG:ReleaseGame> xcopy /y /d "$<SHELL_PATH:${OUTPUT_DIRECTORY}>ChironEngine.dll" "$<SHELL_PATH:${CMAKE_SOURCE_DIR}/>bin\\$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}\\Sandbox\\"
-    )
-endif()
+
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND xcopy /y /d "$(OutDir)ChironEngine.dll" "$(SolutionDir)bin\\$(Configuration)-$(Platform)\\Sandbox\\"
+)
 
 ################################################################################
 # Dependencies
