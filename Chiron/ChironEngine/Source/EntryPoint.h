@@ -16,7 +16,9 @@ std::unique_ptr<Chiron::Log> logContext = std::make_unique<Chiron::Log>();
 
 int main(int argc, char** argv)
 {
+#ifdef ENGINE
 	Chiron::Log::Init();
+#endif
 	LOG_TRACE("aaaaa");
 	LOG_WARNING("aaaaa");
 
