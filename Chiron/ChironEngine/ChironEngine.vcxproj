@@ -19,6 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Events\ApplicationEvent\ApplicationEvent.cpp" />
+    <ClCompile Include="Source\Events\MouseEvents\MouseMoveEvent.cpp" />
+    <ClCompile Include="Source\Events\MouseEvents\MouseReleasedEvent.cpp" />
+    <ClCompile Include="Source\Events\MouseEvents\MouseEvent.cpp" />
+    <ClCompile Include="Source\Events\KeyEvents\KeyHoldedEvent.cpp" />
+    <ClCompile Include="Source\Events\KeyEvents\KeyPressedEvent.cpp" />
+    <ClCompile Include="Source\Events\KeyEvents\KeyReleasedEvent.cpp" />
+    <ClCompile Include="Source\Events\KeyEvents\KeyEvent.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugEngine|x64'">Pch.h</PrecompiledHeaderFile>
@@ -32,6 +40,15 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEngine|x64'">Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseGame|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Source\Events\Event.cpp" />
+    <ClCompile Include="Source\Events\MouseEvents\MousePressedEvent.cpp" />
+    <ClCompile Include="Source\Events\MouseEvents\MouseScrollEvent.cpp" />
+    <ClCompile Include="Source\Events\WindowEvents\WindowBorderlessEvent.cpp" />
+    <ClCompile Include="Source\Events\WindowEvents\WindowCloseEvent.cpp" />
+    <ClCompile Include="Source\Events\WindowEvents\WindowEvent.cpp" />
+    <ClCompile Include="Source\Events\WindowEvents\WindowFullScreenEvent.cpp" />
+    <ClCompile Include="Source\Events\WindowEvents\WindowMovedEvent.cpp" />
+    <ClCompile Include="Source\Events\WindowEvents\WindowResizedEvent.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='DebugEngine|x64'">
       </PrecompiledHeaderFile>
@@ -48,6 +65,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Events\ApplicationEvent\ApplicationEvent.h" />
+    <ClInclude Include="Source\Events\MouseEvents\MouseEvent.h" />
+    <ClInclude Include="Source\Events\KeyEvents\KeyHoldedEvent.h" />
+    <ClInclude Include="Source\Events\KeyEvents\KeyPressedEvent.h" />
+    <ClInclude Include="Source\Events\KeyEvents\KeyReleasedEvent.h" />
+    <ClInclude Include="Source\Events\KeyEvents\KeyEvent.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
     <ClInclude Include="Source\ChironClasses\Log.h" />
@@ -55,6 +78,17 @@
     <ClInclude Include="ChironEngine.h" />
     <ClInclude Include="Source\Core.h" />
     <ClInclude Include="Source\EntryPoint.h" />
+    <ClInclude Include="Source\Events\Event.h" />
+    <ClInclude Include="Source\Events\MouseEvents\MouseMoveEvent.h" />
+    <ClInclude Include="Source\Events\MouseEvents\MousePressedEvent.h" />
+    <ClInclude Include="Source\Events\MouseEvents\MouseReleasedEvent.h" />
+    <ClInclude Include="Source\Events\MouseEvents\MouseScrollEvent.h" />
+    <ClInclude Include="Source\Events\WindowEvents\WindowBorderlessEvent.h" />
+    <ClInclude Include="Source\Events\WindowEvents\WindowCloseEvent.h" />
+    <ClInclude Include="Source\Events\WindowEvents\WindowEvent.h" />
+    <ClInclude Include="Source\Events\WindowEvents\WindowFullScreenEvent.h" />
+    <ClInclude Include="Source\Events\WindowEvents\WindowMovedEvent.h" />
+    <ClInclude Include="Source\Events\WindowEvents\WindowResizedEvent.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
