@@ -30,6 +30,6 @@
 
 #include "SDL.h"
 
-#include "ChironClasses/Log.h"
+#include "ChironClasses/ChironLog.h"
 #include "ChironClasses/ChironTodo.h"
 #include "Auxiliar/Formatter.h"
