@@ -11,20 +11,20 @@ ModuleInput::~ModuleInput()
 
 bool ModuleInput::Init()
 {
-	return false;
+	return true;
 }
 
 UpdateStatus ModuleInput::PreUpdate()
 {
-	return UpdateStatus();
+	return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleInput::Update()
 {
-	return UpdateStatus();
+	return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool ModuleInput::CleanUp()
 {
-	return false;
+	return true;
 }
