@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox", "Sandbox\Sandbox.vcxproj", "{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136} = {AFDFF4DC-20E6-4A08-8C1B-88B33F879136}
-		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE} = {E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChironEngine", "ChironEngine\ChironEngine.vcxproj", "{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136} = {AFDFF4DC-20E6-4A08-8C1B-88B33F879136}
@@ -28,22 +22,6 @@ Global
 		ReleaseGame|x86 = ReleaseGame|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugEngine|x64.ActiveCfg = DebugEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugEngine|x64.Build.0 = DebugEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugEngine|x86.ActiveCfg = DebugEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugEngine|x86.Build.0 = DebugEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugGame|x64.ActiveCfg = DebugGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugGame|x64.Build.0 = DebugGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugGame|x86.ActiveCfg = DebugGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.DebugGame|x86.Build.0 = DebugGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseEngine|x64.ActiveCfg = ReleaseEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseEngine|x64.Build.0 = ReleaseEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseEngine|x86.ActiveCfg = ReleaseEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseEngine|x86.Build.0 = ReleaseEngine|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseGame|x64.ActiveCfg = ReleaseGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseGame|x64.Build.0 = ReleaseGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseGame|x86.ActiveCfg = ReleaseGame|x64
-		{893BD617-5B7A-43B2-92E2-9F12BEC05E6B}.ReleaseGame|x86.Build.0 = ReleaseGame|x64
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.DebugEngine|x64.ActiveCfg = DebugEngine|x64
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.DebugEngine|x64.Build.0 = DebugEngine|x64
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.DebugEngine|x86.ActiveCfg = DebugEngine|x64

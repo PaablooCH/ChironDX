@@ -258,10 +258,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>.\SDL\lib\;.\Vulkan\Lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\SDL\lib\;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugGame|x64'">
@@ -284,10 +284,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>.\SDL\lib\;.\Vulkan\Lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\SDL\lib\;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEngine|x64'">
@@ -313,10 +313,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>.\SDL\lib\;.\Vulkan\Lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\SDL\lib\;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseGame|x64'">
@@ -342,10 +342,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;vulkan-1.lib;</AdditionalDependencies>
+      <AdditionalDependencies>Shell32.lib;SDL2.lib;SDL2main.lib;</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>.\SDL\lib\;.\Vulkan\Lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\SDL\lib\;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
