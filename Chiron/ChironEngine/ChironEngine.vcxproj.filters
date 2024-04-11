@@ -10,6 +10,12 @@
     <Filter Include="Source\Auxiliar">
       <UniqueIdentifier>{97556bf5-f634-409a-9197-1b6a1396fc21}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Enums">
+      <UniqueIdentifier>{573ddcf0-674e-40b6-8dbd-748a165b7c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules">
+      <UniqueIdentifier>{a0b08608-4da7-447d-a784-be83734fbdc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\ChironClasses\ChironLog.cpp">
@@ -24,9 +30,11 @@
     <ClCompile Include="Source\Pch.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleInput.cpp">
+      <Filter>Source\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,9 +53,17 @@
     <ClInclude Include="Source\Pch.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Modules\Module.h" />
-    <ClInclude Include="Source\Enums\UpdateStatus.h" />
-    <ClInclude Include="Source\Enums\ModuleType.h" />
-    <ClInclude Include="Source\Modules\ModuleInput.h" />
+    <ClInclude Include="Source\Modules\Module.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleInput.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enums\ModuleType.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enums\UpdateStatus.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
