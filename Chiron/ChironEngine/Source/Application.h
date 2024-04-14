@@ -6,20 +6,21 @@
 class Application
 {
 public:
-	Application();
+	Application() = delete;
+	Application(HWND hwnd, HINSTANCE hInstance);
 	~Application();
 
-	bool Init();
-	bool Start();
-	UpdateStatus Update();
-	bool CleanUp();
+	bool			Init();
+	bool			Start();
+	UpdateStatus	Update();
+	bool			CleanUp();
 
 	template<typename M>
-	M* GetModule();
+	M*				GetModule();
 
 private:
-	std::vector<std::unique_ptr<Module>> _modules;
-	float _deltaTime = 0.f;
+	std::vector<std::unique_ptr<Module>>	_modules;
+	float									_deltaTime;
 };
 
 template<typename M>

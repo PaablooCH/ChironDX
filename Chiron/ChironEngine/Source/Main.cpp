@@ -3,105 +3,174 @@
 #include "Pch.h"
 #include "Application.h"
 
-enum class MAIN_STATES
-{
-	MAIN_CREATION,
-	MAIN_INIT,
-	MAIN_START,
-	MAIN_UPDATE,
-	MAIN_FINISH,
-	MAIN_EXIT
-};
+#include "Modules/ModuleWindow.h"
+
+BOOL                CreateApplication(HINSTANCE hInstance);
+ATOM                CreateWindowClass(HINSTANCE hInstance);
+LRESULT CALLBACK    WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 std::unique_ptr<Application> App;
 
-#ifdef ENGINE
 std::unique_ptr<ChironLog> logContext = std::make_unique<ChironLog>();
-#endif // ENGINE
 
-int main(int argc, char** argv)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	int mainReturn = EXIT_FAILURE;
-	MAIN_STATES state = MAIN_STATES::MAIN_CREATION;
 
-	while (state != MAIN_STATES::MAIN_EXIT)
-	{
-		switch (state)
-		{
-		case MAIN_STATES::MAIN_CREATION:
-#ifdef ENGINE
-			ChironLog::Init();
-#endif
-			LOG_INFO("Application Creation --------------");
-			App = std::make_unique<Application>();
-			state = MAIN_STATES::MAIN_INIT;
-			break;
+    ChironLog::Init();
 
-		case MAIN_STATES::MAIN_INIT:
-			LOG_INFO("Application Init --------------");
-			if (!App->Init())
-			{
-				LOG_ERROR("Application Init exits with error -----");
-				state = MAIN_STATES::MAIN_EXIT;
-			}
-			else
-			{
-				state = MAIN_STATES::MAIN_START;
-			}
+    LOG_INFO("Application Creation --------------");
 
-			break;
+    if (CreateApplication(hInstance) == FALSE)
+    {
+        return EXIT_FAILURE;
+    }
 
-		case MAIN_STATES::MAIN_START:
+    LOG_INFO("Application Init --------------");
 
-			LOG_INFO("Application Start --------------");
-			if (!App->Start())
-			{
-				LOG_ERROR("Application Start exits with error -----");
-				state = MAIN_STATES::MAIN_EXIT;
-			}
-			else
-			{
-				state = MAIN_STATES::MAIN_UPDATE;
-			}
+    if (!App->Init())
+    {
+        LOG_ERROR("Application Init exits with error -----");
+        return EXIT_FAILURE;
+    }
 
-			break;
+    LOG_INFO("Application Start --------------");
+    
+    if (!App->Start())
+    {
+        LOG_ERROR("Application Start exits with error -----");
+        return EXIT_FAILURE;
+    }
 
-		case MAIN_STATES::MAIN_UPDATE:
-		{
-			UpdateStatus updateReturn = App->Update();
+    MSG msg;
 
-			if (updateReturn == UpdateStatus::UPDATE_ERROR)
-			{
-				LOG_ERROR("Application Update exits with error -----");
-				state = MAIN_STATES::MAIN_EXIT;
-			}
+    // Main message loop:
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 
-			if (updateReturn == UpdateStatus::UPDATE_STOP)
-			{
-				state = MAIN_STATES::MAIN_FINISH;
-			}
-		}
-		break;
-
-		case MAIN_STATES::MAIN_FINISH:
-
-			LOG_INFO("Application CleanUp --------------");
-			if (!App->CleanUp())
-			{
-				LOG_ERROR("Application CleanUp exits with error -----");
-			}
-			else
-			{
-				mainReturn = EXIT_SUCCESS;
-			}
-
-			state = MAIN_STATES::MAIN_EXIT;
-
-			break;
-		}
-	}
+    UnregisterClass(WND_CLASS_NAME, hInstance);
 
 	LOG_INFO("Bye :)\n");
 
-	return mainReturn;
+	return EXIT_SUCCESS;
 }
+
+BOOL CreateApplication(HINSTANCE hInstance)
+{
+    if (CreateWindowClass(hInstance) == 0)
+    {
+        assert(false && "Error creating Window Class.");
+    }
+    
+    HWND hwnd = CreateWindowW(
+        WND_CLASS_NAME,         // Window Class
+        WND_NAME,               // Window title
+        WS_OVERLAPPEDWINDOW,    // Window style
+        CW_USEDEFAULT,          // Position x
+        CW_USEDEFAULT,          // Position y
+        CW_USEDEFAULT,          // Widht
+        CW_USEDEFAULT,          // Height
+        nullptr,                // Principal window (NULL bcs this is the principal one)
+        nullptr,                // Menu (NULL bcs I don't use a menu)
+        hInstance,              // Hinstance
+        nullptr                 // Additional parameter (NULL en este caso)
+    );
+
+    if (hwnd == NULL)
+    {
+        return FALSE;
+    }
+    App = std::make_unique<Application>(hwnd, hInstance);
+
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+
+
+    return TRUE;
+}
+
+ATOM CreateWindowClass(HINSTANCE hIstance)
+{
+    WNDCLASSEXW wcex {};
+
+    // Fill in the window class structure with parameters 
+    // that describe the main window. 
+
+    wcex.cbSize = sizeof(WNDCLASSEXW);                  // size of structure 
+    wcex.lpszClassName = WND_CLASS_NAME;                // name of window class 
+    wcex.style = CS_HREDRAW | CS_VREDRAW;               // redraw if size changes 
+    wcex.lpfnWndProc = WndProc;                         // points to window procedure 
+    wcex.cbClsExtra = 0;                                // no extra class memory 
+    wcex.cbWndExtra = 0;                                // no extra window memory 
+    wcex.hInstance = hIstance;                          // handle to instance 
+    wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);       // predefined app. icon 
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);         // predefined arrow 
+    wcex.lpszMenuName = NULL;                           // name of menu resource 
+    wcex.hIconSm = LoadIcon(nullptr, IDI_APPLICATION); // small class icon
+
+    // Register the window class. 
+    return RegisterClassExW(&wcex);
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_ACTIVATE:
+    case WM_ACTIVATEAPP:
+        DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+        DirectX::Mouse::ProcessMessage(message, wParam, lParam);
+        break;
+    case WM_INPUT:
+    case WM_MOUSEMOVE:
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    case WM_MOUSEWHEEL:
+    case WM_XBUTTONDOWN:
+    case WM_XBUTTONUP:
+    case WM_MOUSEHOVER:
+        DirectX::Mouse::ProcessMessage(message, wParam, lParam);
+        break;
+    case WM_COMMAND:
+    case WM_PAINT:
+        App->Update();
+        break;
+    case WM_DESTROY:
+        LOG_INFO("Application CleanUp --------------");
+        if (!App->CleanUp())
+        {
+            LOG_ERROR("Application CleanUp exits with error -----");
+        }
+        PostQuitMessage(0);
+        break;
+    case WM_SIZE:
+        App->GetModule<ModuleWindow>()->Resize();
+        break;
+    case WM_SYSKEYDOWN:
+        DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+        break;
+    case WM_KEYDOWN:
+        CHIRON_TODO("Review functionality.");
+        if (wParam == VK_F11)
+        {
+            App->GetModule<ModuleWindow>()->ToggleFullScreen();
+        }
+        DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+        break;
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+        DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
+

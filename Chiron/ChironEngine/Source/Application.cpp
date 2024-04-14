@@ -2,11 +2,13 @@
 #include "Application.h"
 
 #include "Modules/ModuleInput.h"
+#include "Modules/ModuleWindow.h"
 
-Application::Application() : _deltaTime(0.f)
+Application::Application(HWND hwnd, HINSTANCE hInstance) : _deltaTime(0.f)
 {
 	_modules.resize(static_cast<int>(ModuleType::LAST));
-	_modules[static_cast<int>(ModuleToEnum<ModuleInput>::value)] = std::make_unique<ModuleInput>();
+	_modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
+	_modules[static_cast<int>(ModuleToEnum<ModuleInput>::value)] = std::make_unique<ModuleInput>(hwnd);
 }
 
 Application::~Application()

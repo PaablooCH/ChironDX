@@ -36,6 +36,12 @@
     <ClCompile Include="Source\Modules\ModuleInput.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleRender.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleWindow.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ChironClasses\ChironLog.h">
@@ -64,6 +70,15 @@
     </ClInclude>
     <ClInclude Include="Source\Enums\UpdateStatus.h">
       <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleRender.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleWindow.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Globals.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

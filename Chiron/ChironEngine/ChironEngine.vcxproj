@@ -21,6 +21,8 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
+    <ClCompile Include="Source\Modules\ModuleRender.cpp" />
+    <ClCompile Include="Source\Modules\ModuleWindow.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeaderFile>
@@ -33,6 +35,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
+    <ClInclude Include="Source\Auxiliar\Globals.h" />
     <ClInclude Include="Source\ChironClasses\ChironLog.h" />
     <ClInclude Include="Source\ChironClasses\ChironTodo.h" />
     <ClCompile Include="Source\Main.cpp" />
@@ -40,6 +43,8 @@
     <ClInclude Include="Source\Enums\UpdateStatus.h" />
     <ClInclude Include="Source\Modules\Module.h" />
     <ClInclude Include="Source\Modules\ModuleInput.h" />
+    <ClInclude Include="Source\Modules\ModuleRender.h" />
+    <ClInclude Include="Source\Modules\ModuleWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

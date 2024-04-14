@@ -4,9 +4,6 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{66e4705e-730e-40b2-afb3-25fde56dd227}</UniqueIdentifier>
     </Filter>
-    <Filter Include="spdlog">
-      <UniqueIdentifier>{14c561be-ed78-4072-a3c3-a3b89402b922}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImGui\ImGuizmo.cpp">
