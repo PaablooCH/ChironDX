@@ -22,13 +22,6 @@
 #include <vector>
 #include <windows.h>
 
-#include "Math/Quat.h"
-#include "Math/float2.h"
-#include "Math/float3.h"
-#include "Math/float4.h"
-#include "Math/float4x4.h"
-
-#include "SDL.h"
 
 #include "ChironClasses/ChironLog.h"
 #include "ChironClasses/ChironTodo.h"
