@@ -91,7 +91,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\MathGeoLib\Include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)ExternalDependencies\spdlog\include;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)DirectXTK12\Src</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -121,7 +121,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\MathGeoLib\Include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)ExternalDependencies\spdlog\include;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)DirectXTK12\Src</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
