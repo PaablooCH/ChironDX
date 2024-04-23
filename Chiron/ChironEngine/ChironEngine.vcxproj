@@ -12,14 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp" />
-    <ClCompile Include="Source\Auxiliar\Formatter.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="Source\ChironClasses\ChironLog.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
-    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
+    <ClCompile Include="Source\Auxiliar\Log.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Modules\ModuleRender.cpp" />
     <ClCompile Include="Source\Modules\ModuleWindow.cpp" />
@@ -34,11 +28,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h" />
+    <ClInclude Include="Source\Auxiliar\ChironTodo.h" />
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
-    <ClInclude Include="Source\Auxiliar\Globals.h" />
-    <ClInclude Include="Source\ChironClasses\ChironLog.h" />
-    <ClInclude Include="Source\ChironClasses\ChironTodo.h" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClInclude Include="Source\Auxiliar\Log.h" />
     <ClInclude Include="Source\Enums\ModuleType.h" />
     <ClInclude Include="Source\Enums\UpdateStatus.h" />
     <ClInclude Include="Source\Modules\Module.h" />

@@ -28,7 +28,7 @@
 #include "Mouse.h"
 #include "SimpleMath.h"
 
-#include "ChironClasses/ChironLog.h"
-#include "ChironClasses/ChironTodo.h"
+#include "Auxiliar/Log.h"
+#include "Auxiliar/ChironTodo.h"
 #include "Auxiliar/Formatter.h"
-#include "Auxiliar/Globals.h"
+#include "Globals.h"

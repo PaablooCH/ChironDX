@@ -11,13 +11,12 @@ LRESULT CALLBACK    WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 std::unique_ptr<Application> App;
 
-std::unique_ptr<ChironLog> logContext = std::make_unique<ChironLog>();
+std::unique_ptr<Chiron::Log> logContext = std::make_unique<Chiron::Log>();
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	int mainReturn = EXIT_FAILURE;
 
-    ChironLog::Init();
 
     LOG_INFO("Application Creation --------------");
 
