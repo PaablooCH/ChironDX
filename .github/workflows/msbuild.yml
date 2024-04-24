@@ -16,7 +16,7 @@ on:
 
 env:
   # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: ./Chiron
+  SOLUTION_FILE_PATH: ./Source
 
 permissions:
   contents: read
