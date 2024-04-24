@@ -28,10 +28,8 @@ jobs:
     strategy:
       matrix:
         build_type:
-          - DebugEngine
-          - DebugGame
-          - ReleaseEngine
-          - ReleaseGame
+          - Debug
+          - Release
 
     steps:
     - uses: actions/checkout@v3

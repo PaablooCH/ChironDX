@@ -4,9 +4,6 @@
     <Filter Include="Source">
       <UniqueIdentifier>{15b83601-7286-42d6-bb97-b917d18e8fee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\ChironClasses">
-      <UniqueIdentifier>{99679a2a-c93a-4912-917a-eda4ba931496}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Auxiliar">
       <UniqueIdentifier>{97556bf5-f634-409a-9197-1b6a1396fc21}</UniqueIdentifier>
     </Filter>
@@ -16,14 +13,14 @@
     <Filter Include="Source\Modules">
       <UniqueIdentifier>{a0b08608-4da7-447d-a784-be83734fbdc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels">
+      <UniqueIdentifier>{0ffecce9-bdf3-4972-939e-f1bf60a9d03b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Program">
+      <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\ChironClasses\ChironLog.cpp">
-      <Filter>Source\ChironClasses</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Auxiliar\Formatter.cpp">
-      <Filter>Source\Auxiliar</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Application.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -36,17 +33,32 @@
     <ClCompile Include="Source\Modules\ModuleInput.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleRender.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleWindow.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleProgram.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Program\Program.cpp">
+      <Filter>Source\DataModels\Program</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleID3D12.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Formatter.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Utils.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Log.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\ChironClasses\ChironLog.h">
-      <Filter>Source\ChironClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ChironClasses\ChironTodo.h">
-      <Filter>Source\ChironClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Auxiliar\Formatter.h">
-      <Filter>Source\Auxiliar</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Application.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -64,6 +76,36 @@
     </ClInclude>
     <ClInclude Include="Source\Enums\UpdateStatus.h">
       <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleRender.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleWindow.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleProgram.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Program\Program.h">
+      <Filter>Source\DataModels\Program</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleID3D12.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Formatter.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Utils.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\ChironTodo.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Log.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Globals.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
