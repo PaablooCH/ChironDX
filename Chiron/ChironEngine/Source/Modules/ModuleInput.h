@@ -8,13 +8,16 @@ public:
     ModuleInput(HWND hwnd);
     ~ModuleInput() override;
 
-    bool            Init() override;
-    UpdateStatus    PreUpdate() override;
-    UpdateStatus    Update() override;
-    bool            CleanUp() override;
+    bool Init() override;
+    UpdateStatus PreUpdate() override;
+    UpdateStatus Update() override;
+    bool CleanUp() override;
 
-    inline DirectX::Keyboard*   GetKeyboard();
-    inline DirectX::Mouse*      GetMouse();
+    // ------------- GETTERS ----------------------
+
+    inline DirectX::Keyboard* GetKeyboard();
+    inline DirectX::Mouse* GetMouse();
+
 private:
     std::unique_ptr<DirectX::Keyboard> _keyboard;
     std::unique_ptr<DirectX::Mouse> _mouse;

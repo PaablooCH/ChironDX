@@ -14,8 +14,12 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
+    <ClCompile Include="Source\Auxiliar\Utils.cpp" />
+    <ClCompile Include="Source\DataModels\Program\Program.cpp" />
+    <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Modules\ModuleRender.cpp" />
+    <ClCompile Include="Source\Modules\ModuleProgram.cpp" />
     <ClCompile Include="Source\Modules\ModuleWindow.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -32,11 +36,16 @@
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
     <ClCompile Include="Source\Main.cpp" />
     <ClInclude Include="Source\Auxiliar\Log.h" />
+    <ClInclude Include="Source\Auxiliar\Utils.h" />
+    <ClInclude Include="Source\DataModels\Program\Program.h" />
     <ClInclude Include="Source\Enums\ModuleType.h" />
     <ClInclude Include="Source\Enums\UpdateStatus.h" />
+    <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Modules\Module.h" />
+    <ClInclude Include="Source\Modules\ModuleID3D12.h" />
     <ClInclude Include="Source\Modules\ModuleInput.h" />
     <ClInclude Include="Source\Modules\ModuleRender.h" />
+    <ClInclude Include="Source\Modules\ModuleProgram.h" />
     <ClInclude Include="Source\Modules\ModuleWindow.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>

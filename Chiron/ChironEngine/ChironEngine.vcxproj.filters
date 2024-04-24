@@ -13,6 +13,12 @@
     <Filter Include="Source\Modules">
       <UniqueIdentifier>{a0b08608-4da7-447d-a784-be83734fbdc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels">
+      <UniqueIdentifier>{0ffecce9-bdf3-4972-939e-f1bf60a9d03b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Program">
+      <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -33,7 +39,19 @@
     <ClCompile Include="Source\Modules\ModuleWindow.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleProgram.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Program\Program.cpp">
+      <Filter>Source\DataModels\Program</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleID3D12.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Auxiliar\Formatter.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Utils.cpp">
       <Filter>Source\Auxiliar</Filter>
     </ClCompile>
     <ClCompile Include="Source\Auxiliar\Log.cpp">
@@ -65,7 +83,19 @@
     <ClInclude Include="Source\Modules\ModuleWindow.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleProgram.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Program\Program.h">
+      <Filter>Source\DataModels\Program</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleID3D12.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Auxiliar\Formatter.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Utils.h">
       <Filter>Source\Auxiliar</Filter>
     </ClInclude>
     <ClInclude Include="Source\Auxiliar\ChironTodo.h">

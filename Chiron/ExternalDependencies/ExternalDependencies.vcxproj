@@ -97,7 +97,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>DirectXTK12.lib;user32.lib;dxgi.lib;d3d12.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>DirectXTK12.lib;user32.lib;dxgi.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>.\SDL\lib\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\</AdditionalLibraryDirectories>
@@ -126,7 +126,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>DirectXTK12.lib;user32.lib;dxgi.lib;d3d12.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>DirectXTK12.lib;user32.lib;dxgi.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>.\SDL\lib\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\</AdditionalLibraryDirectories>

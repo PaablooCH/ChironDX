@@ -13,9 +13,9 @@ public:
 	{
 	}
 
-	virtual bool Start();
-
 	virtual bool Init();
+
+	virtual bool Start();
 
 	virtual UpdateStatus PreUpdate();
 
@@ -26,12 +26,12 @@ public:
 	virtual bool CleanUp();
 };
 
-inline bool Module::Start()
+inline bool Module::Init()
 {
 	return true;
 }
 
-inline bool Module::Init()
+inline bool Module::Start()
 {
 	return true;
 }

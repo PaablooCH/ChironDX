@@ -3,6 +3,7 @@
 #include "Pch.h"
 #include "Application.h"
 
+#include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
 
 BOOL                CreateApplication(HINSTANCE hInstance);
@@ -17,27 +18,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 {
 	int mainReturn = EXIT_FAILURE;
 
-
     LOG_INFO("Application Creation --------------");
 
     if (CreateApplication(hInstance) == FALSE)
     {
-        return EXIT_FAILURE;
-    }
-
-    LOG_INFO("Application Init --------------");
-
-    if (!App->Init())
-    {
-        LOG_ERROR("Application Init exits with error -----");
-        return EXIT_FAILURE;
-    }
-
-    LOG_INFO("Application Start --------------");
-    
-    if (!App->Start())
-    {
-        LOG_ERROR("Application Start exits with error -----");
         return EXIT_FAILURE;
     }
 
@@ -46,8 +30,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
     }
 
     UnregisterClass(WND_CLASS_NAME, hInstance);
@@ -84,9 +68,24 @@ BOOL CreateApplication(HINSTANCE hInstance)
     }
     App = std::make_unique<Application>(hwnd, hInstance);
 
+    LOG_INFO("Application Init --------------");
+
+    if (!App->Init())
+    {
+        LOG_ERROR("Application Init exits with error -----");
+        return FALSE;
+    }
+
+    LOG_INFO("Application Start --------------");
+
+    if (!App->Start())
+    {
+        LOG_ERROR("Application Start exits with error -----");
+        return FALSE;
+    }
+
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
-
 
     return TRUE;
 }
@@ -147,7 +146,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             LOG_ERROR("Application CleanUp exits with error -----");
         }
-        PostQuitMessage(0);
+        ::PostQuitMessage(0);
         break;
     case WM_SIZE:
         App->GetModule<ModuleWindow>()->Resize();
@@ -156,10 +155,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
         break;
     case WM_KEYDOWN:
-        CHIRON_TODO("Review functionality.");
-        if (wParam == VK_F11)
+        CHIRON_TODO("Move this to ModuleInput.");
+        switch (wParam)
         {
+        case 'V':
+            App->GetModule<ModuleID3D12>()->ToggleVSync();
+            break;
+        case VK_ESCAPE:
+            LOG_INFO("Application CleanUp --------------");
+            if (!App->CleanUp())
+            {
+                LOG_ERROR("Application CleanUp exits with error -----");
+            }
+            ::PostQuitMessage(0);
+            break;
+        case VK_F11:
             App->GetModule<ModuleWindow>()->ToggleFullScreen();
+            break;
         }
         DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
         break;
@@ -168,7 +180,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
         break;
     default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        return DefWindowProcW(hWnd, message, wParam, lParam);
     }
     return 0;
 }
