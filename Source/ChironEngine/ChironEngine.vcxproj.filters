@@ -57,6 +57,9 @@
     <ClCompile Include="Source\Auxiliar\Log.cpp">
       <Filter>Source\Auxiliar</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleCamera.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="Source\Globals.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleCamera.h">
+      <Filter>Source\Modules</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

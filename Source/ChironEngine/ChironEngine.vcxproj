@@ -16,6 +16,7 @@
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
     <ClCompile Include="Source\DataModels\Program\Program.cpp" />
+    <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Modules\ModuleRender.cpp" />
@@ -42,6 +43,7 @@
     <ClInclude Include="Source\Enums\UpdateStatus.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Modules\Module.h" />
+    <ClInclude Include="Source\Modules\ModuleCamera.h" />
     <ClInclude Include="Source\Modules\ModuleID3D12.h" />
     <ClInclude Include="Source\Modules\ModuleInput.h" />
     <ClInclude Include="Source\Modules\ModuleRender.h" />
