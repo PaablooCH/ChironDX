@@ -19,6 +19,9 @@
     <Filter Include="Source\DataModels\Program">
       <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\CommandQueue">
+      <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="Source\Modules\ModuleCamera.cpp">
       <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp">
+      <Filter>Source\DataModels\CommandQueue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="Source\Modules\ModuleCamera.h">
       <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h">
+      <Filter>Source\DataModels\CommandQueue</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
