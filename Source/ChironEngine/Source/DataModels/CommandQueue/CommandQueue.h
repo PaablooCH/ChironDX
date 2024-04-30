@@ -13,6 +13,7 @@ public:
 
 	// ------------- SYNCHRONIZATION ----------------------
 
+	void WaitForFenceValue(uint64_t fenceValue);
 	void Flush();
 
 	// ------------- GETTERS ----------------------
@@ -27,7 +28,6 @@ private:
 	// ------------- SYNCHRONIZATION ----------------------
 
 	uint64_t Signal();
-	void WaitForFenceValue(uint64_t fenceValue);
 	bool IsFenceComplete(uint64_t fenceValue);
 private:
 	struct AllocatorWaiting

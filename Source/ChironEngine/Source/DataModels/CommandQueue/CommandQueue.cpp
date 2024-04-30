@@ -18,6 +18,8 @@ CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ComPtr<ID3D12Device> de
 
 CommandQueue::~CommandQueue()
 {
+	Flush();
+	::CloseHandle(_fenceEvent);
 }
 
 uint64_t CommandQueue::ExecuteCommandList(ComPtr<ID3D12GraphicsCommandList> commandList)
@@ -41,6 +43,15 @@ uint64_t CommandQueue::ExecuteCommandList(ComPtr<ID3D12GraphicsCommandList> comm
 	commandAllocator->Release(); // free CommandLine private data memory
 
 	return fenceValue;
+}
+
+void CommandQueue::WaitForFenceValue(uint64_t fenceValue)
+{
+	if (!IsFenceComplete(fenceValue))
+	{
+		Chiron::Utils::ThrowIfFailed(_fence->SetEventOnCompletion(fenceValue, _fenceEvent));
+		::WaitForSingleObject(_fenceEvent, INFINITE);
+	}
 }
 
 void CommandQueue::Flush()
@@ -88,7 +99,7 @@ ComPtr<ID3D12CommandAllocator> CommandQueue::CreateCommandAllocator() const
 	ComPtr<ID3D12CommandAllocator> commandAllocator;
 
 	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-	device->CreateCommandAllocator(_type, IID_PPV_ARGS(&commandAllocator));
+	Chiron::Utils::ThrowIfFailed(device->CreateCommandAllocator(_type, IID_PPV_ARGS(&commandAllocator)));
 
 	return commandAllocator;
 }
@@ -109,15 +120,6 @@ uint64_t CommandQueue::Signal()
 	uint64_t fenceValue = ++_fenceValue;
 	Chiron::Utils::ThrowIfFailed(_commandQueue->Signal(_fence.Get(), fenceValue));
 	return fenceValue;
-}
-
-void CommandQueue::WaitForFenceValue(uint64_t fenceValue)
-{
-	if (!IsFenceComplete(fenceValue))
-	{
-		Chiron::Utils::ThrowIfFailed(_fence->SetEventOnCompletion(fenceValue, _fenceEvent));
-		::WaitForSingleObject(_fenceEvent, INFINITE);
-	}
 }
 
 bool CommandQueue::IsFenceComplete(uint64_t fenceValue)
