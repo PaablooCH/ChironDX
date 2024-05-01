@@ -12,7 +12,7 @@ CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ComPtr<ID3D12Device> de
 	queueDesc.Type = _type;
 	Chiron::Utils::ThrowIfFailed(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_commandQueue)));
 
-	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+	Chiron::Utils::ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)));
 	_fenceEvent = Chiron::Utils::CreateEventHandle();
 }
 
