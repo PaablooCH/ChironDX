@@ -24,7 +24,7 @@ CommandQueue::~CommandQueue()
 
 uint64_t CommandQueue::ExecuteCommandList(ComPtr<ID3D12GraphicsCommandList> commandList)
 {
-	commandList->Close();
+	Chiron::Utils::ThrowIfFailed(commandList->Close());
 
 	ID3D12CommandAllocator* commandAllocator;
 	UINT allocatorSize = sizeof(commandAllocator);

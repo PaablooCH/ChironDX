@@ -1,6 +1,8 @@
 #pragma once
 #include "Module.h"
 
+class DebugDrawPass;
+
 struct Vertex
 {
     Vector3 position;
@@ -31,4 +33,6 @@ private:
 
     ComPtr<ID3D12Resource> _indexBuffer;
     D3D12_INDEX_BUFFER_VIEW _indexBufferView;
+
+    std::unique_ptr<DebugDrawPass> _debugDraw;
 };

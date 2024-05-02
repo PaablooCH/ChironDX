@@ -7,6 +7,8 @@
 #include "ModuleProgram.h"
 
 #include "DataModels/Program/Program.h"
+#include "DataModels/CommandQueue/CommandQueue.h"
+#include "DebugDrawPass.h"
 
 ModuleRender::ModuleRender()
 {
@@ -19,7 +21,8 @@ ModuleRender::~ModuleRender()
 bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
-    _drawCommandList = d3d12->CreateCommandList(d3d12->GetCommandAllocator(), D3D12_COMMAND_LIST_TYPE_DIRECT, L"Draw Command List");
+    auto commandQueue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandQueue();
+    _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
     
     // -------------- VERTEX ---------------------
     
@@ -97,13 +100,11 @@ UpdateStatus ModuleRender::PreUpdate()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
     
-    _drawCommandList->Reset(d3d12->GetCommandAllocator(), nullptr);
+    _drawCommandList = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandList();
         
     // Transition the state to render
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        d3d12->GetRenderBuffer(),
-        D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _drawCommandList->ResourceBarrier(1, &barrier);
+    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT,
+        D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
@@ -119,19 +120,13 @@ UpdateStatus ModuleRender::Update()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    // Transition the state to present
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        d3d12->GetRenderBuffer(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    _drawCommandList->ResourceBarrier(1, &barrier);
+    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_PRESENT);
 
-    // When we finish, we must close the list
-    Chiron::Utils::ThrowIfFailed(_drawCommandList->Close());
+    uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
+    d3d12->SaveCurrentBufferFenceValue(fenceValue);
 
-    ID3D12CommandList* const commandLists[] = {
-        _drawCommandList.Get()
-    };
-    d3d12->GetCommandQueue()->ExecuteCommandLists(_countof(commandLists), commandLists);
+    CHIRON_TODO("Print Grid with debugDraw");
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

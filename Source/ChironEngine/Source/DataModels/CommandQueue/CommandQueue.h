@@ -19,6 +19,7 @@ public:
 	// ------------- GETTERS ----------------------
 
 	ComPtr<ID3D12GraphicsCommandList> GetCommandList();
+	inline ID3D12CommandQueue* GetCommandQueue();
 private:
 	// ------------- CREATORS ----------------------
 
@@ -48,3 +49,7 @@ private:
 	D3D12_COMMAND_LIST_TYPE _type;
 };
 
+inline ID3D12CommandQueue* CommandQueue::GetCommandQueue()
+{
+	return _commandQueue.Get();
+}
