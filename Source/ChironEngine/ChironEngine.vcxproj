@@ -17,6 +17,7 @@
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
     <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\DataModels\Program\Program.cpp" />
+    <ClCompile Include="Source\DebugDrawPass.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
@@ -41,6 +42,8 @@
     <ClInclude Include="Source\Auxiliar\Utils.h" />
     <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\DataModels\Program\Program.h" />
+    <ClInclude Include="Source\DebugDrawPass.h" />
+    <ClInclude Include="Source\debug_draw.hpp" />
     <ClInclude Include="Source\Enums\ModuleType.h" />
     <ClInclude Include="Source\Enums\UpdateStatus.h" />
     <ClInclude Include="Source\Globals.h" />
