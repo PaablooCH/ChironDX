@@ -16,11 +16,11 @@
     <Filter Include="Source\DataModels">
       <UniqueIdentifier>{0ffecce9-bdf3-4972-939e-f1bf60a9d03b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\DataModels\Program">
-      <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\DataModels\CommandQueue">
       <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Programs">
+      <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,8 +45,8 @@
     <ClCompile Include="Source\Modules\ModuleProgram.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\Program\Program.cpp">
-      <Filter>Source\DataModels\Program</Filter>
+    <ClCompile Include="Source\DataModels\Programs\Program.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
     </ClCompile>
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp">
       <Filter>Source\Modules</Filter>
@@ -65,6 +65,12 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp">
       <Filter>Source\DataModels\CommandQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DebugDrawPass.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -95,8 +101,8 @@
     <ClInclude Include="Source\Modules\ModuleProgram.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\Program\Program.h">
-      <Filter>Source\DataModels\Program</Filter>
+    <ClInclude Include="Source\DataModels\Programs\Program.h">
+      <Filter>Source\DataModels\Programs</Filter>
     </ClInclude>
     <ClInclude Include="Source\Modules\ModuleID3D12.h">
       <Filter>Source\Modules</Filter>
@@ -121,6 +127,15 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h">
       <Filter>Source\DataModels\CommandQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DebugDrawPass.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\debug_draw.hpp">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

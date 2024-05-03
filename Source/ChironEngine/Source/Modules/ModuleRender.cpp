@@ -6,8 +6,8 @@
 #include "ModuleID3D12.h"
 #include "ModuleProgram.h"
 
-#include "DataModels/Program/Program.h"
 #include "DataModels/CommandQueue/CommandQueue.h"
+#include "DataModels/Programs/Program.h"
 #include "DebugDrawPass.h"
 
 ModuleRender::ModuleRender()
