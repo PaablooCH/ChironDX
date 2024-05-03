@@ -20,7 +20,7 @@ public:
     // ------------- WINDOW FUNC ----------------------
 
     void ToggleVSync();
-    void ResizeSwapChain(unsigned newWidth, unsigned newHeight);
+    void ResizeBuffers(unsigned newWidth, unsigned newHeight);
 
     // ------------- CREATORS ----------------------
 
@@ -47,6 +47,8 @@ public:
     inline ID3D12Resource* GetRenderBuffer() const;
     inline ID3D12DescriptorHeap* GetRenderTargetViewHeap() const;
     inline UINT GetRtvSize() const;
+    inline ID3D12Resource* GetDepthStencilBuffer() const;
+    inline ID3D12DescriptorHeap* GetDepthStencilViewHeap() const;
 
 private:
     // ------------- CREATORS ----------------------
@@ -56,6 +58,7 @@ private:
     bool CreateDevice();
     bool CreateCommandQueue();
     bool CreateSwapChain();
+    void CreateDepthStencil(unsigned width, unsigned height);
 
     // ------------- UPDATES ----------------------
 
@@ -116,6 +119,10 @@ private:
     // The descriptor size. Depends on device.
     UINT _renderTargetViewDesciptorSize;
 
+    // Depth Stencil buffer.
+    ComPtr<ID3D12Resource> _depthStencilBuffer;
+    // Descriptor heap for depth buffer.
+    ComPtr<ID3D12DescriptorHeap> _dsvHeap;
 };
 
 inline ID3D12Device2* ModuleID3D12::GetDevice() const
@@ -163,6 +170,16 @@ inline ID3D12DescriptorHeap* ModuleID3D12::GetRenderTargetViewHeap() const
 inline UINT ModuleID3D12::GetRtvSize() const
 {
     return _renderTargetViewDesciptorSize;
+}
+
+inline ID3D12Resource* ModuleID3D12::GetDepthStencilBuffer() const
+{
+    return _depthStencilBuffer.Get();
+}
+
+inline ID3D12DescriptorHeap* ModuleID3D12::GetDepthStencilViewHeap() const
+{
+    return _dsvHeap.Get();
 }
 
 {

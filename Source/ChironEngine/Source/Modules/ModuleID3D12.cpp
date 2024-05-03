@@ -76,7 +76,7 @@ void ModuleID3D12::ToggleVSync()
     _vSync = !_vSync;
 }
 
-void ModuleID3D12::ResizeSwapChain(unsigned newWidth, unsigned newHeight)
+void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 {
     Flush();
     
@@ -98,6 +98,10 @@ void ModuleID3D12::ResizeSwapChain(unsigned newWidth, unsigned newHeight)
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
     UpdateRenderTargetViews();
+
+    // ------------- DEPTH-STENCIL ---------------------------
+
+    CreateDepthStencil(newWidth, newHeight);
 }
 
 ComPtr<ID3D12GraphicsCommandList> ModuleID3D12::CreateCommandList(ID3D12CommandAllocator* commandAllocator, 
@@ -297,6 +301,35 @@ bool ModuleID3D12::CreateSwapChain()
     return false;
 }
 
+void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
+{
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+    clearValue.DepthStencil.Depth = 1.0f;
+    clearValue.DepthStencil.Stencil = 0;
+    CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+    Chiron::Utils::ThrowIfFailed(
+        _device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &clearValue, IID_PPV_ARGS(&_depthStencilBuffer)));
+
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+    dsvHeapDesc.NumDescriptors = 1;
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&_dsvHeap)));
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+    depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+    _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilDesc, dsvHandle);
+}
+
 void ModuleID3D12::UpdateRenderTargetViews()
 {
     _renderTargetViewDesciptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -340,6 +373,12 @@ void ModuleID3D12::InitFrameBuffer()
         rtvHandle.Offset(_renderTargetViewDesciptorSize);
     }
 
+    // ------------- DEPTH-STENCIL ---------------------------
+    
+    unsigned width;
+    unsigned height;
 
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
 
+    CreateDepthStencil(width, height);
 }

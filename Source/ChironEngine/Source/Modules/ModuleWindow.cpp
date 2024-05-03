@@ -83,7 +83,7 @@ void ModuleWindow::Resize(unsigned width, unsigned height)
 
         // Flush the GPU queue to make sure the swap chain's back buffers
         // are not being referenced by an in-flight command list.
-        App->GetModule<ModuleID3D12>()->ResizeSwapChain(_width, _height);
+        App->GetModule<ModuleID3D12>()->ResizeBuffers(_width, _height);
     }
 }
 

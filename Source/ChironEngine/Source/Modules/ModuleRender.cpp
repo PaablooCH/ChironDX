@@ -113,6 +113,11 @@ UpdateStatus ModuleRender::PreUpdate()
 
     _drawCommandList->ClearRenderTargetView(rtv, clearColor, 0, nullptr); // send the clear command into the list
 
+    CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(d3d12->GetDepthStencilViewHeap()->GetCPUDescriptorHandleForHeapStart());
+
+    _drawCommandList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, 
+        nullptr);
+
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
