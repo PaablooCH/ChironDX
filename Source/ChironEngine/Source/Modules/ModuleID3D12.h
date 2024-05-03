@@ -49,9 +49,11 @@ public:
     inline UINT GetCurrentBuffer() const;
     inline ID3D12Resource* GetRenderBuffer() const;
     inline ID3D12DescriptorHeap* GetRenderTargetViewHeap() const;
+    inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetDescriptor() const;
     inline UINT GetRtvSize() const;
     inline ID3D12Resource* GetDepthStencilBuffer() const;
     inline ID3D12DescriptorHeap* GetDepthStencilViewHeap() const;
+    inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilDescriptor() const;
 
 private:
     // ------------- CREATORS ----------------------
@@ -170,6 +172,12 @@ inline ID3D12DescriptorHeap* ModuleID3D12::GetRenderTargetViewHeap() const
     return _renderTargetViewHeap.Get();
 }
 
+inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetRenderTargetDescriptor() const
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_renderTargetViewHeap.Get()->GetCPUDescriptorHandleForHeapStart(),
+        _currentBuffer, GetRtvSize()); // with the heap, the offset and the size, the position in memory is found
+}
+
 inline UINT ModuleID3D12::GetRtvSize() const
 {
     return _renderTargetViewDesciptorSize;
@@ -185,5 +193,7 @@ inline ID3D12DescriptorHeap* ModuleID3D12::GetDepthStencilViewHeap() const
     return _dsvHeap.Get();
 }
 
+inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetDepthStencilDescriptor() const
 {
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_dsvHeap.Get()->GetCPUDescriptorHandleForHeapStart());
 }

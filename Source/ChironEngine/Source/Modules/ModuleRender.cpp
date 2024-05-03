@@ -3,11 +3,14 @@
 
 #include "Application.h"
 
+#include "ModuleCamera.h"
 #include "ModuleID3D12.h"
 #include "ModuleProgram.h"
+#include "ModuleWindow.h"
 
 #include "DataModels/CommandQueue/CommandQueue.h"
 #include "DataModels/Programs/Program.h"
+
 #include "DebugDrawPass.h"
 
 ModuleRender::ModuleRender()
@@ -21,6 +24,7 @@ ModuleRender::~ModuleRender()
 bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
+
     auto commandQueue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandQueue();
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
     
@@ -79,14 +83,10 @@ UpdateStatus ModuleRender::PreUpdate()
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(d3d12->GetRenderTargetViewHeap()->GetCPUDescriptorHandleForHeapStart(),
-        d3d12->GetCurrentBuffer(), d3d12->GetRtvSize()); // with the heap, the offset and the size, the position in memory is found
 
-    _drawCommandList->ClearRenderTargetView(rtv, clearColor, 0, nullptr); // send the clear command into the list
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0, nullptr); // send the clear command into the list
 
-    CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(d3d12->GetDepthStencilViewHeap()->GetCPUDescriptorHandleForHeapStart());
-
-    _drawCommandList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, 
+    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, 
         nullptr);
 
     return UpdateStatus::UPDATE_CONTINUE;
@@ -95,14 +95,62 @@ UpdateStatus ModuleRender::PreUpdate()
 UpdateStatus ModuleRender::Update()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
+    auto programs = App->GetModule<ModuleProgram>();
+    auto window = App->GetModule<ModuleWindow>();
+    auto camera = App->GetModule<ModuleCamera>();
+
+    Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
+
+    _drawCommandList->SetPipelineState(defaultP->GetPipelineState());
+    _drawCommandList->SetGraphicsRootSignature(defaultP->GetRootSignature());
+
+    _drawCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _drawCommandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
+    _drawCommandList->IASetIndexBuffer(&_indexBufferView);
+
+    unsigned width;
+    unsigned height;
+    window->GetWindowSize(width, height);
+
+    D3D12_VIEWPORT viewport{};
+    viewport.TopLeftX = viewport.TopLeftY = 0;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.Width = static_cast<float>(width);
+    viewport.Height = static_cast<float>(height);
+
+    D3D12_RECT scissor{};
+    scissor.left = 0;
+    scissor.top = 0;
+    scissor.right = width;
+    scissor.bottom = height;
+
+    _drawCommandList->RSSetViewports(1, &viewport);
+    _drawCommandList->RSSetScissorRects(1, &scissor);
+
+    auto rtv = d3d12->GetRenderTargetDescriptor();
+    auto dsv = d3d12->GetDepthStencilDescriptor();
+    _drawCommandList->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
+
+    Matrix model = Matrix::Identity;
+    Matrix view = camera->GetViewMatrix();
+    Matrix proj = camera->GetProjMatrix();
+
+    Matrix mvp = model * view;
+    mvp = mvp * proj;
+    _drawCommandList->SetGraphicsRoot32BitConstants(0, sizeof(mvp) / 4, &mvp, 0);
+
+    uint32_t indexBufferData[3] = { 0, 1, 2 };
+    _drawCommandList->DrawIndexedInstanced(_countof(indexBufferData), 1, 0, 0, 0);
+
+
+    CHIRON_TODO("Print Grid with debugDraw");
 
     d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PRESENT);
 
     uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
     d3d12->SaveCurrentBufferFenceValue(fenceValue);
-
-    CHIRON_TODO("Print Grid with debugDraw");
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
