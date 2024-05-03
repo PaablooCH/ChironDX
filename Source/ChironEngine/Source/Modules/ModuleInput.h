@@ -13,22 +13,7 @@ public:
     UpdateStatus Update() override;
     bool CleanUp() override;
 
-    // ------------- GETTERS ----------------------
-
-    inline DirectX::Keyboard* GetKeyboard();
-    inline DirectX::Mouse* GetMouse();
-
 private:
     std::unique_ptr<DirectX::Keyboard> _keyboard;
     std::unique_ptr<DirectX::Mouse> _mouse;
 };
-
-inline DirectX::Keyboard* ModuleInput::GetKeyboard()
-{
-    return _keyboard.get();
-}
-
-inline DirectX::Mouse* ModuleInput::GetMouse()
-{
-    return _mouse.get();
-}
