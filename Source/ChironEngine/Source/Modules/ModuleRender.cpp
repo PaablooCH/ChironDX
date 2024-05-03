@@ -36,33 +36,16 @@ bool ModuleRender::Init()
     
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
+    auto commandList = copyCQ->GetCommandList();
 
-    // Note: using upload heaps to transfer static data like vert buffers is not 
-    // recommended. Every time the GPU needs it, the upload heap will be marshalled 
-    // over. Please read up on Default Heap usage. An upload heap is used here for 
-    // code simplicity and because there are very few verts to actually transfer.
-    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-    auto desc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-    Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(
-        &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &desc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&_vertexBuffer)));
+    ComPtr<ID3D12Resource> intermediateResource;
+    d3d12->UpdateBufferResource(commandList.Get(), &_vertexBuffer, &intermediateResource, 
+        vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
 
-    // Copy the triangle data to the vertex buffer.
-    UINT8*  pVertexDataBegin = nullptr;
-    CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-    Chiron::Utils::ThrowIfFailed(_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-    memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-    _vertexBuffer->Unmap(0, nullptr);
-
-    // Initialize the vertex buffer view.
     _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-    _vertexBufferView.StrideInBytes = sizeof(Vertex);
     _vertexBufferView.SizeInBytes = vertexBufferSize;
+    _vertexBufferView.StrideInBytes = sizeof(Vertex);
 
     // -------------- INDEX ---------------------
 
@@ -70,28 +53,16 @@ bool ModuleRender::Init()
 
     const UINT indexBufferSize = sizeof(indexBufferData);
 
-    desc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
+    d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource,
+        indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
 
-    Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(
-        &heapProps, 
-        D3D12_HEAP_FLAG_NONE, 
-        &desc,
-        D3D12_RESOURCE_STATE_GENERIC_READ, 
-        nullptr, 
-        IID_PPV_ARGS(&_indexBuffer)));
-
-    // Copy data to DirectX 12 driver memory:
-    UINT8* pIndexDataBegin = nullptr;
-
-    Chiron::Utils::ThrowIfFailed(_indexBuffer->Map(0, &readRange,
-        reinterpret_cast<void**>(&pIndexDataBegin)));
-    memcpy(pIndexDataBegin, indexBufferData, sizeof(indexBufferData));
-    _indexBuffer->Unmap(0, nullptr);
-
-    // Initialize the index buffer view.
     _indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
-    _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
     _indexBufferView.SizeInBytes = indexBufferSize;
+    _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+
+    uint64_t initFenceValue = copyCQ->ExecuteCommandList(commandList);
+
+    copyCQ->WaitForFenceValue(initFenceValue);
 
     return true;
 }

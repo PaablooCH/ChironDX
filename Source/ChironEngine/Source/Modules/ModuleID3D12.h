@@ -31,6 +31,9 @@ public:
     void CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resourceBefore, 
         ComPtr<ID3D12Resource> resourceAfter);
     void CreateUAVBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource);
+    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource** pDestinationResource,
+        ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize, const void* bufferData,
+        D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
     // ------------- SYNCHRONIZATION ----------------------
 
