@@ -165,6 +165,8 @@ UpdateStatus ModuleRender::Update()
     uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
     d3d12->SaveCurrentBufferFenceValue(fenceValue);
 
+    _drawCommandList = nullptr;
+
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
