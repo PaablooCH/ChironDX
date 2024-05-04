@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{15b83601-7286-42d6-bb97-b917d18e8fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Auxiliar">
+      <UniqueIdentifier>{97556bf5-f634-409a-9197-1b6a1396fc21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Enums">
+      <UniqueIdentifier>{573ddcf0-674e-40b6-8dbd-748a165b7c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Modules">
+      <UniqueIdentifier>{a0b08608-4da7-447d-a784-be83734fbdc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels">
+      <UniqueIdentifier>{0ffecce9-bdf3-4972-939e-f1bf60a9d03b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\CommandQueue">
+      <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Programs">
+      <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Timer">
+      <UniqueIdentifier>{ca78081a-fcb7-4c47-85fd-f2f33fa5342a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Application.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pch.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleInput.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleRender.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleWindow.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleProgram.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Programs\Program.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleID3D12.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Formatter.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Utils.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Auxiliar\Log.cpp">
+      <Filter>Source\Auxiliar</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleCamera.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp">
+      <Filter>Source\DataModels\CommandQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DebugDrawPass.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Timer\Timer.cpp">
+      <Filter>Source\DataModels\Timer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Application.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Pch.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\Module.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleInput.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enums\ModuleType.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enums\UpdateStatus.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleRender.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleWindow.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleProgram.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Programs\Program.h">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleID3D12.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Formatter.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Utils.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\ChironTodo.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Auxiliar\Log.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Globals.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleCamera.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h">
+      <Filter>Source\DataModels\CommandQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DebugDrawPass.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\debug_draw.hpp">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Timer\Timer.h">
+      <Filter>Source\DataModels\Timer</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
