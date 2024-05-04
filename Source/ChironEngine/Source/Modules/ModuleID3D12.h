@@ -1,6 +1,8 @@
 #pragma once
 #include "Module.h"
 
+class CommandQueue;
+
 class ModuleID3D12 : public Module
 {
 public:
@@ -18,37 +20,40 @@ public:
     // ------------- WINDOW FUNC ----------------------
 
     void ToggleVSync();
-    void ResizeSwapChain(unsigned newWidth, unsigned newHeight);
+    void ResizeBuffers(unsigned newWidth, unsigned newHeight);
 
     // ------------- CREATORS ----------------------
 
     ComPtr<ID3D12GraphicsCommandList> CreateCommandList(ID3D12CommandAllocator* commandAllocator,
         D3D12_COMMAND_LIST_TYPE type, const LPCWSTR& name = NULL);
-    bool CreateBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, D3D12_RESOURCE_BARRIER_TYPE type);
+    void CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
+        D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter);
+    void CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resourceBefore, 
+        ComPtr<ID3D12Resource> resourceAfter);
+    void CreateUAVBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource);
+    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource** pDestinationResource,
+        ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize, const void* bufferData,
+        D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 
     // ------------- SYNCHRONIZATION ----------------------
 
-    HANDLE CreateEventHandle();
+    void SaveCurrentBufferFenceValue(const uint64_t& fenceValue);
     // Waits until all the events are reached.
-    void Flush(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence,
-        uint64_t& fenceValue, HANDLE fenceEvent);
+    void Flush();
 
     // ------------- GETTERS ----------------------
 
-    inline IDXGIFactory4* GetFactory() const;
-    inline IDXGIAdapter1* GetAdapter() const;
-    inline ID3D12Device* GetDevice() const;
-    inline ID3D12CommandQueue* GetCommandQueue() const;
-    inline ID3D12CommandAllocator* GetCommandAllocator() const;
-    inline ID3D12Fence* GetFence() const;
-    inline HANDLE GetFenceEvent() const;
-    inline UINT64 GetCurrentFenceValue() const;
+    inline ID3D12Device2* GetDevice() const;
+    inline CommandQueue* GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
     inline IDXGISwapChain4* GetSwapChain() const;
     inline UINT GetCurrentBuffer() const;
     inline ID3D12Resource* GetRenderBuffer() const;
     inline ID3D12DescriptorHeap* GetRenderTargetViewHeap() const;
+    inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetDescriptor() const;
     inline UINT GetRtvSize() const;
-    inline ID3D12RootSignature* GetRootSignature() const;
+    inline ID3D12Resource* GetDepthStencilBuffer() const;
+    inline ID3D12DescriptorHeap* GetDepthStencilViewHeap() const;
+    inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilDescriptor() const;
 
 private:
     // ------------- CREATORS ----------------------
@@ -56,10 +61,9 @@ private:
     bool CreateFactory();
     bool CreateAdapter();
     bool CreateDevice();
-    bool CreateCommandAllocator();
     bool CreateCommandQueue();
-    bool CreateFence();
     bool CreateSwapChain();
+    void CreateDepthStencil(unsigned width, unsigned height);
 
     // ------------- UPDATES ----------------------
 
@@ -68,7 +72,6 @@ private:
     // ------------- INITS ---------------------------
 
     void InitFrameBuffer();
-    bool InitResources();
     
     // ------------- SYNCHRONIZATION ----------------------
 
@@ -77,7 +80,7 @@ private:
     void WaitForFenceValue(ComPtr<ID3D12Fence> fence, uint64_t fenceValue, HANDLE fenceEvent,
         std::chrono::milliseconds duration = std::chrono::milliseconds::max());
 private:
-    static const UINT backbufferCount = 2;
+    static const UINT backBufferCount = 2;
 
     // Is the entry point to the DirectX 12 API.
     ComPtr<IDXGIFactory4> _factory;
@@ -91,7 +94,7 @@ private:
     ComPtr<IDXGIAdapter1> _adapter;
 
     // Primary entry point to the DirectX 12 API, gives access to the inner parts of the API.
-    ComPtr<ID3D12Device> _device;
+    ComPtr<ID3D12Device2> _device;
 #ifdef DEBUG
     // Debug Purposes
     ComPtr<ID3D12DebugDevice> _debugDevice;
@@ -102,76 +105,51 @@ private:
     UINT _currentBuffer;
 
     // Allows submit groups of draw calls, together to execute in order.
-    ComPtr<ID3D12CommandQueue> _commandQueue;
 
-    // Create command lists where define the functions that the GPU execute. Can not be used until all the commands are 
-    // executed.
-    ComPtr<ID3D12CommandAllocator> _commandAllocator[backbufferCount];
+    std::unique_ptr<CommandQueue> _commandQueueDirect;  // command buffer that the GPU can execute
+    std::unique_ptr<CommandQueue> _commandQueueCompute; // command buffer for computing
+    std::unique_ptr<CommandQueue> _commandQueueCopy;    // command buffer for copying
 
     // Lets the program know when certain tasks have been executed by the GPU, 
     // when it uploads to GPU exclusive memory, or when it've finished presenting to the screen.
-    ComPtr<ID3D12Fence> _fence;
-    HANDLE _fenceEvent;
-    UINT64 _frameValues[backbufferCount];
-    UINT64 _fenceValue;
+    UINT64 _bufferFenceValues[backBufferCount];
 
     // Handle swapping and allocating back and front buffers to display what it is rendering (back) and what is showed (front).
     ComPtr<IDXGISwapChain4> _swapChain;
 
     // The texture result of drawing in the swapChain.
-    ComPtr<ID3D12Resource> _renderBuffers[backbufferCount];
+    ComPtr<ID3D12Resource> _renderBuffers[backBufferCount];
     // The heap where the rtv is located
     ComPtr<ID3D12DescriptorHeap> _renderTargetViewHeap;
     // The descriptor size. Depends on device.
     UINT _renderTargetViewDesciptorSize;
 
-    // ------------- RESOURCES ----------------------
-
-    // Objects that define what type of resources are accessible to the shaders, 
-    // be it constant buffers, structured buffers, samplers, textures, structured buffers, etc.
-    ComPtr<ID3D12RootSignature> _rootSignature;
-
-    ComPtr<ID3D12Resource> _uploadBuffer;
+    // Depth Stencil buffer.
+    ComPtr<ID3D12Resource> _depthStencilBuffer;
+    // Descriptor heap for depth buffer.
+    ComPtr<ID3D12DescriptorHeap> _dsvHeap;
 };
 
-inline IDXGIFactory4* ModuleID3D12::GetFactory() const
-{
-    return _factory.Get();
-}
-
-inline IDXGIAdapter1* ModuleID3D12::GetAdapter() const
-{
-    return _adapter.Get();
-}
-
-inline ID3D12Device* ModuleID3D12::GetDevice() const
+inline ID3D12Device2* ModuleID3D12::GetDevice() const
 {
     return _device.Get();
 }
 
-inline ID3D12CommandQueue* ModuleID3D12::GetCommandQueue() const
+inline CommandQueue* ModuleID3D12::GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) const
 {
-    return _commandQueue.Get();
-}
-
-inline ID3D12CommandAllocator* ModuleID3D12::GetCommandAllocator() const
-{
-    return _commandAllocator[_currentBuffer].Get();
-}
-
-inline ID3D12Fence* ModuleID3D12::GetFence() const
-{
-    return _fence.Get();
-}
-
-inline HANDLE ModuleID3D12::GetFenceEvent() const
-{
-    return _fenceEvent;
-}
-
-inline UINT64 ModuleID3D12::GetCurrentFenceValue() const
-{
-    return _frameValues[_currentBuffer];
+    switch (type)
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect.get();
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute.get();
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy.get();
+    default:
+        assert(false && "Incorrect queue type.");
+        break;
+    }
+    return nullptr;
 }
 
 inline IDXGISwapChain4* ModuleID3D12::GetSwapChain() const
@@ -194,12 +172,28 @@ inline ID3D12DescriptorHeap* ModuleID3D12::GetRenderTargetViewHeap() const
     return _renderTargetViewHeap.Get();
 }
 
+inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetRenderTargetDescriptor() const
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_renderTargetViewHeap.Get()->GetCPUDescriptorHandleForHeapStart(),
+        _currentBuffer, GetRtvSize()); // with the heap, the offset and the size, the position in memory is found
+}
+
 inline UINT ModuleID3D12::GetRtvSize() const
 {
     return _renderTargetViewDesciptorSize;
 }
 
-inline ID3D12RootSignature* ModuleID3D12::GetRootSignature() const
+inline ID3D12Resource* ModuleID3D12::GetDepthStencilBuffer() const
 {
-    return _rootSignature.Get();
+    return _depthStencilBuffer.Get();
+}
+
+inline ID3D12DescriptorHeap* ModuleID3D12::GetDepthStencilViewHeap() const
+{
+    return _dsvHeap.Get();
+}
+
+inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetDepthStencilDescriptor() const
+{
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_dsvHeap.Get()->GetCPUDescriptorHandleForHeapStart());
 }

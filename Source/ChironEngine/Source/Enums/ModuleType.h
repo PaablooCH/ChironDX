@@ -1,5 +1,6 @@
 #pragma once
 
+class ModuleCamera;
 class ModuleID3D12;
 class ModuleInput;
 class ModuleProgram;
@@ -11,8 +12,9 @@ enum class ModuleType
 {
 	WINDOW,
 	ID3D12,
-	INPUT,
 	PROGRAM,
+	INPUT,
+	CAMERA,
 	RENDER,
 	LAST,
 };
@@ -35,15 +37,21 @@ struct ModuleToEnum<ModuleID3D12>
 };
 
 template<>
+struct ModuleToEnum<ModuleProgram>
+{
+	const static ModuleType value = ModuleType::PROGRAM;
+};
+
+template<>
 struct ModuleToEnum<ModuleInput>
 {
 	const static ModuleType value = ModuleType::INPUT;
 };
 
 template<>
-struct ModuleToEnum<ModuleProgram>
+struct ModuleToEnum<ModuleCamera>
 {
-	const static ModuleType value = ModuleType::PROGRAM;
+	const static ModuleType value = ModuleType::CAMERA;
 };
 
 template<>

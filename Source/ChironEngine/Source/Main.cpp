@@ -155,7 +155,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
         break;
     case WM_KEYDOWN:
-        CHIRON_TODO("Move this to ModuleInput.");
         switch (wParam)
         {
         case 'V':

@@ -14,8 +14,13 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
+    <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
-    <ClCompile Include="Source\DataModels\Program\Program.cpp" />
+    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp" />
+    <ClCompile Include="Source\DataModels\Programs\Program.cpp" />
+    <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp" />
+    <ClCompile Include="Source\DebugDrawPass.cpp" />
+    <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Modules\ModuleRender.cpp" />
@@ -36,12 +41,18 @@
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
     <ClCompile Include="Source\Main.cpp" />
     <ClInclude Include="Source\Auxiliar\Log.h" />
+    <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
-    <ClInclude Include="Source\DataModels\Program\Program.h" />
+    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h" />
+    <ClInclude Include="Source\DataModels\Programs\Program.h" />
+    <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h" />
+    <ClInclude Include="Source\DebugDrawPass.h" />
+    <ClInclude Include="Source\debug_draw.hpp" />
     <ClInclude Include="Source\Enums\ModuleType.h" />
     <ClInclude Include="Source\Enums\UpdateStatus.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Modules\Module.h" />
+    <ClInclude Include="Source\Modules\ModuleCamera.h" />
     <ClInclude Include="Source\Modules\ModuleID3D12.h" />
     <ClInclude Include="Source\Modules\ModuleInput.h" />
     <ClInclude Include="Source\Modules\ModuleRender.h" />
@@ -96,7 +107,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SPDLOG_ACTIVE_LEVEL=0;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;DEBUG;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;DEBUG;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -126,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SPDLOG_ACTIVE_LEVEL=0;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;ENGINE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;ENGINE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

@@ -5,6 +5,8 @@
 
 #include "ModuleWindow.h"
 
+#include "DataModels/CommandQueue/CommandQueue.h"
+
 ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false)
 {
 }
@@ -18,13 +20,10 @@ bool ModuleID3D12::Init()
     bool ok = CreateFactory();
     ok = ok && CreateAdapter();
     ok = ok && CreateDevice();
-    ok = ok && CreateCommandAllocator();
     ok = ok && CreateCommandQueue();
-    ok = ok && CreateFence();
     ok = ok && CreateSwapChain();
 
     InitFrameBuffer();
-    InitResources();
 
     if (ok)
     {
@@ -36,7 +35,6 @@ bool ModuleID3D12::Init()
 
 UpdateStatus ModuleID3D12::PreUpdate()
 {
-    _commandAllocator[_currentBuffer]->Reset();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
@@ -51,23 +49,26 @@ UpdateStatus ModuleID3D12::PostUpdate()
     UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
     Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
 
-    _frameValues[_currentBuffer] = Signal(_commandQueue, _fence, _fenceValue);
-
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool ModuleID3D12::CleanUp()
 {
-    Flush(_commandQueue, _fence, _fenceValue, _fenceEvent);
+    Flush();
 
-    return ::CloseHandle(_fenceEvent);
+    return true;
 }
 
 void ModuleID3D12::SwapCurrentBuffer()
 {
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
-    WaitForFenceValue(_fence, _frameValues[_currentBuffer], _fenceEvent);
+    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
+}
+
+void ModuleID3D12::SaveCurrentBufferFenceValue(const uint64_t& fenceValue)
+{
+    _bufferFenceValues[_currentBuffer] = fenceValue;
 }
 
 void ModuleID3D12::ToggleVSync()
@@ -75,26 +76,32 @@ void ModuleID3D12::ToggleVSync()
     _vSync = !_vSync;
 }
 
-void ModuleID3D12::ResizeSwapChain(unsigned newWidth, unsigned newHeight)
+void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 {
-    Flush(_commandQueue, _fence, _frameValues[_currentBuffer], _fenceEvent);
+    Flush();
     
-    for (int i = 0; i < backbufferCount; ++i)
+    // ------------- SWAP-CHAIN ---------------------------
+
+    for (int i = 0; i < backBufferCount; ++i)
     {
         // Any references to the back buffers must be released
         // before the swap chain can be resized.
         _renderBuffers[i].Reset();
-        _frameValues[i] = _frameValues[_currentBuffer];
+        _bufferFenceValues[i] = _bufferFenceValues[_currentBuffer];
     }
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
     Chiron::Utils::ThrowIfFailed(_swapChain->GetDesc(&swapChainDesc)); // Get the current descr to apply it to the newer.
-    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(backbufferCount, newWidth, newHeight,
+    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(backBufferCount, newWidth, newHeight,
         swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
 
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
     UpdateRenderTargetViews();
+
+    // ------------- DEPTH-STENCIL ---------------------------
+
+    CreateDepthStencil(newWidth, newHeight);
 }
 
 ComPtr<ID3D12GraphicsCommandList> ModuleID3D12::CreateCommandList(ID3D12CommandAllocator* commandAllocator, 
@@ -113,35 +120,72 @@ ComPtr<ID3D12GraphicsCommandList> ModuleID3D12::CreateCommandList(ID3D12CommandA
     return commandList;
 }
 
-bool ModuleID3D12::CreateBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, D3D12_RESOURCE_BARRIER_TYPE type)
+void ModuleID3D12::CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
+    D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
 {
-    D3D12_RESOURCE_BARRIER barrier = {};
-    barrier.Type = type;
-    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    //barrier.Transition.pResource = texResource;
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), stateBefore, stateAfter);
     commandList->ResourceBarrier(1, &barrier);
-    return true;
 }
 
-HANDLE ModuleID3D12::CreateEventHandle()
+void ModuleID3D12::CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, 
+    ComPtr<ID3D12Resource> resourceBefore, ComPtr<ID3D12Resource> resourceAfter)
 {
-    HANDLE fenceEvent;
-
-    fenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-    assert(fenceEvent && "Failed to create fence event.");
-
-    return fenceEvent;
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Aliasing(resourceBefore.Get(), resourceAfter.Get());
+    commandList->ResourceBarrier(1, &barrier);
 }
 
-void ModuleID3D12::Flush(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence, uint64_t& fenceValue, 
-    HANDLE fenceEvent)
+void ModuleID3D12::CreateUAVBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource)
 {
-    uint64_t fenceValueForSignal = Signal(commandQueue, fence, fenceValue);
-    WaitForFenceValue(fence, fenceValueForSignal, fenceEvent);
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(resource.Get());
+    commandList->ResourceBarrier(1, &barrier);
+}
+
+void ModuleID3D12::UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, 
+    ID3D12Resource** pDestinationResource, ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize,
+    const void* bufferData, D3D12_RESOURCE_FLAGS flags)
+{
+    size_t bufferSize = numElements * elementSize;
+
+    CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, flags);
+
+    // Create a committed resource for the GPU resource in a default heap.
+    Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE, 
+        &resourceDesc,
+        D3D12_RESOURCE_STATE_COMMON, 
+        nullptr,
+        IID_PPV_ARGS(pDestinationResource)));
+
+    if (bufferData)
+    {
+        heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+        // Create a commited resource in upload heap
+        Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(
+            &heapProperties,
+            D3D12_HEAP_FLAG_NONE,
+            &resourceDesc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(pIntermediateResource)));
+        
+        D3D12_SUBRESOURCE_DATA subresourceData = {};
+        subresourceData.pData = bufferData;
+        subresourceData.RowPitch = bufferSize;
+        subresourceData.SlicePitch = subresourceData.RowPitch;
+        
+        UpdateSubresources(commandList.Get(), *pDestinationResource, *pIntermediateResource, 0, 0, 1, &subresourceData);
+    }
+}
+
+void ModuleID3D12::Flush()
+{
+    _commandQueueDirect->Flush();
+    _commandQueueCompute->Flush();
+    _commandQueueCopy->Flush();
 }
 
 uint64_t ModuleID3D12::Signal(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence, uint64_t& fenceValue)
@@ -228,6 +272,7 @@ bool ModuleID3D12::CreateAdapter()
 bool ModuleID3D12::CreateDevice()
 {
     HRESULT result = D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device));
+    _device->SetName(L"Device");
     bool ok = SUCCEEDED(result);
 
 #ifdef DEBUG
@@ -238,36 +283,13 @@ bool ModuleID3D12::CreateDevice()
     return ok;
 }
 
-bool ModuleID3D12::CreateCommandAllocator()
-{
-    bool ok = true;
-    for (int i = 0; i < backbufferCount; i++)
-    {
-        HRESULT result = _device->CreateCommandAllocator(
-            D3D12_COMMAND_LIST_TYPE_DIRECT, 
-            IID_PPV_ARGS(&_commandAllocator[i]));
-        ok = ok && SUCCEEDED(result);
-    }
-        
-    return ok;
-}
-
 bool ModuleID3D12::CreateCommandQueue()
 {
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    _commandQueueDirect = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT, _device);
+    _commandQueueCompute = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE, _device);
+    _commandQueueCopy = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COPY, _device);
 
-    HRESULT result = _device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_commandQueue));
-    return SUCCEEDED(result);
-}
-
-bool ModuleID3D12::CreateFence()
-{
-    // Create fence
-    HRESULT result = _device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
-    _fenceEvent = CreateEventHandle();
-    return SUCCEEDED(result);
+    return true;
 }
 
 bool ModuleID3D12::CreateSwapChain()
@@ -282,7 +304,7 @@ bool ModuleID3D12::CreateSwapChain()
     if (_swapChain != nullptr)
     {
         // Create Render Target Attachments from swapchain
-        _swapChain->ResizeBuffers(backbufferCount, width, height,
+        _swapChain->ResizeBuffers(backBufferCount, width, height,
             DXGI_FORMAT_R8G8B8A8_UNORM, 0);
         return true;
     }
@@ -296,15 +318,15 @@ bool ModuleID3D12::CreateSwapChain()
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = backbufferCount;
+        swapChainDesc.BufferCount = backBufferCount;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
         swapChainDesc.Flags = _tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
         ComPtr<IDXGISwapChain1> newSwapchain1;
-        Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueue.Get(), hwnd, &swapChainDesc, nullptr,
-            nullptr, &newSwapchain1));
+        Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd, 
+            &swapChainDesc, nullptr, nullptr, &newSwapchain1));
 
         Chiron::Utils::ThrowIfFailed(newSwapchain1.As(&_swapChain));
 
@@ -318,13 +340,43 @@ bool ModuleID3D12::CreateSwapChain()
     return false;
 }
 
+void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
+{
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+    clearValue.DepthStencil.Depth = 1.0f;
+    clearValue.DepthStencil.Stencil = 0;
+    CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+    Chiron::Utils::ThrowIfFailed(
+        _device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &clearValue, IID_PPV_ARGS(&_depthStencilBuffer)));
+
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+    dsvHeapDesc.NumDescriptors = 1;
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&_dsvHeap)));
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+    depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+    _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilDesc, dsvHandle);
+    _depthStencilBuffer->SetName(L"Depth Stencil Buffer");
+}
+
 void ModuleID3D12::UpdateRenderTargetViews()
 {
     _renderTargetViewDesciptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
 
-    for (int i = 0; i < backbufferCount; ++i)
+    for (int i = 0; i < backBufferCount; ++i)
     {
         ComPtr<ID3D12Resource> backBuffer;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
@@ -332,6 +384,7 @@ void ModuleID3D12::UpdateRenderTargetViews()
         _device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
 
         _renderBuffers[i] = backBuffer;
+        _renderBuffers[i]->SetName(L"Render Buffer " + i);
 
         rtvHandle.Offset(_renderTargetViewDesciptorSize);
     }
@@ -339,9 +392,11 @@ void ModuleID3D12::UpdateRenderTargetViews()
 
 void ModuleID3D12::InitFrameBuffer()
 {
+    // ------------- RTV ---------------------------
+
     // Describe and create a render target view (RTV) descriptor heap.
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    rtvHeapDesc.NumDescriptors = backbufferCount;
+    rtvHeapDesc.NumDescriptors = backBufferCount;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&_renderTargetViewHeap)));
@@ -352,78 +407,19 @@ void ModuleID3D12::InitFrameBuffer()
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
 
     // Create a RTV for each frame.
-    for (UINT n = 0; n < backbufferCount; n++)
+    for (UINT n = 0; n < backBufferCount; n++)
     {
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(n, IID_PPV_ARGS(&_renderBuffers[n])));
         _device->CreateRenderTargetView(_renderBuffers[n].Get(), nullptr, rtvHandle);
         rtvHandle.Offset(_renderTargetViewDesciptorSize);
     }
-}
 
-bool ModuleID3D12::InitResources()
-{
-    // ------------ Root Signature ------------
+    // ------------- DEPTH-STENCIL ---------------------------
+    
+    unsigned width;
+    unsigned height;
 
-    // Determine if we can get Root Signature Version 1.1:
-    D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
-    featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
 
-    if (FAILED(_device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
-    {
-        LOG_WARNING("Root Signature Version 1.1 not supported");
-        featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
-    }
-
-    // Individual GPU Resources
-    D3D12_DESCRIPTOR_RANGE1 ranges[1]{};
-    ranges[0].BaseShaderRegister = 0;
-    ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-    ranges[0].NumDescriptors = 1;
-    ranges[0].RegisterSpace = 0;
-    ranges[0].OffsetInDescriptorsFromTableStart = 0;
-    ranges[0].Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-
-    // Groups of GPU Resources
-    D3D12_ROOT_PARAMETER1 rootParameters[1]{};
-    rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-    rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
-    rootParameters[0].DescriptorTable.pDescriptorRanges = ranges;
-
-    // Overall Layout
-    D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-    rootSignatureDesc.Version = featureData.HighestVersion;
-    rootSignatureDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-    rootSignatureDesc.Desc_1_1.NumParameters = 1;
-    rootSignatureDesc.Desc_1_1.pParameters = rootParameters;
-    rootSignatureDesc.Desc_1_1.NumStaticSamplers = 0;
-    rootSignatureDesc.Desc_1_1.pStaticSamplers = nullptr;
-
-    ID3DBlob* signature = nullptr;
-    ID3DBlob* error = nullptr;
-    try
-    {
-        // Create the root signature
-        Chiron::Utils::ThrowIfFailed(D3D12SerializeVersionedRootSignature(&rootSignatureDesc, &signature, &error));
-        Chiron::Utils::ThrowIfFailed(_device->CreateRootSignature(0, signature->GetBufferPointer(),
-            signature->GetBufferSize(),
-            IID_PPV_ARGS(&_rootSignature)));
-        _rootSignature->SetName(L"Hello Triangle Root Signature");
-    }
-    catch (std::exception e)
-    {
-        const char* errStr = (const char*)error->GetBufferPointer();
-        LOG_ERROR(errStr);
-        error->Release();
-        error = nullptr;
-    }
-
-    if (signature != nullptr)
-    {
-        signature->Release();
-        signature = nullptr;
-    }
-
-    return true;
+    CreateDepthStencil(width, height);
 }

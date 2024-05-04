@@ -3,10 +3,15 @@
 
 #include "Application.h"
 
+#include "ModuleCamera.h"
 #include "ModuleID3D12.h"
 #include "ModuleProgram.h"
+#include "ModuleWindow.h"
 
-#include "DataModels/Program/Program.h"
+#include "DataModels/CommandQueue/CommandQueue.h"
+#include "DataModels/Programs/Program.h"
+
+#include "DebugDrawPass.h"
 
 ModuleRender::ModuleRender()
 {
@@ -19,7 +24,9 @@ ModuleRender::~ModuleRender()
 bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
-    _drawCommandList = d3d12->CreateCommandList(d3d12->GetCommandAllocator(), D3D12_COMMAND_LIST_TYPE_DIRECT, L"Draw Command List");
+
+    auto commandQueue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandQueue();
+    _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
     
     // -------------- VERTEX ---------------------
     
@@ -33,33 +40,18 @@ bool ModuleRender::Init()
     
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
+    auto commandList = copyCQ->GetCommandList();
 
-    // Note: using upload heaps to transfer static data like vert buffers is not 
-    // recommended. Every time the GPU needs it, the upload heap will be marshalled 
-    // over. Please read up on Default Heap usage. An upload heap is used here for 
-    // code simplicity and because there are very few verts to actually transfer.
-    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-    auto desc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-    Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(
-        &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &desc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&_vertexBuffer)));
+    ComPtr<ID3D12Resource> intermediateResource;
+    d3d12->UpdateBufferResource(commandList.Get(), &_vertexBuffer, &intermediateResource, 
+        vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
 
-    // Copy the triangle data to the vertex buffer.
-    UINT8*  pVertexDataBegin = nullptr;
-    CD3DX12_RANGE readRange(0, 0);        // We do not intend to read from this resource on the CPU.
-    Chiron::Utils::ThrowIfFailed(_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-    memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-    _vertexBuffer->Unmap(0, nullptr);
+    _vertexBuffer->SetName(L"Triangle Vertex Buffer");
 
-    // Initialize the vertex buffer view.
     _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-    _vertexBufferView.StrideInBytes = sizeof(Vertex);
     _vertexBufferView.SizeInBytes = vertexBufferSize;
+    _vertexBufferView.StrideInBytes = sizeof(Vertex);
 
     // -------------- INDEX ---------------------
 
@@ -67,28 +59,19 @@ bool ModuleRender::Init()
 
     const UINT indexBufferSize = sizeof(indexBufferData);
 
-    desc = CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize);
+    ComPtr<ID3D12Resource> intermediateResource2;
+    d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource2,
+        indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
 
-    Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(
-        &heapProps, 
-        D3D12_HEAP_FLAG_NONE, 
-        &desc,
-        D3D12_RESOURCE_STATE_GENERIC_READ, 
-        nullptr, 
-        IID_PPV_ARGS(&_indexBuffer)));
+    _indexBuffer->SetName(L"Triangle Index Buffer");
 
-    // Copy data to DirectX 12 driver memory:
-    UINT8* pIndexDataBegin = nullptr;
-
-    Chiron::Utils::ThrowIfFailed(_indexBuffer->Map(0, &readRange,
-        reinterpret_cast<void**>(&pIndexDataBegin)));
-    memcpy(pIndexDataBegin, indexBufferData, sizeof(indexBufferData));
-    _indexBuffer->Unmap(0, nullptr);
-
-    // Initialize the index buffer view.
     _indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
-    _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
     _indexBufferView.SizeInBytes = indexBufferSize;
+    _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+
+    uint64_t initFenceValue = copyCQ->ExecuteCommandList(commandList);
+
+    copyCQ->WaitForFenceValue(initFenceValue);
 
     return true;
 }
@@ -97,20 +80,19 @@ UpdateStatus ModuleRender::PreUpdate()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
     
-    _drawCommandList->Reset(d3d12->GetCommandAllocator(), nullptr);
+    _drawCommandList = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandList();
         
     // Transition the state to render
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        d3d12->GetRenderBuffer(),
-        D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _drawCommandList->ResourceBarrier(1, &barrier);
+    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT,
+        D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(d3d12->GetRenderTargetViewHeap()->GetCPUDescriptorHandleForHeapStart(),
-        d3d12->GetCurrentBuffer(), d3d12->GetRtvSize()); // with the heap, the offset and the size, the position in memory is found
 
-    _drawCommandList->ClearRenderTargetView(rtv, clearColor, 0, nullptr); // send the clear command into the list
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0, nullptr); // send the clear command into the list
+
+    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, 
+        nullptr);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -118,20 +100,72 @@ UpdateStatus ModuleRender::PreUpdate()
 UpdateStatus ModuleRender::Update()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
+    auto programs = App->GetModule<ModuleProgram>();
+    auto window = App->GetModule<ModuleWindow>();
+    auto camera = App->GetModule<ModuleCamera>();
 
-    // Transition the state to present
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        d3d12->GetRenderBuffer(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-    _drawCommandList->ResourceBarrier(1, &barrier);
+    Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
 
-    // When we finish, we must close the list
-    Chiron::Utils::ThrowIfFailed(_drawCommandList->Close());
+    _drawCommandList->SetPipelineState(defaultP->GetPipelineState());
+    _drawCommandList->SetGraphicsRootSignature(defaultP->GetRootSignature());
 
-    ID3D12CommandList* const commandLists[] = {
-        _drawCommandList.Get()
-    };
-    d3d12->GetCommandQueue()->ExecuteCommandLists(_countof(commandLists), commandLists);
+    _drawCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _drawCommandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
+    _drawCommandList->IASetIndexBuffer(&_indexBufferView);
+
+    unsigned width;
+    unsigned height;
+    window->GetWindowSize(width, height);
+
+    D3D12_VIEWPORT viewport{};
+    viewport.TopLeftX = viewport.TopLeftY = 0;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.Width = static_cast<float>(width);
+    viewport.Height = static_cast<float>(height);
+
+    D3D12_RECT scissor{};
+    scissor.left = 0;
+    scissor.top = 0;
+    scissor.right = width;
+    scissor.bottom = height;
+
+    _drawCommandList->RSSetViewports(1, &viewport);
+    _drawCommandList->RSSetScissorRects(1, &scissor);
+
+    auto rtv = d3d12->GetRenderTargetDescriptor();
+    auto dsv = d3d12->GetDepthStencilDescriptor();
+    _drawCommandList->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
+
+    Matrix model = Matrix::Identity;
+    Matrix view = camera->GetViewMatrix();
+    Matrix proj = camera->GetProjMatrix();
+
+    Matrix mvp = model * view;
+    mvp = mvp * proj;
+    _drawCommandList->SetGraphicsRoot32BitConstants(0, sizeof(mvp) / 4, &mvp, 0);
+
+    uint32_t indexBufferData[3] = { 0, 1, 2 };
+    _drawCommandList->DrawIndexedInstanced(_countof(indexBufferData), 1, 0, 0, 0);
+
+    // ------------- DEBUG DRAW ----------------------
+
+    dd::xzSquareGrid(-10.0f, 10.0f, 0.0f, 1.0f, dd::colors::LightGray);
+    dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.1f, 1.0f);
+
+    char lTmp[1024];
+    sprintf_s(lTmp, 1023, "FPS: [%d].", static_cast<uint32_t>(App->GetFPS()));
+    dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
+
+    _debugDraw->record(_drawCommandList.Get(), width, height, view, proj);
+
+    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_PRESENT);
+
+    uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
+    d3d12->SaveCurrentBufferFenceValue(fenceValue);
+
+    _drawCommandList = nullptr;
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

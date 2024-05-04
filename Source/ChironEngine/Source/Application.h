@@ -3,6 +3,8 @@
 #include "Modules/Module.h"
 #include "Enums/ModuleType.h"
 
+class Timer;
+
 class Application
 {
 public:
@@ -15,16 +17,20 @@ public:
 	UpdateStatus Update();
 	bool CleanUp();
 
+	// ------------- GETTERS ----------------------
+
 	template<typename M>
 	M* GetModule();
 
-	inline const double GetFPS() const;
+	inline const float GetFPS() const;
+	inline const float GetDeltaTime() const;
 
 private:
 	std::vector<std::unique_ptr<Module>> _modules;
 	
-	uint64_t _frameCounter;
-	double _elapsedSeconds;
+	std::unique_ptr<Timer> _timer;
+
+	float _deltaTime;
 };
 
 template<typename M>
@@ -34,9 +40,14 @@ inline M* Application::GetModule()
 	return static_cast<M*>(_modules[index].get());
 }
 
-inline const double Application::GetFPS() const
+inline const float Application::GetFPS() const
 {
-	return _frameCounter / _elapsedSeconds;
+	return 1 / _deltaTime;
+}
+
+inline const float Application::GetDeltaTime() const
+{
+	return _deltaTime;
 }
 
 extern std::unique_ptr<Application> App;

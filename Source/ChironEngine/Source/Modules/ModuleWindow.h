@@ -8,26 +8,26 @@ public:
     ModuleWindow(HWND hwnd, HINSTANCE hInstance);
     ~ModuleWindow() override;
 
-    bool            Init() override;
-    UpdateStatus    PreUpdate() override;
-    UpdateStatus    Update() override;
-    UpdateStatus    PostUpdate() override;
-    bool            CleanUp() override;
+    bool Init() override;
+    UpdateStatus PreUpdate() override;
+    UpdateStatus Update() override;
+    UpdateStatus PostUpdate() override;
+    bool CleanUp() override;
 
     // ------------- WINDOW FUNC ----------------------
 
-    void            Resize();
-    void            Resize(unsigned width, unsigned height);
-    void            ToggleFullScreen();
+    void Resize();
+    void Resize(unsigned width, unsigned height);
+    void ToggleFullScreen();
 
     // ------------- GETTERS ----------------------
 
-    inline HWND     GetWindowId() const;
-    inline void     GetWindowSize(unsigned& width, unsigned& height) const;
+    inline HWND GetWindowId() const;
+    inline void GetWindowSize(unsigned& width, unsigned& height) const;
 
 private:
-    HWND        _hWnd; // window ID
-    HINSTANCE   _hInstance;
+    HWND _hWnd; // window ID
+    HINSTANCE _hInstance;
 
     // By default, use windowed mode.
     // Can be toggled with F11
