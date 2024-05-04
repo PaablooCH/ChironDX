@@ -38,6 +38,7 @@
 #include "Auxiliar/Utils.h"
 #include "Auxiliar/Formatter.h"
 #include "Globals.h"
+#include "debug_draw.hpp"
 
 // ------------- NAMESPACES ----------------------
 

@@ -148,8 +148,16 @@ UpdateStatus ModuleRender::Update()
     uint32_t indexBufferData[3] = { 0, 1, 2 };
     _drawCommandList->DrawIndexedInstanced(_countof(indexBufferData), 1, 0, 0, 0);
 
+    // ------------- DEBUG DRAW ----------------------
 
-    CHIRON_TODO("Print Grid with debugDraw");
+    dd::xzSquareGrid(-10.0f, 10.0f, 0.0f, 1.0f, dd::colors::LightGray);
+    dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.1f, 1.0f);
+
+    char lTmp[1024];
+    sprintf_s(lTmp, 1023, "FPS: [%d].", static_cast<uint32_t>(App->GetFPS()));
+    dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
+
+    _debugDraw->record(_drawCommandList.Get(), width, height, view, proj);
 
     d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PRESENT);

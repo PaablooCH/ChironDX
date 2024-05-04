@@ -22,6 +22,9 @@
     <Filter Include="Source\DataModels\Programs">
       <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Timer">
+      <UniqueIdentifier>{ca78081a-fcb7-4c47-85fd-f2f33fa5342a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -71,6 +74,9 @@
     </ClCompile>
     <ClCompile Include="Source\DebugDrawPass.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Timer\Timer.cpp">
+      <Filter>Source\DataModels\Timer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="Source\debug_draw.hpp">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Timer\Timer.h">
+      <Filter>Source\DataModels\Timer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

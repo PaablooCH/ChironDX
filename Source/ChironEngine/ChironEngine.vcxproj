@@ -14,6 +14,7 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
+    <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
     <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\DataModels\Programs\Program.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
     <ClCompile Include="Source\Main.cpp" />
     <ClInclude Include="Source\Auxiliar\Log.h" />
+    <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
     <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\DataModels\Programs\Program.h" />
