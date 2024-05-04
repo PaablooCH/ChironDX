@@ -14,6 +14,24 @@ CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ComPtr<ID3D12Device> de
 
 	Chiron::Utils::ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)));
 	_fenceEvent = Chiron::Utils::CreateEventHandle();
+
+	switch (type)
+	{
+	case D3D12_COMMAND_LIST_TYPE_DIRECT:
+		_commandQueue->SetName(L"Direct Command Queue");
+		_fence->SetName(L"Direct Fence");
+		break;
+	case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+		_commandQueue->SetName(L"Compute Command Queue");
+		_fence->SetName(L"Compute Fence");
+		break;
+	case D3D12_COMMAND_LIST_TYPE_COPY:
+		_commandQueue->SetName(L"Copy Command Queue");
+		_fence->SetName(L"Copy Fence");
+		break;
+	default:
+		break;
+	}
 }
 
 CommandQueue::~CommandQueue()

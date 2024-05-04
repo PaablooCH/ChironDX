@@ -47,6 +47,8 @@ bool ModuleRender::Init()
     d3d12->UpdateBufferResource(commandList.Get(), &_vertexBuffer, &intermediateResource, 
         vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
 
+    _vertexBuffer->SetName(L"Triangle Vertex Buffer");
+
     _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vertexBufferView.SizeInBytes = vertexBufferSize;
     _vertexBufferView.StrideInBytes = sizeof(Vertex);
@@ -59,6 +61,8 @@ bool ModuleRender::Init()
 
     d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource,
         indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
+
+    _indexBuffer->SetName(L"Triangle Index Buffer");
 
     _indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
     _indexBufferView.SizeInBytes = indexBufferSize;

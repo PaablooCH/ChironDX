@@ -49,6 +49,8 @@ void ProgramDefault::InitPipelineState()
         errorBuff->Release();
     }
 
+    errorBuff.Reset();
+
     if (FAILED(D3DCompileFromFile(L"Shaders/default.hlsl", nullptr, nullptr, "PSmain", "ps_5_0", compileFlags, 0, 
         &_pixelShader, &errorBuff)))
     {

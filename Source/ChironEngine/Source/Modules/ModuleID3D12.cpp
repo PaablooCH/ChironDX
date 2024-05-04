@@ -272,6 +272,7 @@ bool ModuleID3D12::CreateAdapter()
 bool ModuleID3D12::CreateDevice()
 {
     HRESULT result = D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device));
+    _device->SetName(L"Device");
     bool ok = SUCCEEDED(result);
 
 #ifdef DEBUG
@@ -366,6 +367,7 @@ void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
     depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
 
     _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilDesc, dsvHandle);
+    _depthStencilBuffer->SetName(L"Depth Stencil Buffer");
 }
 
 void ModuleID3D12::UpdateRenderTargetViews()
@@ -382,6 +384,7 @@ void ModuleID3D12::UpdateRenderTargetViews()
         _device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
 
         _renderBuffers[i] = backBuffer;
+        _renderBuffers[i]->SetName(L"Render Buffer " + i);
 
         rtvHandle.Offset(_renderTargetViewDesciptorSize);
     }

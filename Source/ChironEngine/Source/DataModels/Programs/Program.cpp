@@ -29,6 +29,7 @@ void Program::CreateRootSignature(CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSign
     // Create the root signature.
     Chiron::Utils::ThrowIfFailed(device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
         rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&_rootSignature)));
+    _rootSignature->SetName(L"Default Root Signature");
 }
 
 void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements)
@@ -52,6 +53,7 @@ void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputEle
     psoDesc.NumRenderTargets = 1;
 
     Chiron::Utils::ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState)));
+    _pipelineState->SetName(L"Default Pipeline");
 }
 
 D3D12_FEATURE_DATA_ROOT_SIGNATURE Program::GetRootSignatureVersion()
