@@ -59,7 +59,8 @@ bool ModuleRender::Init()
 
     const UINT indexBufferSize = sizeof(indexBufferData);
 
-    d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource,
+    ComPtr<ID3D12Resource> intermediateResource2;
+    d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource2,
         indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
 
     _indexBuffer->SetName(L"Triangle Index Buffer");
