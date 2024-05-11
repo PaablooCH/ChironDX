@@ -21,6 +21,8 @@ public:
     inline const Matrix& GetProjMatrix();
 
 private:
+    float _fov;
+
     Vector3 _position;
     Quaternion _rotation;
 

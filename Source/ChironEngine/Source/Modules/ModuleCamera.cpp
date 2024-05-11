@@ -5,7 +5,7 @@
 
 #include "ModuleWindow.h"
 
-ModuleCamera::ModuleCamera() : _nearPlane(0.1f), _farPlane(10000.f)
+ModuleCamera::ModuleCamera() : _fov(45.f), _nearPlane(0.1f), _farPlane(10000.f)
 {
 }
 
@@ -21,7 +21,7 @@ bool ModuleCamera::Init()
 	App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
 	float aspectRatio = static_cast<float>(width / height);
 
-	_position = Vector3(0, 0, 10);
+	_position = Vector3(0, 10, 10);
 
 	_rotation = Quaternion::Identity;
 
