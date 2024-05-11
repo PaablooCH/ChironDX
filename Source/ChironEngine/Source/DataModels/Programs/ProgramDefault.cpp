@@ -38,7 +38,7 @@ void ProgramDefault::InitPipelineState()
 #endif
 
     ComPtr<ID3DBlob> errorBuff;
-    if (FAILED(D3DCompileFromFile(L"Shaders/default.hlsl", nullptr, nullptr, "VSmain", "vs_5_0", compileFlags, 0, 
+    if (FAILED(D3DCompileFromFile(L"Shaders/default.hlsl", nullptr, nullptr, "VSmain", "vs_5_1", compileFlags, 0, 
         &_vertexShader, &errorBuff)))
     {
         OutputDebugStringA((char*)errorBuff->GetBufferPointer());
@@ -51,7 +51,7 @@ void ProgramDefault::InitPipelineState()
 
     errorBuff.Reset();
 
-    if (FAILED(D3DCompileFromFile(L"Shaders/default.hlsl", nullptr, nullptr, "PSmain", "ps_5_0", compileFlags, 0, 
+    if (FAILED(D3DCompileFromFile(L"Shaders/default.hlsl", nullptr, nullptr, "PSmain", "ps_5_1", compileFlags, 0, 
         &_pixelShader, &errorBuff)))
     {
         OutputDebugStringA((char*)errorBuff->GetBufferPointer());
