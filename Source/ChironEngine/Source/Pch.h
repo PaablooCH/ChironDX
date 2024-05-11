@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <assert.h>
-#include <d3dx12.h>
 #include <d3dcompiler.h>
 #include <dxgi1_5.h>
 #include <functional>
@@ -33,6 +32,7 @@
 #include <Mouse.h>
 #include <SimpleMath.h>
 
+#include "d3dx12.h"
 #include "Auxiliar/Log.h"
 #include "Auxiliar/ChironTodo.h"
 #include "Auxiliar/Utils.h"
