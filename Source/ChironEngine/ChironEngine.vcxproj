@@ -16,7 +16,7 @@
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
-    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\DataModels\Programs\Program.cpp" />
     <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
@@ -44,7 +44,7 @@
     <ClInclude Include="Source\d3dx12.h" />
     <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
-    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h" />
+    <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\DataModels\Programs\Program.h" />
     <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h" />
     <ClInclude Include="Source\DebugDrawPass.h" />

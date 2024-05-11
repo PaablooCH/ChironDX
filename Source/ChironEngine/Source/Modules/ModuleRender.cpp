@@ -8,12 +8,12 @@
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
 
-#include "DataModels/CommandQueue/CommandQueue.h"
+#include "DataModels/DX12/CommandQueue/CommandQueue.h"
 #include "DataModels/Programs/Program.h"
 
 #include "DebugDrawPass.h"
 
-ModuleRender::ModuleRender()
+ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX))
 {
 }
 
@@ -30,6 +30,9 @@ bool ModuleRender::Init()
     
     // -------------- VERTEX ---------------------
     
+    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
+    auto commandList = copyCQ->GetCommandList();
+    
     // Define the geometry for a triangle.
     Vertex triangleVertices[] =
     {
@@ -40,15 +43,13 @@ bool ModuleRender::Init()
     
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
-    auto commandList = copyCQ->GetCommandList();
-
     ComPtr<ID3D12Resource> intermediateResource;
     d3d12->UpdateBufferResource(commandList.Get(), &_vertexBuffer, &intermediateResource, 
         vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
 
     _vertexBuffer->SetName(L"Triangle Vertex Buffer");
 
+    // Tell the input assembler where the vertices are
     _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vertexBufferView.SizeInBytes = vertexBufferSize;
     _vertexBufferView.StrideInBytes = sizeof(Vertex);
@@ -124,14 +125,8 @@ UpdateStatus ModuleRender::Update()
     viewport.Width = static_cast<float>(width);
     viewport.Height = static_cast<float>(height);
 
-    D3D12_RECT scissor{};
-    scissor.left = 0;
-    scissor.top = 0;
-    scissor.right = width;
-    scissor.bottom = height;
-
     _drawCommandList->RSSetViewports(1, &viewport);
-    _drawCommandList->RSSetScissorRects(1, &scissor);
+    _drawCommandList->RSSetScissorRects(1, &_scissor);
 
     auto rtv = d3d12->GetRenderTargetDescriptor();
     auto dsv = d3d12->GetDepthStencilDescriptor();

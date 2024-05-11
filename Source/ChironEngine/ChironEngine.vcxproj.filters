@@ -16,14 +16,17 @@
     <Filter Include="Source\DataModels">
       <UniqueIdentifier>{0ffecce9-bdf3-4972-939e-f1bf60a9d03b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\DataModels\CommandQueue">
-      <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\DataModels\Programs">
       <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\DataModels\Timer">
       <UniqueIdentifier>{ca78081a-fcb7-4c47-85fd-f2f33fa5342a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12">
+      <UniqueIdentifier>{bbfa49a3-de7b-4fb1-a837-82536c1446e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\CommandQueue">
+      <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,8 +69,8 @@
     <ClCompile Include="Source\Modules\ModuleCamera.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp">
-      <Filter>Source\DataModels\CommandQueue</Filter>
+    <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp">
+      <Filter>Source\DataModels\DX12\CommandQueue</Filter>
     </ClCompile>
     <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp">
       <Filter>Source\DataModels\Programs</Filter>
@@ -131,8 +134,8 @@
     <ClInclude Include="Source\Modules\ModuleCamera.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h">
-      <Filter>Source\DataModels\CommandQueue</Filter>
+    <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h">
+      <Filter>Source\DataModels\DX12\CommandQueue</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h">
       <Filter>Source\DataModels\Programs</Filter>

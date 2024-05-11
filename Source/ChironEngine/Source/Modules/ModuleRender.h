@@ -35,4 +35,6 @@ private:
     D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 
     std::unique_ptr<DebugDrawPass> _debugDraw;
+
+    D3D12_RECT _scissor;
 };
