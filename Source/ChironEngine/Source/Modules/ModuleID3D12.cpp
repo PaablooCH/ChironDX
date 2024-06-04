@@ -104,22 +104,6 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
     CreateDepthStencil(newWidth, newHeight);
 }
 
-ComPtr<ID3D12GraphicsCommandList> ModuleID3D12::CreateCommandList(ID3D12CommandAllocator* commandAllocator, 
-    D3D12_COMMAND_LIST_TYPE type, const LPCWSTR& name)
-{
-    ComPtr<ID3D12GraphicsCommandList> commandList;
-
-    Chiron::Utils::ThrowIfFailed(_device->CreateCommandList(
-        0,
-        type,
-        commandAllocator,
-        nullptr,
-        IID_PPV_ARGS(&commandList)));
-    Chiron::Utils::ThrowIfFailed(commandList->Close());
-    Chiron::Utils::ThrowIfFailed(commandList->SetName(name));
-    return commandList;
-}
-
 void ModuleID3D12::CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
     D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
 {

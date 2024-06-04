@@ -24,8 +24,6 @@ public:
 
     // ------------- CREATORS ----------------------
 
-    ComPtr<ID3D12GraphicsCommandList> CreateCommandList(ID3D12CommandAllocator* commandAllocator,
-        D3D12_COMMAND_LIST_TYPE type, const LPCWSTR& name = NULL);
     void CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
         D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter);
     void CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resourceBefore, 

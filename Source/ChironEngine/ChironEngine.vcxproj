@@ -19,6 +19,7 @@
     <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\DataModels\Programs\Program.cpp" />
     <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\DataModels\Programs\Program.h" />
     <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h" />
+    <ClInclude Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.h" />
     <ClInclude Include="Source\DebugDrawPass.h" />
     <ClInclude Include="Source\debug_draw.hpp" />
     <ClInclude Include="Source\Enums\ModuleType.h" />

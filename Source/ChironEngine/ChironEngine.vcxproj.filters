@@ -28,6 +28,9 @@
     <Filter Include="Source\DataModels\DX12\CommandQueue">
       <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\DX12\UploadBuffer">
+      <UniqueIdentifier>{d83e0e69-b6d5-4255-8604-b4f4335fdb66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -80,6 +83,9 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp">
       <Filter>Source\DataModels\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp">
+      <Filter>Source\DataModels\DX12\UploadBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +154,10 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\Timer\Timer.h">
       <Filter>Source\DataModels\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\d3dx12.h" />
+    <ClInclude Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.h">
+      <Filter>Source\DataModels\DX12\UploadBuffer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
