@@ -25,7 +25,8 @@ protected:
 
 	void CreateRootSignature(CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription);
 	// In this state shaders must be loaded
-	void CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements);
+	void CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements,
+		D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
 
 private:
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE GetRootSignatureVersion();

@@ -140,8 +140,7 @@ UpdateStatus ModuleRender::Update()
     mvp = mvp * proj;
     _drawCommandList->SetGraphicsRoot32BitConstants(0, sizeof(mvp) / 4, &mvp, 0);
 
-    uint32_t indexBufferData[3] = { 0, 1, 2 };
-    _drawCommandList->DrawIndexedInstanced(_countof(indexBufferData), 1, 0, 0, 0);
+    _drawCommandList->DrawIndexedInstanced(3, 1, 0, 0, 0);
 
     // ------------- DEBUG DRAW ----------------------
 

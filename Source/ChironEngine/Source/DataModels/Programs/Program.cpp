@@ -29,14 +29,14 @@ void Program::CreateRootSignature(CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSign
     // Create the root signature.
     Chiron::Utils::ThrowIfFailed(device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
         rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&_rootSignature)));
-    _rootSignature->SetName(L"Default Root Signature");
 }
 
-void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements)
+void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements, 
+    D3D12_DEPTH_STENCIL_DESC depthStencilDesc)
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
     auto device = d3d12->GetDevice();
-    
+
     // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.InputLayout = { inputElementDescs, elements };
@@ -51,6 +51,7 @@ void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputEle
     psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.NumRenderTargets = 1;
+    psoDesc.DepthStencilState = depthStencilDesc;
 
     Chiron::Utils::ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState)));
     _pipelineState->SetName(L"Default Pipeline");
