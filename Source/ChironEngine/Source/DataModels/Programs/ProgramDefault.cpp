@@ -36,8 +36,10 @@ void ProgramDefault::InitPipelineState()
 #ifdef DEBUG
     // Enable better shader debugging with the graphics debugging tools.
     compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+    compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif
-
+    
     ComPtr<ID3DBlob> errorBuff;
     if (FAILED(D3DCompileFromFile(L"Shaders/default.hlsl", nullptr, nullptr, "VSmain", "vs_5_1", compileFlags, 0, 
         &_vertexShader, &errorBuff)))
