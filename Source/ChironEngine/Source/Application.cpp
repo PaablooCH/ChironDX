@@ -10,7 +10,7 @@
 
 #include "DataModels/Timer/Timer.h"
 
-Application::Application(HWND hwnd, HINSTANCE hInstance) : _deltaTime(0)
+Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0)
 {
 	_modules.resize(static_cast<int>(ModuleType::LAST));
 	_modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
@@ -60,6 +60,8 @@ UpdateStatus Application::Update()
 {
 	float beginFrame = _timer->Read();
 	
+	_frameCount++;
+
 	for (const std::unique_ptr<Module>& module : _modules)
 	{
 		UpdateStatus result = module->PreUpdate();

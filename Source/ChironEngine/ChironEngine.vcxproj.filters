@@ -31,6 +31,9 @@
     <Filter Include="Source\DataModels\DX12\UploadBuffer">
       <UniqueIdentifier>{d83e0e69-b6d5-4255-8604-b4f4335fdb66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\DX12\DescriptorAllocator">
+      <UniqueIdentifier>{736647ae-5df4-4029-9b49-8ccf74249af9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -86,6 +89,15 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp">
       <Filter>Source\DataModels\DX12\UploadBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +170,15 @@
     <ClInclude Include="Source\d3dx12.h" />
     <ClInclude Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.h">
       <Filter>Source\DataModels\DX12\UploadBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.h">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.h">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

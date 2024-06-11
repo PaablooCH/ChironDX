@@ -14,6 +14,9 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
     <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp" />
@@ -43,6 +46,9 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClInclude Include="Source\Auxiliar\Log.h" />
     <ClInclude Include="Source\d3dx12.h" />
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.h" />
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.h" />
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h" />
     <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
     <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h" />
