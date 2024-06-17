@@ -26,8 +26,8 @@ void ProgramDefault::InitRootSignature()
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription{};
     rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
 
-    CreateRootSignature(rootSignatureDescription);
-    _rootSignature->SetName(L"Default Root Signature");
+    CreateRootSignature(rootSignatureDescription.Desc_1_1);
+    _rootSignature->GetRootSignature()->SetName(L"Default Root Signature");
 }
 
 void ProgramDefault::InitPipelineState()
@@ -90,4 +90,5 @@ void ProgramDefault::InitPipelineState()
     depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
     CreateGraphicPipelineState(inputElementDescs, 2, depthStencilDesc);
+    _pipelineState->SetName(L"Default Pipeline");
 }

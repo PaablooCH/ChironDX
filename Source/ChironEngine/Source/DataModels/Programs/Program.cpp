@@ -5,7 +5,7 @@
 
 #include "Modules/ModuleID3D12.h"
 
-Program::Program(const std::string& name) : _name(name)
+Program::Program(const std::string& name) : _name(name), _rootSignature(std::make_unique<RootSignature>())
 {
 }
 
@@ -13,34 +13,20 @@ Program::~Program()
 {
 }
 
-void Program::CreateRootSignature(CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription)
+void Program::CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDescription)
 {
-    auto id3d12 = App->GetModule<ModuleID3D12>();
-    ComPtr<ID3D12Device> device = id3d12->GetDevice();
-
-    // Check compatibility
-    D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = GetRootSignatureVersion();
-
-    ComPtr<ID3DBlob> rootSignatureBlob;
-    ComPtr<ID3DBlob> errorBlob;
-    // Compile root signature
-    Chiron::Utils::ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDescription,
-        featureData.HighestVersion, &rootSignatureBlob, &errorBlob));
-    // Create the root signature.
-    Chiron::Utils::ThrowIfFailed(device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(),
-        rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&_rootSignature)));
+    _rootSignature->SetRootSignatureDesc(rootSignatureDescription, GetRootSignatureVersion());
 }
 
 void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements, 
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc)
 {
-    auto d3d12 = App->GetModule<ModuleID3D12>();
-    auto device = d3d12->GetDevice();
+    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
     // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.InputLayout = { inputElementDescs, elements };
-    psoDesc.pRootSignature = _rootSignature.Get();
+    psoDesc.pRootSignature = _rootSignature->GetRootSignature();
     psoDesc.VS = CD3DX12_SHADER_BYTECODE(_vertexShader.Get());
     psoDesc.PS = CD3DX12_SHADER_BYTECODE(_pixelShader.Get());
     psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
@@ -54,13 +40,11 @@ void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputEle
     psoDesc.DepthStencilState = depthStencilDesc;
 
     Chiron::Utils::ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState)));
-    _pipelineState->SetName(L"Default Pipeline");
 }
 
-D3D12_FEATURE_DATA_ROOT_SIGNATURE Program::GetRootSignatureVersion()
+D3D_ROOT_SIGNATURE_VERSION Program::GetRootSignatureVersion()
 {
-    auto d3d12 = App->GetModule<ModuleID3D12>();
-    auto device = d3d12->GetDevice();
+    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
     // Check compatibility
     D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
@@ -69,5 +53,5 @@ D3D12_FEATURE_DATA_ROOT_SIGNATURE Program::GetRootSignatureVersion()
     {
         featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
     }
-    return featureData;
+    return featureData.HighestVersion;
 }
