@@ -21,10 +21,11 @@ public:
     inline uint32_t GetNumDescriptors(uint32_t rootIndex) const;
 
 private:
-	ComPtr<ID3D12RootSignature> _rootSignature;
-	D3D12_ROOT_SIGNATURE_DESC1 _rootSignatureDesc;
+    ComPtr<ID3D12RootSignature> _rootSignature;
+    D3D12_ROOT_SIGNATURE_DESC1 _rootSignatureDesc;
 
-	uint32_t _numDescriptorsPerTable[32];
+    // 32 because bit mask has 32 bits to store data.
+    uint32_t _numDescriptorsPerTable[32];
 
     // Bit mask that represents the indices that are descriptor tables for Samplers.
     uint32_t _samplerTableBitMask;

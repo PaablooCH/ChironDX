@@ -37,6 +37,9 @@
     <Filter Include="Source\DataModels\DX12\RootSignature">
       <UniqueIdentifier>{9fb71034-a18f-4794-99e5-a460e7be84a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\DX12\CommandList">
+      <UniqueIdentifier>{6e5ef316-533c-41a9-b622-69e4fcde14d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp">
       <Filter>Source\DataModels\DX12\RootSignature</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp">
+      <Filter>Source\DataModels\DX12\CommandList</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +194,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h">
       <Filter>Source\DataModels\DX12\RootSignature</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\CommandList\CommandList.h">
+      <Filter>Source\DataModels\DX12\CommandList</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
