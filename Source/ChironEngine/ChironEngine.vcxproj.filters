@@ -34,6 +34,9 @@
     <Filter Include="Source\DataModels\DX12\DescriptorAllocator">
       <UniqueIdentifier>{736647ae-5df4-4029-9b49-8ccf74249af9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\DX12\DynamicDescriptorHeap">
+      <UniqueIdentifier>{7cff245e-c232-44ee-bf21-6038cabc4326}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\DataModels\DX12\RootSignature">
       <UniqueIdentifier>{9fb71034-a18f-4794-99e5-a460e7be84a2}</UniqueIdentifier>
     </Filter>
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp">
       <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.cpp">
+      <Filter>Source\DataModels\DX12\DynamicDescriptorHeap</Filter>
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp">
       <Filter>Source\DataModels\DX12\RootSignature</Filter>
@@ -191,6 +197,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h">
       <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.h">
+      <Filter>Source\DataModels\DX12\DynamicDescriptorHeap</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h">
       <Filter>Source\DataModels\DX12\RootSignature</Filter>
