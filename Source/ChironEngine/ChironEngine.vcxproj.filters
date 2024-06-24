@@ -43,6 +43,9 @@
     <Filter Include="Source\DataModels\DX12\CommandList">
       <UniqueIdentifier>{6e5ef316-533c-41a9-b622-69e4fcde14d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\DX12\ResourceStateTracker">
+      <UniqueIdentifier>{dad4e276-b16f-4363-b752-205d844df021}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\DataModels\DX12\Resource">
       <UniqueIdentifier>{ae3e24f8-95f9-426e-9383-995ab17db2c7}</UniqueIdentifier>
     </Filter>
@@ -119,6 +122,9 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp">
       <Filter>Source\DataModels\DX12\CommandList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.cpp">
+      <Filter>Source\DataModels\DX12\ResourceStateTracker</Filter>
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\Resource\Resource.cpp">
       <Filter>Source\DataModels\DX12\Resource</Filter>
@@ -212,6 +218,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\CommandList\CommandList.h">
       <Filter>Source\DataModels\DX12\CommandList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.h">
+      <Filter>Source\DataModels\DX12\ResourceStateTracker</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h">
       <Filter>Source\DataModels\DX12\Resource</Filter>

@@ -19,6 +19,7 @@
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.cpp" />
     <ClCompile Include="Source\DataModels\DX12\Resource\Resource.cpp" />
     <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.h" />
     <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h" />
     <ClInclude Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.h" />
+    <ClInclude Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h" />
     <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h" />
     <ClInclude Include="Source\DataModels\Timer\Timer.h" />
