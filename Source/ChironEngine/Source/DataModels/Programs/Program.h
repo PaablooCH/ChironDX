@@ -11,10 +11,10 @@ public:
 
 	// ------------- GETTERS ----------------------
 
-	inline ID3DBlob* GetVertex();
-	inline ID3DBlob* GetPixel();
-	inline ID3D12RootSignature* GetRootSignature();
-	inline ID3D12PipelineState* GetPipelineState();
+	inline ID3DBlob* GetVertex() const;
+	inline ID3DBlob* GetPixel() const;
+	inline RootSignature* GetRootSignature() const;
+	inline ID3D12PipelineState* GetPipelineState() const;
 protected:
 
 	// ------------- INITS ----------------------
@@ -42,23 +42,23 @@ protected:
 	std::unique_ptr<RootSignature> _rootSignature;
 	ComPtr<ID3D12PipelineState> _pipelineState;
 };
-
-inline ID3DBlob* Program::GetVertex()
+ 
+inline ID3DBlob* Program::GetVertex() const
 {
 	return _vertexShader.Get();
 }
 
-inline ID3DBlob* Program::GetPixel()
+inline ID3DBlob* Program::GetPixel() const
 {
 	return _pixelShader.Get();
 }
 
-inline ID3D12RootSignature* Program::GetRootSignature()
+inline RootSignature* Program::GetRootSignature() const
 {
-	return _rootSignature->GetRootSignature();
+	return _rootSignature.get();
 }
 
-inline ID3D12PipelineState* Program::GetPipelineState()
+inline ID3D12PipelineState* Program::GetPipelineState() const
 {
 	return _pipelineState.Get();
 }

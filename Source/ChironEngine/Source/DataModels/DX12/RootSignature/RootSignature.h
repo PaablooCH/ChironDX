@@ -15,7 +15,7 @@ public:
 
     // ------------- GETTERS ----------------------
 
-    inline ID3D12RootSignature* GetRootSignature();
+    inline ID3D12RootSignature* GetID3D12RootSignature() const;
     inline const D3D12_ROOT_SIGNATURE_DESC1& GetRootSignatureDesc() const;
     inline uint32_t GetDescriptorTableBitMask(D3D12_DESCRIPTOR_HEAP_TYPE descriptorHeapType) const;
     inline uint32_t GetNumDescriptors(uint32_t rootIndex) const;
@@ -33,7 +33,7 @@ private:
     uint32_t _descriptorTableBitMask;
 };
 
-inline ID3D12RootSignature* RootSignature::GetRootSignature()
+inline ID3D12RootSignature* RootSignature::GetID3D12RootSignature() const
 {
     return _rootSignature.Get();
 }

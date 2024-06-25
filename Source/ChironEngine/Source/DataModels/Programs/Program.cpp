@@ -26,7 +26,7 @@ void Program::CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputEle
     // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.InputLayout = { inputElementDescs, elements };
-    psoDesc.pRootSignature = _rootSignature->GetRootSignature();
+    psoDesc.pRootSignature = _rootSignature->GetID3D12RootSignature();
     psoDesc.VS = CD3DX12_SHADER_BYTECODE(_vertexShader.Get());
     psoDesc.PS = CD3DX12_SHADER_BYTECODE(_pixelShader.Get());
     psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;

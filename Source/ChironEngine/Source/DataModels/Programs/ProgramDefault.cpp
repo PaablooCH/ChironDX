@@ -27,7 +27,7 @@ void ProgramDefault::InitRootSignature()
     rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
 
     CreateRootSignature(rootSignatureDescription.Desc_1_1);
-    _rootSignature->GetRootSignature()->SetName(L"Default Root Signature");
+    _rootSignature->GetID3D12RootSignature()->SetName(L"Default Root Signature");
 }
 
 void ProgramDefault::InitPipelineState()

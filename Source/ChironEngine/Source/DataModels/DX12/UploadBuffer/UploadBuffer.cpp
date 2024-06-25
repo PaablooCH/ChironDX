@@ -5,10 +5,10 @@
 
 #include "Modules/ModuleID3D12.h"
 
-namespace 
-{
-	std::mutex mutex;
-}
+//namespace 
+//{
+//	std::mutex mutex;
+//}
 
 UploadBuffer::UploadBuffer(size_t pageSize) : _pageSize(pageSize)
 {
