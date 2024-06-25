@@ -1,15 +1,17 @@
 #pragma once
 
+class CommandList;
+
 class CommandQueue
 {
 public:
 	CommandQueue() = delete;
-	CommandQueue(D3D12_COMMAND_LIST_TYPE type, ComPtr<ID3D12Device> device);
+	CommandQueue(D3D12_COMMAND_LIST_TYPE type);
 	~CommandQueue();
 
 	// ------------- ACTIONS ----------------------
 
-	uint64_t ExecuteCommandList(ComPtr<ID3D12GraphicsCommandList> commandList);
+	uint64_t ExecuteCommandList(std::shared_ptr<CommandList> commandList);
 
 	// ------------- SYNCHRONIZATION ----------------------
 
@@ -18,29 +20,27 @@ public:
 
 	// ------------- GETTERS ----------------------
 
-	ComPtr<ID3D12GraphicsCommandList> GetCommandList();
+	std::shared_ptr<CommandList> GetCommandList();
 	inline ID3D12CommandQueue* GetCommandQueue();
 private:
 	// ------------- CREATORS ----------------------
 
-	ComPtr<ID3D12CommandAllocator> CreateCommandAllocator() const;
-	ComPtr<ID3D12GraphicsCommandList> CreateCommandList(ComPtr<ID3D12CommandAllocator> commandAllocator) const;
+	std::shared_ptr<CommandList> CreateCommandList() const;
 
 	// ------------- SYNCHRONIZATION ----------------------
 
 	uint64_t Signal();
 	bool IsFenceComplete(uint64_t fenceValue);
 private:
-	struct AllocatorWaiting
+	struct CommandListWaiting
 	{
-		ComPtr<ID3D12CommandAllocator> commmandAllocator;
+		std::shared_ptr<CommandList> commandList;
 		uint64_t fenceValue;
 	};
 
 	ComPtr<ID3D12CommandQueue> _commandQueue;
 
-	std::queue<AllocatorWaiting> _commandAllocators;
-	std::queue<ComPtr<ID3D12GraphicsCommandList>> _commandLists;
+	std::queue<CommandListWaiting> _commandListWaiting;
 
 	ComPtr<ID3D12Fence> _fence;
 	HANDLE _fenceEvent;

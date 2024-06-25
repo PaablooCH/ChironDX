@@ -5,8 +5,18 @@
 
 #include "Modules/ModuleID3D12.h"
 
-CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ComPtr<ID3D12Device> device) : _type(type), _fenceValue(0)
+#include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/ResourceStateTracker/ResourceStateTracker.h"
+
+namespace
 {
+	std::mutex mutex;
+}
+
+CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type) : _type(type), _fenceValue(0)
+{
+	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = _type;
@@ -29,8 +39,6 @@ CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type, ComPtr<ID3D12Device> de
 		_commandQueue->SetName(L"Copy Command Queue");
 		_fence->SetName(L"Copy Fence");
 		break;
-	default:
-		break;
 	}
 }
 
@@ -40,25 +48,34 @@ CommandQueue::~CommandQueue()
 	::CloseHandle(_fenceEvent);
 }
 
-uint64_t CommandQueue::ExecuteCommandList(ComPtr<ID3D12GraphicsCommandList> commandList)
+uint64_t CommandQueue::ExecuteCommandList(std::shared_ptr<CommandList> commandList)
 {
-	Chiron::Utils::ThrowIfFailed(commandList->Close());
+	std::vector<ID3D12CommandList*> commandListsToPush;
+	commandListsToPush.reserve(2);
 
-	ID3D12CommandAllocator* commandAllocator;
-	UINT allocatorSize = sizeof(commandAllocator);
-	Chiron::Utils::ThrowIfFailed(commandList->GetPrivateData(__uuidof(ID3D12CommandAllocator), &allocatorSize, 
-		&commandAllocator));
+	ResourceStateTracker::Lock();
 
-	ID3D12CommandList* const commandLists[] = {
-		commandList.Get()
-	};
-	_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+	auto pendingBarriersList = GetCommandList();
+	bool hasPendingBarriers	= commandList->Close(*pendingBarriersList);
+
+	ResourceStateTracker::Unlock();
+	
+	pendingBarriersList->Close();
+
+	if (hasPendingBarriers)
+	{
+		commandListsToPush.push_back(pendingBarriersList->GetGraphicsCommandList().Get());
+	}
+
+	commandListsToPush.push_back(commandList->GetGraphicsCommandList().Get());
+
+	std::lock_guard<std::mutex> lock(mutex);
+
+	_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandListsToPush.size()), commandListsToPush.data());
 	uint64_t fenceValue = Signal();
 
-	_commandAllocators.emplace(AllocatorWaiting{ commandAllocator, fenceValue });
-	_commandLists.push(commandList);
-
-	commandAllocator->Release(); // free CommandLine private data memory
+	_commandListWaiting.emplace(CommandListWaiting{ commandList, fenceValue });
+	_commandListWaiting.emplace(CommandListWaiting{ pendingBarriersList, fenceValue });
 
 	return fenceValue;
 }
@@ -77,60 +94,31 @@ void CommandQueue::Flush()
 	WaitForFenceValue(Signal());
 }
 
-ComPtr<ID3D12GraphicsCommandList> CommandQueue::GetCommandList()
+std::shared_ptr<CommandList> CommandQueue::GetCommandList()
 {
-	ComPtr<ID3D12CommandAllocator> commandAllocator;
-	ComPtr<ID3D12GraphicsCommandList> commandList;
+	std::shared_ptr<CommandList> commandList;
 
-	bool success;
+	std::lock_guard<std::mutex> lock(mutex);
 
-	if (!_commandAllocators.empty() && IsFenceComplete(_commandAllocators.front().fenceValue))
+	if (!_commandListWaiting.empty() && IsFenceComplete(_commandListWaiting.front().fenceValue))
 	{
-		AllocatorWaiting alloWaiting;
+		CommandListWaiting cmdWaiting;
 
-		Chiron::Utils::TryFrontPop(_commandAllocators, alloWaiting, success);
-		commandAllocator = alloWaiting.commmandAllocator;
-		Chiron::Utils::ThrowIfFailed(commandAllocator->Reset());
+		Chiron::Utils::TryFrontPop(_commandListWaiting, cmdWaiting);
+		commandList = cmdWaiting.commandList;
+		commandList->Reset();
 	}
 	else
 	{
-		commandAllocator = CreateCommandAllocator();
+		commandList = CreateCommandList();
 	}
 	
-	Chiron::Utils::TryFrontPop(_commandLists, commandList, success);
-	if (success)
-	{
-		Chiron::Utils::ThrowIfFailed(commandList->Reset(commandAllocator.Get(), nullptr));
-	}
-	else
-	{
-		commandList = CreateCommandList(commandAllocator);
-	}
-
-	commandList->SetPrivateDataInterface(__uuidof(ID3D12CommandAllocator), commandAllocator.Get());
-
 	return commandList;
 }
 
-ComPtr<ID3D12CommandAllocator> CommandQueue::CreateCommandAllocator() const
+std::shared_ptr<CommandList> CommandQueue::CreateCommandList() const
 {
-	ComPtr<ID3D12CommandAllocator> commandAllocator;
-
-	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-	Chiron::Utils::ThrowIfFailed(device->CreateCommandAllocator(_type, IID_PPV_ARGS(&commandAllocator)));
-
-	return commandAllocator;
-}
-
-ComPtr<ID3D12GraphicsCommandList> CommandQueue::CreateCommandList(ComPtr<ID3D12CommandAllocator> commandAllocator) const
-{
-	ComPtr<ID3D12GraphicsCommandList> commandList;
-
-	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-	Chiron::Utils::ThrowIfFailed(device->CreateCommandList(0, _type, commandAllocator.Get(), nullptr, 
-		IID_PPV_ARGS(&commandList)));
-
-	return commandList;
+	return std::make_shared<CommandList>(_type);
 }
 
 uint64_t CommandQueue::Signal()

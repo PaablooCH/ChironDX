@@ -18,6 +18,9 @@ namespace Chiron
         // ------------- CONTAINERS ----------------------
 
         template<typename T>
+        static inline void TryFrontPop(std::queue<T>& queue, T& element);
+
+        template<typename T>
         static inline void TryFrontPop(std::queue<T>& queue, T& element, bool& success);
 
         // ------------- MEMORY ----------------------
@@ -79,6 +82,16 @@ namespace Chiron
         static inline const ddVec3& ddConvert(const DirectX::SimpleMath::Vector3& v);
         static inline const ddMat4x4& ddConvert(const DirectX::SimpleMath::Matrix& m);
     };
+
+    template<typename T>
+    inline void Utils::TryFrontPop(std::queue<T>& queue, T& element)
+    {
+        if (!queue.empty())
+        {
+            element = std::move(queue.front());
+            queue.pop();
+        }
+    }
 
     template<typename T>
     inline void Utils::TryFrontPop(std::queue<T>& queue, T& element, bool& success)
