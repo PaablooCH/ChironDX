@@ -17,61 +17,6 @@ ResourceStateTracker::~ResourceStateTracker()
 {
 }
 
-void ResourceStateTracker::ResourceBarrier(const D3D12_RESOURCE_BARRIER& barrier)
-{
-	if (barrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
-	{
-		const D3D12_RESOURCE_TRANSITION_BARRIER& transitionBarrier = barrier.Transition;
-
-		const auto iter = _finalResourceState.find(transitionBarrier.pResource);
-        if (iter != _finalResourceState.end())
-        {
-            auto& resourceState = iter->second;
-            // If the known final state of the resource is different...
-            if (transitionBarrier.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES &&
-                !resourceState.SubresourceState.empty())
-            {
-                // First transition all of the subresources if they are different than the StateAfter.
-                for (auto& subresourceState : resourceState.SubresourceState)
-                {
-                    if (transitionBarrier.StateAfter != subresourceState.second)
-                    {
-                        D3D12_RESOURCE_BARRIER newBarrier = barrier;
-                        newBarrier.Transition.Subresource = subresourceState.first;
-                        newBarrier.Transition.StateBefore = subresourceState.second;
-                        _resourceBarriers.push_back(newBarrier);
-                    }
-                }
-            }
-            else
-            {
-                auto finalState = resourceState.GetSubresourceState(transitionBarrier.Subresource);
-                if (transitionBarrier.StateAfter != finalState)
-                {
-                    // Push a new transition barrier with the correct before state.
-                    D3D12_RESOURCE_BARRIER newBarrier = barrier;
-                    newBarrier.Transition.StateBefore = finalState;
-                    _resourceBarriers.push_back(newBarrier);
-                }
-            }
-        }
-        else // In this case, the resource is being used on the command list for the first time. 
-        {
-            // Add a pending barrier. The pending barriers will be resolved
-            // before the command list is executed on the command queue.
-            _pendingResourceBarriers.push_back(barrier);
-        }
-        // Push the final known state (possibly replacing the previously known state for the subresource).
-        _finalResourceState[transitionBarrier.pResource].SetSubresourceState(transitionBarrier.Subresource, 
-            transitionBarrier.StateAfter);
-    }
-    else
-    {
-        // Just push non-transition barriers to the resource barriers array.
-        _resourceBarriers.push_back(barrier);
-    }
-}
-
 void ResourceStateTracker::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource)
 {
     if (resource)
@@ -92,7 +37,7 @@ void ResourceStateTracker::UAVBarrier(const Resource* resource)
     ResourceBarrier(CD3DX12_RESOURCE_BARRIER::UAV(pResource));
 }
 
-void ResourceStateTracker::AliasBarrier(const Resource* resourceBefore, const Resource* resourceAfter)
+void ResourceStateTracker::AliasingBarrier(const Resource* resourceBefore, const Resource* resourceAfter)
 {
     ID3D12Resource* pBeforeResource = resourceBefore != nullptr ? resourceBefore->GetResource() : nullptr;
     ID3D12Resource* pAfterResource = resourceAfter != nullptr ? resourceAfter->GetResource() : nullptr;
@@ -210,4 +155,59 @@ void ResourceStateTracker::RemoveGlobalResourceState(ID3D12Resource* resource)
 {
     std::lock_guard<std::mutex> lock(_globalMutex);
     _globalResourceState.erase(resource);
+}
+
+void ResourceStateTracker::ResourceBarrier(const D3D12_RESOURCE_BARRIER& barrier)
+{
+    if (barrier.Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
+    {
+        const D3D12_RESOURCE_TRANSITION_BARRIER& transitionBarrier = barrier.Transition;
+
+        const auto iter = _finalResourceState.find(transitionBarrier.pResource);
+        if (iter != _finalResourceState.end())
+        {
+            auto& resourceState = iter->second;
+            // If the known final state of the resource is different...
+            if (transitionBarrier.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES &&
+                !resourceState.SubresourceState.empty())
+            {
+                // First transition all of the subresources if they are different than the StateAfter.
+                for (auto& subresourceState : resourceState.SubresourceState)
+                {
+                    if (transitionBarrier.StateAfter != subresourceState.second)
+                    {
+                        D3D12_RESOURCE_BARRIER newBarrier = barrier;
+                        newBarrier.Transition.Subresource = subresourceState.first;
+                        newBarrier.Transition.StateBefore = subresourceState.second;
+                        _resourceBarriers.push_back(newBarrier);
+                    }
+                }
+            }
+            else
+            {
+                auto finalState = resourceState.GetSubresourceState(transitionBarrier.Subresource);
+                if (transitionBarrier.StateAfter != finalState)
+                {
+                    // Push a new transition barrier with the correct before state.
+                    D3D12_RESOURCE_BARRIER newBarrier = barrier;
+                    newBarrier.Transition.StateBefore = finalState;
+                    _resourceBarriers.push_back(newBarrier);
+                }
+            }
+        }
+        else // In this case, the resource is being used on the command list for the first time. 
+        {
+            // Add a pending barrier. The pending barriers will be resolved
+            // before the command list is executed on the command queue.
+            _pendingResourceBarriers.push_back(barrier);
+        }
+        // Push the final known state (possibly replacing the previously known state for the subresource).
+        _finalResourceState[transitionBarrier.pResource].SetSubresourceState(transitionBarrier.Subresource,
+            transitionBarrier.StateAfter);
+    }
+    else
+    {
+        // Just push non-transition barriers to the resource barriers array.
+        _resourceBarriers.push_back(barrier);
+    }
 }

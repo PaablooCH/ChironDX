@@ -9,9 +9,6 @@ public:
 	ResourceStateTracker();
 	~ResourceStateTracker();
 
-    // Push a resource barrier to the resource state tracker.
-    void ResourceBarrier(const D3D12_RESOURCE_BARRIER& barrier);
-
     /**
      * Push a transition resource barrier to the resource state tracker.
      *
@@ -50,7 +47,7 @@ public:
     * Either the beforeResource or the afterResource parameters can be NULL which
     * indicates that any placed or reserved resource could cause aliasing.
     */
-    void AliasBarrier(const Resource* resourceBefore = nullptr, const Resource * resourceAfter = nullptr);
+    void AliasingBarrier(const Resource* resourceBefore = nullptr, const Resource * resourceAfter = nullptr);
 
     /**
      * Flush any pending resource barriers to the command list.
@@ -82,6 +79,11 @@ public:
     // Remove a resource from the global resource state array (map). This should only be done when the resource is 
     // destroyed.
     static void RemoveGlobalResourceState(ID3D12Resource* resource);
+
+private:
+
+    // Push a resource barrier to the resource state tracker.
+    void ResourceBarrier(const D3D12_RESOURCE_BARRIER& barrier);
 
 private:
 

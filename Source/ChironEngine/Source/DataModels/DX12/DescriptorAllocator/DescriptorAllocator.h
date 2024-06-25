@@ -8,7 +8,7 @@ class DescriptorAllocator
 {
 public:
     DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap = 256);
-    virtual ~DescriptorAllocator();
+    ~DescriptorAllocator();
 
     // Allocate contiguous descriptors from the CPU
     DescriptorAllocation Allocate(uint32_t numDescriptors = 1);
