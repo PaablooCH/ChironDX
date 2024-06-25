@@ -137,14 +137,38 @@ void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     _commandList->IASetPrimitiveTopology(primitiveTopology);
 }
 
-void CommandList::SetViewports(const D3D12_VIEWPORT& viewport)
+void CommandList::SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* pViews)
 {
-    _commandList->RSSetViewports(1, &viewport);
+    _commandList->IASetVertexBuffers(startSlot, numViews, pViews);
 }
 
-void CommandList::SetScissorRects(const D3D12_RECT& scissorRect)
+void CommandList::SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* pView)
 {
-    _commandList->RSSetScissorRects(1, &scissorRect);
+    _commandList->IASetIndexBuffer(pView);
+}
+
+void CommandList::SetViewports(UINT numViewports, const D3D12_VIEWPORT& viewport)
+{
+    _commandList->RSSetViewports(numViewports, &viewport);
+}
+
+void CommandList::SetScissorRects(UINT numRects, const D3D12_RECT& scissorRect)
+{
+    _commandList->RSSetScissorRects(numRects, &scissorRect);
+}
+
+void CommandList::SetRenderTargets(UINT numRenderTargetDescriptors, 
+    const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange, 
+    const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor)
+{
+    _commandList->OMSetRenderTargets(numRenderTargetDescriptors, pRenderTargetDescriptors, 
+        RTsSingleHandleToDescriptorRange, pDepthStencilDescriptor);
+}
+
+void CommandList::SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+    UINT destOffsetIn32BitValues)
+{
+    _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
 }
 
 void CommandList::UseProgram(Program* program)

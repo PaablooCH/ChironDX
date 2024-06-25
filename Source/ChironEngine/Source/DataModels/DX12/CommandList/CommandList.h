@@ -57,8 +57,14 @@ public:
     void CopyResource(Resource& dstRes, const Resource& srcRes);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
-    void SetViewports(const D3D12_VIEWPORT& viewport);
-    void SetScissorRects(const D3D12_RECT& scissorRect);
+    void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* pViews);
+    void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* pView);
+    void SetViewports(UINT numViewports, const D3D12_VIEWPORT& viewport);
+    void SetScissorRects(UINT numRects, const D3D12_RECT& scissorRect);
+    void SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
+        BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
+    void SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+        UINT destOffsetIn32BitValues = 0);
     void UseProgram(Program* program);
 
     void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
