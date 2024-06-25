@@ -81,7 +81,9 @@ void CommandList::Close()
 {
     FlushResourceBarriers();
     _commandList->Close();
+    ResourceStateTracker::Lock();
     _resourceStateTracker->CommitFinalResourceStates();
+    ResourceStateTracker::Unlock();
 }
 
 bool CommandList::Close(CommandList& pendingCommandList)
