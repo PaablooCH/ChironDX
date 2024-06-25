@@ -1,8 +1,10 @@
 #pragma once
 
 class DynamicDescriptorHeap;
+class Program;
 class Resource;
 class ResourceStateTracker;
+class RootSignature;
 class UploadBuffer;
 
 class CommandList
@@ -11,6 +13,8 @@ public:
 
     CommandList(D3D12_COMMAND_LIST_TYPE type);
     ~CommandList();
+
+    // ------------- BARRIERS ----------------------
 
     /**
      * Transition a resource to a particular state.
@@ -23,12 +27,50 @@ public:
     void TransitionBarrier(const Resource& resource, D3D12_RESOURCE_STATES stateAfter, 
         UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool flushBarriers = false);
 
+    void TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter,
+        UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool flushBarriers = false);
+
+    /**
+     * Add a UAV barrier to ensure that any writes to a resource have completed before reading from the resource.
+     *
+     * @param resource The resource to apply the barrier.
+     * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
+     */
+    void UAVBarrier(const Resource& resource, bool flushBarriers = false);
+
+    /**
+     * Add an aliasing barrier to indicate a transition between usages of two different resources that occupy the same space in a heap.
+     *
+     * @param befResource The resource that currently occupies the heap.
+     * @param aftResource The resource that will occupy the space in the heap.
+     * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
+     */
+    void AliasingBarrier(const Resource& befResource, const Resource& aftResource, bool flushBarriers = false);
+
+    // ------------- COMMAND LIST ACTIONS ----------------------
+
+    void Close();
+    bool Close(CommandList& pendingCommandList);
+
+    void Reset();
+
     void CopyResource(Resource& dstRes, const Resource& srcRes);
 
-    // Draw geometry.
-    void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
+    void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
+    void SetViewports(const D3D12_VIEWPORT& viewport);
+    void SetScissorRects(const D3D12_RECT& scissorRect);
+    void UseProgram(Program* program);
 
-    // ------------- SETTERS ----------------------
+    void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
+    void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0, 
+        uint32_t startInstance = 0);
+
+    void ClearRenderTargetView(const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView, const FLOAT colorRGBA[4], 
+        UINT numRects, const D3D12_RECT* pRects = nullptr);
+    void ClearDepthStencilView(const D3D12_CPU_DESCRIPTOR_HANDLE& depthStencilView, D3D12_CLEAR_FLAGS clearFlags,
+        FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects = nullptr);
+
+    // ------------- GETTERS ----------------------
 
     inline ComPtr<ID3D12GraphicsCommandList2> GetGraphicsCommandList() const;
 
@@ -50,6 +92,24 @@ public:
         UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
         const D3D12_SHADER_RESOURCE_VIEW_DESC* srv = nullptr);
 
+    void BindDescriptorHeaps();
+
+private:
+
+    void FlushResourceBarriers();
+
+    // ------------- COMMAND LIST ACTIONS ----------------------
+
+    void SetPipelineState(ComPtr<ID3D12PipelineState> pipelineState);
+    void SetRootSignature(const RootSignature* rootSignature);
+
+    // ------------- TRACKERS ----------------------
+
+    void TrackObject(ComPtr<ID3D12Object> object);
+    void TrackResource(const Resource& resource);
+    
+    void ReleaseTrackedObjects();
+
 private:
     D3D12_COMMAND_LIST_TYPE _commandListType;
     ComPtr<ID3D12GraphicsCommandList2> _commandList;
@@ -61,27 +121,26 @@ private:
     // after the copy queue is finished uploading the first sub resource.
     std::shared_ptr<CommandList> _computeCommandList;
 
-    // Keep track of the currently bound root signatures to minimize root
-    // signature changes.
+    // Currently bound root signature.
     ID3D12RootSignature* _rootSignature;
 
     // Resource created in an upload heap. Useful for drawing of dynamic geometry
     // or for uploading constant buffer data that changes every draw call.
-    //std::unique_ptr<UploadBuffer> _uploadBuffer;
+    std::unique_ptr<UploadBuffer> _uploadBuffer;
 
-    // Resource state tracker is used by the command list to track (per command list)
-    // the current state of a resource. The resource state tracker also tracks the 
-    // global state of a resource in order to minimize resource state transitions.
-    //std::unique_ptr<ResourceStateTracker> _resourceStateTracker;
+    // Track (per command list) the current state of a resource. Also tracks the global state.
+    std::unique_ptr<ResourceStateTracker> _resourceStateTracker;
 
     // The dynamic descriptor heap allows for descriptors to be staged before
-    // being committed to the command list. Dynamic descriptors need to be
-    // committed before a Draw or Dispatch.
-    //std::unique_ptr<DynamicDescriptorHeap> _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+    // being committed to the command list. Dynamic descriptors need to be committed before a Draw or Dispatch.
+    std::unique_ptr<DynamicDescriptorHeap> _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
     // Keep track of the currently bound descriptor heaps. Only change descriptor 
     // heaps if they are different than the currently bound descriptor heaps.
     ID3D12DescriptorHeap* _descriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
+    // Safe a reference to an object until all the operations in the commandList have finished.
+    std::vector<ComPtr<ID3D12Object>> _objectsTracker;
 };
 
 template<typename T>
@@ -94,4 +153,3 @@ inline ComPtr<ID3D12GraphicsCommandList2> CommandList::GetGraphicsCommandList() 
 {
     return _commandList;
 }
-
