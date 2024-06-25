@@ -6,7 +6,11 @@ public:
 	Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& name = L"");
 	Resource(ComPtr<ID3D12Resource> resource, const std::wstring& name);
 	Resource(const Resource& copy);
-	~Resource();
+	
+	virtual ~Resource();
+
+	Resource& operator=(const Resource& other);
+	Resource& operator=(Resource&& other);
 
 	inline bool IsValid();
 
@@ -14,10 +18,11 @@ public:
 
 	// ------------- GETTERS ----------------------
 
+	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc = nullptr) const = 0;
 	inline ID3D12Resource* GetResource() const;
 	inline const std::wstring& GetName() const;
 
-private:
+protected:
 	ComPtr<ID3D12Resource> _resource;
 	std::wstring _name;
 };

@@ -33,6 +33,29 @@ Resource::~Resource()
 	ResourceStateTracker::RemoveGlobalResourceState(_resource.Get());
 }
 
+Resource& Resource::operator=(const Resource& other)
+{
+	if (&other != this)
+	{
+		_resource = other._resource;
+		_name = other._name;
+	}
+	return *this;
+}
+
+Resource& Resource::operator=(Resource&& other)
+{
+	if (&other != this)
+	{
+		_resource = other._resource;
+		_name = other._name;
+
+		other._resource.Reset();
+		other._name.clear();
+	}
+	return *this;
+}
+
 void Resource::Reset()
 {
 	_resource.Reset();
