@@ -2,6 +2,7 @@
 #include "Module.h"
 
 class CommandQueue;
+class DescriptorAllocator;
 
 class ModuleID3D12 : public Module
 {
@@ -52,6 +53,7 @@ public:
     inline ID3D12Resource* GetDepthStencilBuffer() const;
     inline ID3D12DescriptorHeap* GetDepthStencilViewHeap() const;
     inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilDescriptor() const;
+    inline DescriptorAllocator* GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const;
 
 private:
     // ------------- CREATORS ----------------------
@@ -70,6 +72,7 @@ private:
     // ------------- INITS ---------------------------
 
     void InitFrameBuffer();
+    void InitDescriptorAllocator();
     
     // ------------- SYNCHRONIZATION ----------------------
 
@@ -126,6 +129,8 @@ private:
     ComPtr<ID3D12Resource> _depthStencilBuffer;
     // Descriptor heap for depth buffer.
     ComPtr<ID3D12DescriptorHeap> _dsvHeap;
+
+    std::vector<std::unique_ptr<DescriptorAllocator>> _descriptorAllocators;
 };
 
 inline ID3D12Device2* ModuleID3D12::GetDevice() const
@@ -194,4 +199,9 @@ inline ID3D12DescriptorHeap* ModuleID3D12::GetDepthStencilViewHeap() const
 inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetDepthStencilDescriptor() const
 {
     return CD3DX12_CPU_DESCRIPTOR_HANDLE(_dsvHeap.Get()->GetCPUDescriptorHandleForHeapStart());
+}
+
+inline DescriptorAllocator* ModuleID3D12::GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const
+{
+    return _descriptorAllocators[type].get();
 }

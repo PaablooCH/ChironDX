@@ -6,6 +6,7 @@
 #include "ModuleWindow.h"
 
 #include "DataModels/DX12/CommandQueue/CommandQueue.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 
 ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false)
 {
@@ -23,10 +24,10 @@ bool ModuleID3D12::Init()
     ok = ok && CreateCommandQueue();
     ok = ok && CreateSwapChain();
 
-    InitFrameBuffer();
-
     if (ok)
     {
+        InitFrameBuffer();
+        InitDescriptorAllocator();
         _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
     }
 
@@ -407,4 +408,14 @@ void ModuleID3D12::InitFrameBuffer()
     App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
 
     CreateDepthStencil(width, height);
+}
+
+void ModuleID3D12::InitDescriptorAllocator()
+{
+    _descriptorAllocators.reserve(D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES);
+
+    for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; i++)
+    {
+        _descriptorAllocators.push_back(std::make_unique<DescriptorAllocator>(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i)));
+    }
 }
