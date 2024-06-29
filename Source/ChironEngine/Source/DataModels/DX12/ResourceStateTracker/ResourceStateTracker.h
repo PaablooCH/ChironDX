@@ -85,6 +85,8 @@ private:
     // Push a resource barrier to the resource state tracker.
     void ResourceBarrier(const D3D12_RESOURCE_BARRIER& barrier);
 
+    inline static bool ExistsResource(ID3D12Resource* resource);
+
 private:
 
     // Pending resource transitions are committed before a command list is executed on the command queue. This guarantees 
@@ -143,3 +145,7 @@ private:
     static bool _isLocked;
 };
 
+inline bool ResourceStateTracker::ExistsResource(ID3D12Resource* resource)
+{
+    return _globalResourceState.contains(resource);
+}

@@ -102,8 +102,35 @@ void ResourceStateTracker::FlushResourceBarriers(CommandList& commandList)
     UINT numBarriers = static_cast<UINT>(_resourceBarriers.size());
     if (numBarriers > 0)
     {
+        std::vector<D3D12_RESOURCE_BARRIER> availableBarriers;
+        availableBarriers.reserve(numBarriers);
+
+        for (D3D12_RESOURCE_BARRIER barrier : _resourceBarriers)
+        {
+            bool exists = true;
+            switch (barrier.Type)
+            {
+            case D3D12_RESOURCE_BARRIER_TYPE_TRANSITION:
+                exists = ExistsResource(barrier.Transition.pResource);
+                break;
+            case D3D12_RESOURCE_BARRIER_TYPE_ALIASING:
+                exists = ExistsResource(barrier.Aliasing.pResourceBefore) && 
+                    ExistsResource(barrier.Aliasing.pResourceAfter);
+                break;
+            case D3D12_RESOURCE_BARRIER_TYPE_UAV:
+                exists = ExistsResource(barrier.UAV.pResource);
+                break;
+            }
+
+            if (exists)
+            {
+                availableBarriers.push_back(std::move(barrier));
+            }
+        }
+        numBarriers = static_cast<UINT>(availableBarriers.size());
         auto d3d12CommandList = commandList.GetGraphicsCommandList();
-        d3d12CommandList->ResourceBarrier(numBarriers, _resourceBarriers.data());
+        d3d12CommandList->ResourceBarrier(numBarriers, availableBarriers.data());
+
         _resourceBarriers.clear();
     }
 }
@@ -114,7 +141,11 @@ void ResourceStateTracker::CommitFinalResourceStates()
 
     for (const auto& finalResourceState : _finalResourceState)
     {
-        _globalResourceState[finalResourceState.first] = finalResourceState.second;
+        // If the resource doesn't exist in _globalResourceState means it was destroyed, we don't want to insert it again
+        if (ExistsResource(finalResourceState.first))
+        {
+            _globalResourceState[finalResourceState.first] = finalResourceState.second;
+        }
     }
 
     _finalResourceState.clear();
@@ -148,7 +179,11 @@ void ResourceStateTracker::Unlock()
 void ResourceStateTracker::AddGlobalResourceState(ID3D12Resource* resource, D3D12_RESOURCE_STATES state)
 {
     std::lock_guard<std::mutex> lock(_globalMutex);
-    _globalResourceState[resource].SetSubresourceState(D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, state);
+    // if something in resources state fails, check this condition
+    if (!ExistsResource(resource))
+    {
+        _globalResourceState[resource].SetSubresourceState(D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, state);
+    }
 }
 
 void ResourceStateTracker::RemoveGlobalResourceState(ID3D12Resource* resource)
