@@ -1,17 +1,17 @@
 #include "Pch.h"
-#include "ProgramDefault.h"
+#include "DefaultProgram.h"
 
-ProgramDefault::ProgramDefault(const std::string& name) : Program(name)
+DefaultProgram::DefaultProgram(const std::string& name) : Program(name)
 {
     InitRootSignature();
     InitPipelineState();
 }
 
-ProgramDefault::~ProgramDefault()
+DefaultProgram::~DefaultProgram()
 {
 }
 
-void ProgramDefault::InitRootSignature()
+void DefaultProgram::InitRootSignature()
 {
     D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -30,7 +30,7 @@ void ProgramDefault::InitRootSignature()
     _rootSignature->GetID3D12RootSignature()->SetName(L"Default Root Signature");
 }
 
-void ProgramDefault::InitPipelineState()
+void DefaultProgram::InitPipelineState()
 {
     UINT compileFlags = 0;
 #ifdef DEBUG
