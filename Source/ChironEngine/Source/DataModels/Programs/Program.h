@@ -19,16 +19,15 @@ protected:
 
 	// ------------- INITS ----------------------
 
-	virtual void InitRootSignature() {}
+	virtual void InitRootSignature() = 0;
 
-	virtual void InitPipelineState() {}
+	virtual void InitPipelineState() = 0;
 
 	// ------------- CREATORS ----------------------
 
 	void CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDescription);
 	// In this state shaders must be loaded
-	void CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements,
-		D3D12_DEPTH_STENCIL_DESC depthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+	void CreateGraphicPipelineState(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc);
 
 private:
 	D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion();
