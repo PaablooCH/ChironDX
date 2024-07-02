@@ -50,13 +50,18 @@ CommandQueue::~CommandQueue()
 
 uint64_t CommandQueue::ExecuteCommandList(std::shared_ptr<CommandList> commandList)
 {
+	if (commandList->GetType() != _type)
+	{
+		LOG_ERROR("CommandList type doesn't match the commandQueue type.");
+		return 0;
+	}
 	std::vector<ID3D12CommandList*> commandListsToPush;
 	commandListsToPush.reserve(2);
 
 	ResourceStateTracker::Lock();
 
 	auto pendingBarriersList = GetCommandList();
-	bool hasPendingBarriers	= commandList->Close(*pendingBarriersList);
+	bool hasPendingBarriers	= commandList->Close(pendingBarriersList.get());
 
 	ResourceStateTracker::Unlock();
 	

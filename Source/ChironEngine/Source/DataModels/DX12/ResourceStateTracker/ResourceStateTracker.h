@@ -27,7 +27,7 @@ public:
      * @param subResource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES
      * which indicates that all subresources should be transitioned to the same state.
      */
-    void TransitionResource(const Resource& resource, D3D12_RESOURCE_STATES stateAfter, 
+    void TransitionResource(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, 
         UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
     /**
@@ -54,10 +54,10 @@ public:
      *
      * @return The number of resource barriers that were flushed to the command list.
      */
-    uint32_t FlushPendingResourceBarriers(CommandList& commandList);
+    uint32_t FlushPendingResourceBarriers(const CommandList* commandList);
 
     // Flush any (non-pending) resource barriers that have been pushed to the resource state tracker.
-    void FlushResourceBarriers(CommandList& commandList);
+    void FlushResourceBarriers(CommandList* commandList);
 
     // Commit final resource states to the global resource state map. This must be called when the command list is closed.
     void CommitFinalResourceStates();

@@ -12,13 +12,13 @@
 #include "DataModels/DX12/UploadBuffer/UploadBuffer.h"
 #include "DataModels/Programs/Program.h"
 
-CommandList::CommandList(D3D12_COMMAND_LIST_TYPE type) : _commandListType(type), _rootSignature(nullptr)
+CommandList::CommandList(D3D12_COMMAND_LIST_TYPE type) : _type(type), _rootSignature(nullptr)
 {
     auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
-    Chiron::Utils::ThrowIfFailed(device->CreateCommandAllocator(_commandListType, IID_PPV_ARGS(&_commandAllocator)));
+    Chiron::Utils::ThrowIfFailed(device->CreateCommandAllocator(_type, IID_PPV_ARGS(&_commandAllocator)));
 
-    Chiron::Utils::ThrowIfFailed(device->CreateCommandList(0, _commandListType, _commandAllocator.Get(),
+    Chiron::Utils::ThrowIfFailed(device->CreateCommandList(0, _type, _commandAllocator.Get(),
         nullptr, IID_PPV_ARGS(&_commandList)));
 
     _uploadBuffer = std::make_unique<UploadBuffer>();
@@ -36,7 +36,7 @@ CommandList::~CommandList()
 {
 }
 
-void CommandList::TransitionBarrier(const Resource& resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource, 
+void CommandList::TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource, 
     bool flushBarriers)
 {
     _resourceStateTracker->TransitionResource(resource, stateAfter, subresource);
@@ -57,9 +57,9 @@ void CommandList::TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOU
     }
 }
 
-void CommandList::UAVBarrier(const Resource& resource, bool flushBarriers)
+void CommandList::UAVBarrier(const Resource* resource, bool flushBarriers)
 {
-    _resourceStateTracker->UAVBarrier(&resource);
+    _resourceStateTracker->UAVBarrier(resource);
 
     if (flushBarriers)
     {
@@ -67,9 +67,9 @@ void CommandList::UAVBarrier(const Resource& resource, bool flushBarriers)
     }
 }
 
-void CommandList::AliasingBarrier(const Resource& befResource, const Resource& aftResource, bool flushBarriers)
+void CommandList::AliasingBarrier(const Resource* befResource, const Resource* aftResource, bool flushBarriers)
 {
-    _resourceStateTracker->AliasingBarrier(&befResource, &aftResource);
+    _resourceStateTracker->AliasingBarrier(befResource, aftResource);
 
     if (flushBarriers)
     {
@@ -86,7 +86,7 @@ void CommandList::Close()
     ResourceStateTracker::Unlock();
 }
 
-bool CommandList::Close(CommandList& pendingCommandList)
+bool CommandList::Close(const CommandList* pendingCommandList)
 {
     // Flush any remaining barriers.
     FlushResourceBarriers();
@@ -121,17 +121,17 @@ void CommandList::Reset()
     _computeCommandList = nullptr;
 }
 
-void CommandList::CopyResource(Resource& dstRes, const Resource& srcRes)
+void CommandList::CopyResource(Resource* dstRes, const Resource* srcRes)
 {
     TransitionBarrier(srcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
     TransitionBarrier(dstRes, D3D12_RESOURCE_STATE_COPY_DEST);
 
     FlushResourceBarriers();
 
-    _commandList.Get()->CopyResource(dstRes.GetResource(), srcRes.GetResource());
+    _commandList.Get()->CopyResource(dstRes->GetResource(), srcRes->GetResource());
 
-    TrackResource(srcRes);
-    TrackResource(dstRes);
+    TrackResource(srcRes->GetResource());
+    TrackResource(dstRes->GetResource());
 }
 
 void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
@@ -235,7 +235,7 @@ void CommandList::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, ID3D12D
     }
 }
 
-void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Resource& resource, 
+void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Resource* resource, 
     D3D12_RESOURCE_STATES stateAfter, UINT firstSubresource, UINT numSubresources, 
     const D3D12_SHADER_RESOURCE_VIEW_DESC* srv)
 {
@@ -252,9 +252,9 @@ void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t de
     }
 
     _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, 
-        descriptorOffset, 1, resource.GetShaderResourceView(srv));
+        descriptorOffset, 1, resource->GetShaderResourceView(srv));
 
-    TrackResource(resource);
+    TrackResource(resource->GetResource());
 }
 
 void CommandList::BindDescriptorHeaps()
@@ -276,7 +276,7 @@ void CommandList::BindDescriptorHeaps()
 
 void CommandList::FlushResourceBarriers()
 {
-    _resourceStateTracker->FlushResourceBarriers(*this);
+    _resourceStateTracker->FlushResourceBarriers(this);
 }
 
 void CommandList::SetPipelineState(ComPtr<ID3D12PipelineState> pipelineState)
@@ -309,9 +309,9 @@ void CommandList::TrackObject(ComPtr<ID3D12Object> object)
     _objectsTracker.push_back(object);
 }
 
-void CommandList::TrackResource(const Resource& resource)
+void CommandList::TrackResource(ID3D12Resource* resource)
 {
-    TrackObject(resource.GetResource());
+    TrackObject(resource);
 }
 
 void CommandList::ReleaseTrackedObjects()

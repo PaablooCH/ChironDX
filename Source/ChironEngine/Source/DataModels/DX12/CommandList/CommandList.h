@@ -24,7 +24,7 @@ public:
      * @param subresource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES which indicates that all subresources are transitioned to the same state.
      * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
      */
-    void TransitionBarrier(const Resource& resource, D3D12_RESOURCE_STATES stateAfter, 
+    void TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, 
         UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool flushBarriers = false);
 
     void TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter,
@@ -36,7 +36,7 @@ public:
      * @param resource The resource to apply the barrier.
      * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
      */
-    void UAVBarrier(const Resource& resource, bool flushBarriers = false);
+    void UAVBarrier(const Resource* resource, bool flushBarriers = false);
 
     /**
      * Add an aliasing barrier to indicate a transition between usages of two different resources that occupy the same space in a heap.
@@ -45,16 +45,16 @@ public:
      * @param aftResource The resource that will occupy the space in the heap.
      * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
      */
-    void AliasingBarrier(const Resource& befResource, const Resource& aftResource, bool flushBarriers = false);
+    void AliasingBarrier(const Resource* befResource, const Resource* aftResource, bool flushBarriers = false);
 
     // ------------- COMMAND LIST ACTIONS ----------------------
 
     void Close();
-    bool Close(CommandList& pendingCommandList);
+    bool Close(const CommandList* pendingCommandList);
 
     void Reset();
 
-    void CopyResource(Resource& dstRes, const Resource& srcRes);
+    void CopyResource(Resource* dstRes, const Resource* srcRes);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
     void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* pViews);
@@ -79,6 +79,7 @@ public:
     // ------------- GETTERS ----------------------
 
     inline ComPtr<ID3D12GraphicsCommandList2> GetGraphicsCommandList() const;
+    inline D3D12_COMMAND_LIST_TYPE GetType() const;
 
     // ------------- SETTERS ----------------------
 
@@ -92,7 +93,7 @@ public:
     inline void SetGraphicsDynamicConstantBuffer(uint32_t rootParameterIndex, const T& data);
 
     // Set the SRV on the graphics pipeline.
-    void SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Resource& resource,
+    void SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Resource* resource,
         D3D12_RESOURCE_STATES stateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE |
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, UINT firstSubresource = 0,
         UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
@@ -112,12 +113,12 @@ private:
     // ------------- TRACKERS ----------------------
 
     void TrackObject(ComPtr<ID3D12Object> object);
-    void TrackResource(const Resource& resource);
+    void TrackResource(ID3D12Resource* resource);
     
     void ReleaseTrackedObjects();
 
 private:
-    D3D12_COMMAND_LIST_TYPE _commandListType;
+    D3D12_COMMAND_LIST_TYPE _type;
     ComPtr<ID3D12GraphicsCommandList2> _commandList;
     ComPtr<ID3D12CommandAllocator> _commandAllocator;
 
@@ -158,4 +159,9 @@ inline void CommandList::SetGraphicsDynamicConstantBuffer(uint32_t rootParameter
 inline ComPtr<ID3D12GraphicsCommandList2> CommandList::GetGraphicsCommandList() const
 {
     return _commandList;
+}
+
+inline D3D12_COMMAND_LIST_TYPE CommandList::GetType() const
+{
+    return _type;
 }
