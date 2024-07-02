@@ -105,30 +105,11 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
     CreateDepthStencil(newWidth, newHeight);
 }
 
-void ModuleID3D12::CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
-    D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
-{
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), stateBefore, stateAfter);
-    commandList->ResourceBarrier(1, &barrier);
-}
-
-void ModuleID3D12::CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, 
-    ComPtr<ID3D12Resource> resourceBefore, ComPtr<ID3D12Resource> resourceAfter)
-{
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Aliasing(resourceBefore.Get(), resourceAfter.Get());
-    commandList->ResourceBarrier(1, &barrier);
-}
-
-void ModuleID3D12::CreateUAVBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource)
-{
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(resource.Get());
-    commandList->ResourceBarrier(1, &barrier);
-}
-
 void ModuleID3D12::UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, 
     ID3D12Resource** pDestinationResource, ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize,
     const void* bufferData, D3D12_RESOURCE_FLAGS flags)
 {
+    CHIRON_TODO("Delete");
     size_t bufferSize = numElements * elementSize;
 
     CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
