@@ -19,16 +19,6 @@ public:
      */
     void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter, 
         UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
-    /**
-     * Push a transition resource barrier to the resource state tracker.
-     *
-     * @param resource The resource to transition.
-     * @param stateAfter The state to transition the resource to.
-     * @param subResource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES
-     * which indicates that all subresources should be transitioned to the same state.
-     */
-    void TransitionResource(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, 
-        UINT subResource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
     /**
      * Push a UAV resource barrier for the given resource.
@@ -36,7 +26,7 @@ public:
      * @param resource The resource to add a UAV barrier for. Can be NULL which
      * indicates that any UAV access could require the barrier.
      */
-    void UAVBarrier(const Resource* resource = nullptr);
+    void UAVBarrier(ID3D12Resource* resource = nullptr);
 
     /**
     * Push an aliasing barrier for the given resource.
@@ -47,7 +37,7 @@ public:
     * Either the beforeResource or the afterResource parameters can be NULL which
     * indicates that any placed or reserved resource could cause aliasing.
     */
-    void AliasingBarrier(const Resource* resourceBefore = nullptr, const Resource * resourceAfter = nullptr);
+    void AliasingBarrier(ID3D12Resource* resourceBefore = nullptr, ID3D12Resource* resourceAfter = nullptr);
 
     /**
      * Flush any pending resource barriers to the command list.

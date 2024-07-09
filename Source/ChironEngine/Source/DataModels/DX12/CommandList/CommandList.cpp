@@ -39,6 +39,11 @@ CommandList::~CommandList()
 void CommandList::TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource, 
     bool flushBarriers)
 {
+    TransitionBarrier(resource->GetResource(), stateAfter, subresource, flushBarriers);
+}
+
+void CommandList::TransitionBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource, bool flushBarriers)
+{
     _resourceStateTracker->TransitionResource(resource, stateAfter, subresource);
 
     if (flushBarriers)
@@ -47,17 +52,7 @@ void CommandList::TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STA
     }
 }
 
-void CommandList::TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource, bool flushBarriers)
-{
-    _resourceStateTracker->TransitionResource(resource.Get(), stateAfter, subresource);
-
-    if (flushBarriers)
-    {
-        FlushResourceBarriers();
-    }
-}
-
-void CommandList::UAVBarrier(const Resource* resource, bool flushBarriers)
+void CommandList::UAVBarrier(ID3D12Resource* resource, bool flushBarriers)
 {
     _resourceStateTracker->UAVBarrier(resource);
 
@@ -67,7 +62,12 @@ void CommandList::UAVBarrier(const Resource* resource, bool flushBarriers)
     }
 }
 
-void CommandList::AliasingBarrier(const Resource* befResource, const Resource* aftResource, bool flushBarriers)
+void CommandList::UAVBarrier(const Resource* resource, bool flushBarriers)
+{
+    UAVBarrier(resource->GetResource(), flushBarriers);
+}
+
+void CommandList::AliasingBarrier(ID3D12Resource* befResource, ID3D12Resource* aftResource, bool flushBarriers)
 {
     _resourceStateTracker->AliasingBarrier(befResource, aftResource);
 
@@ -75,6 +75,11 @@ void CommandList::AliasingBarrier(const Resource* befResource, const Resource* a
     {
         FlushResourceBarriers();
     }
+}
+
+void CommandList::AliasingBarrier(const Resource* befResource, const Resource* aftResource, bool flushBarriers)
+{
+    AliasingBarrier(befResource->GetResource(), aftResource->GetResource(), flushBarriers);
 }
 
 void CommandList::Close()
@@ -121,17 +126,22 @@ void CommandList::Reset()
     _computeCommandList = nullptr;
 }
 
-void CommandList::CopyResource(Resource* dstRes, const Resource* srcRes)
+void CommandList::CopyResource(ID3D12Resource* dstRes, ID3D12Resource* srcRes)
 {
     TransitionBarrier(srcRes, D3D12_RESOURCE_STATE_COPY_SOURCE);
     TransitionBarrier(dstRes, D3D12_RESOURCE_STATE_COPY_DEST);
 
     FlushResourceBarriers();
 
-    _commandList.Get()->CopyResource(dstRes->GetResource(), srcRes->GetResource());
+    _commandList.Get()->CopyResource(dstRes, srcRes);
 
-    TrackResource(srcRes->GetResource());
-    TrackResource(dstRes->GetResource());
+    TrackResource(srcRes);
+    TrackResource(dstRes);
+}
+
+void CommandList::CopyResource(const Resource* dstRes, const Resource* srcRes)
+{
+    CopyResource(dstRes->GetResource(), srcRes->GetResource());
 }
 
 void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
@@ -179,7 +189,7 @@ void CommandList::UseProgram(Program* program)
     RootSignature* rootSignature = program->GetRootSignature();
 
     SetPipelineState(pipelineState);
-    SetRootSignature(rootSignature);
+    SetRootSignature(rootSignature, program->IsGraphic());
 }
 
 void CommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
@@ -204,6 +214,18 @@ void CommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint3
     }
 
     _commandList->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex, startInstance);
+}
+
+void CommandList::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ)
+{
+    FlushResourceBarriers();
+
+    for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i)
+    {
+        _dynamicDescriptorHeap[i]->CommitStagedDescriptorsForDispatch(*this);
+    }
+
+    _commandList->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
 
 void CommandList::ClearRenderTargetView(const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* pRects)
@@ -286,7 +308,7 @@ void CommandList::SetPipelineState(ComPtr<ID3D12PipelineState> pipelineState)
     TrackObject(pipelineState);
 }
 
-void CommandList::SetRootSignature(const RootSignature* rootSignature)
+void CommandList::SetRootSignature(const RootSignature* rootSignature, bool graphic)
 {
     ID3D12RootSignature* rS = rootSignature->GetID3D12RootSignature();
     if (rS != _rootSignature)
@@ -295,13 +317,25 @@ void CommandList::SetRootSignature(const RootSignature* rootSignature)
 
         for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; i++)
         {
-            _dynamicDescriptorHeap[i]->ParseRootSignature(*rootSignature);
+            _dynamicDescriptorHeap[i]->ParseRootSignature(rootSignature);
         }
         
-        _commandList->SetGraphicsRootSignature(_rootSignature);
+        if (graphic)
+        {
+            _commandList->SetGraphicsRootSignature(_rootSignature);
+        }
+        else
+        {
+            _commandList->SetComputeRootSignature(_rootSignature);
+        }
 
         TrackObject(_rootSignature);
     }
+}
+
+void CommandList::SetCompute32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants)
+{
+    _commandList->SetComputeRoot32BitConstants(rootParameterIndex, numConstants, constants, 0);
 }
 
 void CommandList::TrackObject(ComPtr<ID3D12Object> object)

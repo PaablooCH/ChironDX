@@ -25,24 +25,14 @@ void ResourceStateTracker::TransitionResource(ID3D12Resource* resource, D3D12_RE
     }
 }
 
-void ResourceStateTracker::TransitionResource(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subResource)
+void ResourceStateTracker::UAVBarrier(ID3D12Resource* resource)
 {
-    TransitionResource(resource->GetResource(), stateAfter, subResource);
+    ResourceBarrier(CD3DX12_RESOURCE_BARRIER::UAV(resource));
 }
 
-void ResourceStateTracker::UAVBarrier(const Resource* resource)
+void ResourceStateTracker::AliasingBarrier(ID3D12Resource* resourceBefore, ID3D12Resource* resourceAfter)
 {
-    ID3D12Resource* pResource = resource != nullptr ? resource->GetResource() : nullptr;
-
-    ResourceBarrier(CD3DX12_RESOURCE_BARRIER::UAV(pResource));
-}
-
-void ResourceStateTracker::AliasingBarrier(const Resource* resourceBefore, const Resource* resourceAfter)
-{
-    ID3D12Resource* pBeforeResource = resourceBefore != nullptr ? resourceBefore->GetResource() : nullptr;
-    ID3D12Resource* pAfterResource = resourceAfter != nullptr ? resourceAfter->GetResource() : nullptr;
-
-    ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Aliasing(pBeforeResource, pAfterResource));
+    ResourceBarrier(CD3DX12_RESOURCE_BARRIER::Aliasing(resourceBefore, resourceAfter));
 }
 
 uint32_t ResourceStateTracker::FlushPendingResourceBarriers(const CommandList* commandList)

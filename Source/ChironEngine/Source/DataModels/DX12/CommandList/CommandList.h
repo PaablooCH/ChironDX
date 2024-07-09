@@ -27,7 +27,7 @@ public:
     void TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, 
         UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool flushBarriers = false);
 
-    void TransitionBarrier(ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter,
+    void TransitionBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter,
         UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool flushBarriers = false);
 
     /**
@@ -36,6 +36,7 @@ public:
      * @param resource The resource to apply the barrier.
      * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
      */
+    void UAVBarrier(ID3D12Resource* resource, bool flushBarriers = false);
     void UAVBarrier(const Resource* resource, bool flushBarriers = false);
 
     /**
@@ -45,6 +46,7 @@ public:
      * @param aftResource The resource that will occupy the space in the heap.
      * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
      */
+    void AliasingBarrier(ID3D12Resource* befResource, ID3D12Resource* aftResource, bool flushBarriers = false);
     void AliasingBarrier(const Resource* befResource, const Resource* aftResource, bool flushBarriers = false);
 
     // ------------- COMMAND LIST ACTIONS ----------------------
@@ -54,7 +56,8 @@ public:
 
     void Reset();
 
-    void CopyResource(Resource* dstRes, const Resource* srcRes);
+    void CopyResource(ID3D12Resource* dstRes, ID3D12Resource* srcRes);
+    void CopyResource(const Resource* dstRes, const Resource* srcRes);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
     void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* pViews);
@@ -70,6 +73,7 @@ public:
     void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
     void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0, 
         uint32_t startInstance = 0);
+    void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ = 1);
 
     void ClearRenderTargetView(const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView, const FLOAT colorRGBA[4], 
         UINT numRects, const D3D12_RECT* pRects = nullptr);
@@ -79,6 +83,7 @@ public:
     // ------------- GETTERS ----------------------
 
     inline ComPtr<ID3D12GraphicsCommandList2> GetGraphicsCommandList() const;
+    inline std::shared_ptr<CommandList> GetComputeCommandList() const;
     inline D3D12_COMMAND_LIST_TYPE GetType() const;
 
     // ------------- SETTERS ----------------------
@@ -108,7 +113,8 @@ private:
     // ------------- COMMAND LIST ACTIONS ----------------------
 
     void SetPipelineState(ComPtr<ID3D12PipelineState> pipelineState);
-    void SetRootSignature(const RootSignature* rootSignature);
+    void SetRootSignature(const RootSignature* rootSignature, bool graphic);
+    void SetCompute32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants);
 
     // ------------- TRACKERS ----------------------
 
@@ -159,6 +165,11 @@ inline void CommandList::SetGraphicsDynamicConstantBuffer(uint32_t rootParameter
 inline ComPtr<ID3D12GraphicsCommandList2> CommandList::GetGraphicsCommandList() const
 {
     return _commandList;
+}
+
+inline std::shared_ptr<CommandList> CommandList::GetComputeCommandList() const
+{
+    return _computeCommandList;
 }
 
 inline D3D12_COMMAND_LIST_TYPE CommandList::GetType() const
