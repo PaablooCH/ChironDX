@@ -1,6 +1,7 @@
 #pragma once
 #include "Module.h"
 
+class CommandList;
 class CommandQueue;
 class DescriptorAllocator;
 
@@ -17,6 +18,9 @@ public:
     bool CleanUp() override;
 
     void SwapCurrentBuffer();
+
+    // The caller will lose ownership of the commandList shared_ptr after calling this function.
+    uint64_t ExecuteCommandList(std::shared_ptr<CommandList>& commandList);
 
     // ------------- WINDOW FUNC ----------------------
 
@@ -35,11 +39,14 @@ public:
     void SaveCurrentBufferFenceValue(const uint64_t& fenceValue);
     // Waits until all the events are reached.
     void Flush();
+    void WaitForFenceValue(D3D12_COMMAND_LIST_TYPE type, uint64_t fenceValue);
 
     // ------------- GETTERS ----------------------
 
     inline ID3D12Device2* GetDevice() const;
     inline CommandQueue* GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
+    ID3D12CommandQueue* GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
+    std::shared_ptr<CommandList> GetCommandList(D3D12_COMMAND_LIST_TYPE type) const;
     inline IDXGISwapChain4* GetSwapChain() const;
     inline UINT GetCurrentBuffer() const;
     inline ID3D12Resource* GetRenderBuffer() const;
@@ -57,7 +64,7 @@ private:
     bool CreateFactory();
     bool CreateAdapter();
     bool CreateDevice();
-    bool CreateCommandQueue();
+    bool CreateCommandQueues();
     bool CreateSwapChain();
     void CreateDepthStencil(unsigned width, unsigned height);
 
@@ -69,13 +76,7 @@ private:
 
     void InitFrameBuffer();
     void InitDescriptorAllocator();
-    
-    // ------------- SYNCHRONIZATION ----------------------
 
-    uint64_t Signal(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence,
-        uint64_t& fenceValue);
-    void WaitForFenceValue(ComPtr<ID3D12Fence> fence, uint64_t fenceValue, HANDLE fenceEvent,
-        std::chrono::milliseconds duration = std::chrono::milliseconds::max());
 private:
     static const UINT backBufferCount = 2;
 

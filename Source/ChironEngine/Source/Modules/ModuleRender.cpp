@@ -9,7 +9,6 @@
 #include "ModuleWindow.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/CommandQueue/CommandQueue.h"
 #include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/Programs/Program.h"
 
@@ -27,13 +26,12 @@ bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    auto commandQueue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandQueue();
+    auto commandQueue = d3d12->GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
     
     // -------------- VERTEX ---------------------
     
-    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
-    auto commandList = copyCQ->GetCommandList();
+    auto copyCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
     
     // Define the geometry for a triangle.
     Vertex triangleVertices[] =
@@ -46,7 +44,7 @@ bool ModuleRender::Init()
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
     ComPtr<ID3D12Resource> intermediateResource;
-    d3d12->UpdateBufferResource(commandList->GetGraphicsCommandList(), &_vertexBuffer, &intermediateResource, 
+    d3d12->UpdateBufferResource(copyCommandList->GetGraphicsCommandList(), &_vertexBuffer, &intermediateResource, 
         vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
 
     _vertexBuffer->SetName(L"Triangle Vertex Buffer");
@@ -63,7 +61,7 @@ bool ModuleRender::Init()
     const UINT indexBufferSize = sizeof(indexBufferData);
 
     ComPtr<ID3D12Resource> intermediateResource2;
-    d3d12->UpdateBufferResource(commandList->GetGraphicsCommandList(), &_indexBuffer, &intermediateResource2,
+    d3d12->UpdateBufferResource(copyCommandList->GetGraphicsCommandList(), &_indexBuffer, &intermediateResource2,
         indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
 
     _indexBuffer->SetName(L"Triangle Index Buffer");
@@ -72,9 +70,10 @@ bool ModuleRender::Init()
     _indexBufferView.SizeInBytes = indexBufferSize;
     _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 
-    uint64_t initFenceValue = copyCQ->ExecuteCommandList(commandList);
+    auto queueType = copyCommandList->GetType();
+    uint64_t initFenceValue = d3d12->ExecuteCommandList(copyCommandList);
 
-    copyCQ->WaitForFenceValue(initFenceValue);
+    d3d12->WaitForFenceValue(queueType, initFenceValue);
 
     return true;
 }
@@ -83,7 +82,7 @@ UpdateStatus ModuleRender::PreUpdate()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
     
-    _drawCommandList = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandList();
+    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
         
     // Transition the state to render
     _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -154,10 +153,10 @@ UpdateStatus ModuleRender::Update()
 
     _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 
-    uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
+    uint64_t fenceValue = d3d12->ExecuteCommandList(_drawCommandList);
     d3d12->SaveCurrentBufferFenceValue(fenceValue);
 
-    _drawCommandList.reset();
+    _drawCommandList = nullptr;
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

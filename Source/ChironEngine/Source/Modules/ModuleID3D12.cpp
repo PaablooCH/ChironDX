@@ -5,6 +5,7 @@
 
 #include "ModuleWindow.h"
 
+#include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/CommandQueue/CommandQueue.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 
@@ -21,7 +22,7 @@ bool ModuleID3D12::Init()
     bool ok = CreateFactory();
     ok = ok && CreateAdapter();
     ok = ok && CreateDevice();
-    ok = ok && CreateCommandQueue();
+    ok = ok && CreateCommandQueues();
     ok = ok && CreateSwapChain();
 
     if (ok)
@@ -65,6 +66,21 @@ void ModuleID3D12::SwapCurrentBuffer()
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
     _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
+}
+
+uint64_t ModuleID3D12::ExecuteCommandList(std::shared_ptr<CommandList>& commandList)
+{
+    switch (commandList->GetType())
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect->ExecuteCommandList(std::move(commandList));
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute->ExecuteCommandList(std::move(commandList));
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy->ExecuteCommandList(std::move(commandList));
+    default:
+        throw std::invalid_argument("Incorrect queue type.");
+    }
 }
 
 void ModuleID3D12::SaveCurrentBufferFenceValue(const uint64_t& fenceValue)
@@ -154,21 +170,53 @@ void ModuleID3D12::Flush()
     _commandQueueCopy->Flush();
 }
 
-uint64_t ModuleID3D12::Signal(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence, uint64_t& fenceValue)
+void ModuleID3D12::WaitForFenceValue(D3D12_COMMAND_LIST_TYPE type, uint64_t fenceValue)
 {
-    uint64_t fenceValueForSignal = ++fenceValue;
-    Chiron::Utils::ThrowIfFailed(commandQueue->Signal(fence.Get(), fenceValueForSignal));
-
-    return fenceValueForSignal;
+    switch (type)
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        _commandQueueDirect->WaitForFenceValue(fenceValue);
+        break;
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        _commandQueueCompute->WaitForFenceValue(fenceValue);
+        break;
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        _commandQueueCopy->WaitForFenceValue(fenceValue);
+        break;
+    default:
+        throw std::invalid_argument("Incorrect queue type.");
+    }
 }
 
-void ModuleID3D12::WaitForFenceValue(ComPtr<ID3D12Fence> fence, uint64_t fenceValue, HANDLE fenceEvent, 
-    std::chrono::milliseconds duration)
+ID3D12CommandQueue* ModuleID3D12::GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const
 {
-    if (fence->GetCompletedValue() < fenceValue)
+    switch (type)
     {
-        Chiron::Utils::ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
-        ::WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect->GetCommandQueue();
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute->GetCommandQueue();
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy->GetCommandQueue();
+    default:
+        assert(false && "Incorrect queue type.");
+        break;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<CommandList> ModuleID3D12::GetCommandList(D3D12_COMMAND_LIST_TYPE type) const
+{
+    switch (type)
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect->GetCommandList();
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute->GetCommandList();
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy->GetCommandList();
+    default:
+        throw std::invalid_argument("Incorrect queue type.");
     }
 }
 
@@ -249,7 +297,7 @@ bool ModuleID3D12::CreateDevice()
     return ok;
 }
 
-bool ModuleID3D12::CreateCommandQueue()
+bool ModuleID3D12::CreateCommandQueues()
 {
     _commandQueueDirect = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _commandQueueCompute = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE);
