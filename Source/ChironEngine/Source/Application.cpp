@@ -30,6 +30,12 @@ Application::~Application()
 
 bool Application::Init()
 {
+	if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
+	{
+		LOG_ERROR("Co Initialize Failed");
+		return false;
+	}
+
 	for (const std::unique_ptr<Module>& module : _modules)
 	{
 		if (!module->Init())
