@@ -23,6 +23,7 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\Resource.cpp" />
     <ClCompile Include="Source\DataModels\DX12\Resource\Texture.cpp" />
     <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp" />
+    <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
     <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp" />
@@ -61,6 +62,7 @@
     <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h" />
     <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h" />
+    <ClInclude Include="Source\DataModels\Programs\GenerateMipsProgram.h" />
     <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
     <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h" />

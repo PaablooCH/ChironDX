@@ -8,11 +8,6 @@
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/ResourceStateTracker/ResourceStateTracker.h"
 
-namespace
-{
-	std::mutex mutex;
-}
-
 CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type) : _type(type), _fenceValue(0)
 {
 	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
@@ -50,7 +45,7 @@ CommandQueue::~CommandQueue()
 
 uint64_t CommandQueue::ExecuteCommandList(std::shared_ptr<CommandList> commandList)
 {
-	if (commandList->GetType() != _type)
+	if (!IsValidCommandListForQueue(commandList->GetType()))
 	{
 		LOG_ERROR("CommandList type doesn't match the commandQueue type.");
 		return 0;
@@ -74,15 +69,28 @@ uint64_t CommandQueue::ExecuteCommandList(std::shared_ptr<CommandList> commandLi
 
 	commandListsToPush.push_back(commandList->GetGraphicsCommandList().Get());
 
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard<std::mutex> lock(_mutex);
 
 	_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandListsToPush.size()), commandListsToPush.data());
 	uint64_t fenceValue = Signal();
+
+	auto computeCommandList = commandList->GetComputeCommandList();
+	if (computeCommandList)
+	{
+		auto computeQueue = App->GetModule<ModuleID3D12>()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+		computeQueue->WaitForCommandQueue(this);
+		computeQueue->ExecuteCommandList(computeCommandList);
+	}
 
 	_commandListWaiting.emplace(CommandListWaiting{ commandList, fenceValue });
 	_commandListWaiting.emplace(CommandListWaiting{ pendingBarriersList, fenceValue });
 
 	return fenceValue;
+}
+
+void CommandQueue::WaitForCommandQueue(CommandQueue* commandQueue)
+{
+	_commandQueue->Wait(commandQueue->_fence.Get(), commandQueue->_fenceValue);
 }
 
 void CommandQueue::WaitForFenceValue(uint64_t fenceValue)
@@ -103,7 +111,7 @@ std::shared_ptr<CommandList> CommandQueue::GetCommandList()
 {
 	std::shared_ptr<CommandList> commandList;
 
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard<std::mutex> lock(_mutex);
 
 	if (!_commandListWaiting.empty() && IsFenceComplete(_commandListWaiting.front().fenceValue))
 	{
@@ -119,6 +127,22 @@ std::shared_ptr<CommandList> CommandQueue::GetCommandList()
 	}
 	
 	return commandList;
+}
+
+bool CommandQueue::IsValidCommandListForQueue(D3D12_COMMAND_LIST_TYPE commandListType) {
+	switch (_type) 
+	{
+	case D3D12_COMMAND_LIST_TYPE_DIRECT:
+		return (commandListType == D3D12_COMMAND_LIST_TYPE_DIRECT ||
+			commandListType == D3D12_COMMAND_LIST_TYPE_COMPUTE ||
+			commandListType == D3D12_COMMAND_LIST_TYPE_COPY);
+	case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+		return (commandListType == D3D12_COMMAND_LIST_TYPE_COMPUTE);
+	case D3D12_COMMAND_LIST_TYPE_COPY:
+		return (commandListType == D3D12_COMMAND_LIST_TYPE_COPY);
+	default:
+		return false;
+	}
 }
 
 std::shared_ptr<CommandList> CommandQueue::CreateCommandList() const

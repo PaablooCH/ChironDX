@@ -135,6 +135,9 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\Texture.cpp">
       <Filter>Source\DataModels\DX12\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -236,6 +239,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h">
       <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Programs\GenerateMipsProgram.h">
+      <Filter>Source\DataModels\Programs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

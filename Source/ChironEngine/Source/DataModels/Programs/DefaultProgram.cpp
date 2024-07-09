@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "DefaultProgram.h"
 
-DefaultProgram::DefaultProgram(const std::string& name) : Program(name)
+DefaultProgram::DefaultProgram(const std::string& name) : Program(name, true)
 {
     InitRootSignature();
     InitPipelineState();

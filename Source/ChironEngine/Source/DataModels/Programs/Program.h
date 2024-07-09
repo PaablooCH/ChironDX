@@ -6,7 +6,6 @@ class Program
 {
 public:
 	Program() = delete;
-	Program(const std::string& name);
 	virtual ~Program();
 
 	// ------------- GETTERS ----------------------
@@ -15,7 +14,10 @@ public:
 	inline ID3DBlob* GetPixel() const;
 	inline RootSignature* GetRootSignature() const;
 	inline ID3D12PipelineState* GetPipelineState() const;
+	inline bool IsGraphic() const;
+
 protected:
+	Program(const std::string& name, bool isGraphic = true);
 
 	// ------------- INITS ----------------------
 
@@ -28,6 +30,7 @@ protected:
 	void CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDescription);
 	// In this state shaders must be loaded
 	void CreateGraphicPipelineState(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc);
+	void CreateComputePipelineState(const D3D12_COMPUTE_PIPELINE_STATE_DESC* psoDesc);
 
 private:
 	D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion();
@@ -37,9 +40,12 @@ protected:
 
 	ComPtr<ID3DBlob> _vertexShader;
 	ComPtr<ID3DBlob> _pixelShader;
+	ComPtr<ID3DBlob> _computeShader;
 	
 	std::unique_ptr<RootSignature> _rootSignature;
 	ComPtr<ID3D12PipelineState> _pipelineState;
+
+	bool _isGraphic;
 };
  
 inline ID3DBlob* Program::GetVertex() const
@@ -60,4 +66,9 @@ inline RootSignature* Program::GetRootSignature() const
 inline ID3D12PipelineState* Program::GetPipelineState() const
 {
 	return _pipelineState.Get();
+}
+
+inline bool Program::IsGraphic() const
+{
+	return _isGraphic;
 }
