@@ -5,11 +5,6 @@
 
 #include "Modules/ModuleID3D12.h"
 
-namespace
-{
-	std::mutex mutex;
-}
-
 DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) :
 	_heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap)
 {
@@ -31,7 +26,7 @@ DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type
 
 DescriptorAllocation DescriptorAllocatorPage::Allocate(uint32_t numDescriptors)
 {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     // There are fewer free descriptors than currently needed. Search for another page.
     if (numDescriptors > _numFreeHandles)
@@ -48,15 +43,15 @@ DescriptorAllocation DescriptorAllocatorPage::Allocate(uint32_t numDescriptors)
     }
 
     auto& blockOffsetIt = blockSizeIt->second;
+    uint32_t size = blockSizeIt->first;
     uint32_t offset = blockOffsetIt->first;
-    uint32_t size = blockOffsetIt->second.size;
 
     uint32_t newOffset = offset + numDescriptors;
     uint32_t newSize = size - numDescriptors;
 
     // Delete old info
-    _freeBlocksBySize.erase(blockSizeIt);
     _freeBlocksByOffset.erase(blockOffsetIt);
+    _freeBlocksBySize.erase(blockSizeIt);
 
     if (newSize > 0)
     {
@@ -85,14 +80,14 @@ void DescriptorAllocatorPage::Free(DescriptorAllocation&& descriptorHandle, uint
 {
     uint32_t offset = ComputeOffset(descriptorHandle.GetDescriptorHandle());
 
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
     
     _staleDescriptors.emplace(offset, descriptorHandle.GetNumHandles(), frameNumber);
 }
 
 void DescriptorAllocatorPage::ReleaseStaleDescriptors(uint64_t frameNumber)
 {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
     while (!_staleDescriptors.empty() && _staleDescriptors.front().frameNumber <= frameNumber)
     {
         StaleDescriptorInfo& descInfo = _staleDescriptors.front();

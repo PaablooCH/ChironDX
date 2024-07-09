@@ -1,8 +1,6 @@
 #include "Pch.h"
 #include "Log.h"
 
-#include <mutex>
-
 namespace
 {
 	std::recursive_mutex writeLock; // block write in multithread

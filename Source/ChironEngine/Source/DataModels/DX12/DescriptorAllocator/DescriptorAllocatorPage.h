@@ -87,6 +87,8 @@ private:
     uint32_t _numDescriptorsPerHeap;
     // Current free descriptors
     uint32_t _numFreeHandles;
+
+    std::mutex _mutex;
 };
 
 inline std::shared_ptr<DescriptorAllocatorPage> DescriptorAllocatorPage::GetSharedPtr()

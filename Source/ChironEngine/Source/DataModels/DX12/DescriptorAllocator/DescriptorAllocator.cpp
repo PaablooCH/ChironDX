@@ -3,11 +3,6 @@
 
 #include "DescriptorAllocatorPage.h"
 
-namespace 
-{
-	std::mutex mutex;
-}
-
 DescriptorAllocator::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) : 
 	_heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap)
 {
@@ -19,7 +14,7 @@ DescriptorAllocator::~DescriptorAllocator()
 
 DescriptorAllocation DescriptorAllocator::Allocate(uint32_t numDescriptors)
 {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     DescriptorAllocation allocation;
 
@@ -54,7 +49,7 @@ DescriptorAllocation DescriptorAllocator::Allocate(uint32_t numDescriptors)
 
 void DescriptorAllocator::ReleaseStaleDescriptors(uint64_t frameNumber)
 {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     for (size_t i = 0; i < _heapPool.size(); ++i)
     {

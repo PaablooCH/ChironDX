@@ -149,20 +149,20 @@ D3D12_GPU_DESCRIPTOR_HANDLE DynamicDescriptorHeap::CopyDescriptor(CommandList& c
 	return hGPU;
 }
 
-void DynamicDescriptorHeap::ParseRootSignature(const RootSignature& rootSignature)
+void DynamicDescriptorHeap::ParseRootSignature(const RootSignature* rootSignature)
 {
 	_staleDescriptorTableBitMask = 0;
 
-	const auto& rootDesc = rootSignature.GetRootSignatureDesc();
+	const auto& rootDesc = rootSignature->GetRootSignatureDesc();
 
-	_descriptorTableBitMask = rootSignature.GetDescriptorTableBitMask(_descriptorHeapType);
+	_descriptorTableBitMask = rootSignature->GetDescriptorTableBitMask(_descriptorHeapType);
 	uint32_t descriptorTableBitMask = _descriptorTableBitMask;
 
 	uint32_t currentOffset = 0;
 	DWORD rootIndex;
 	while (_BitScanForward(&rootIndex, descriptorTableBitMask) && rootIndex < rootDesc.NumParameters)
 	{
-		uint32_t numDescriptors = rootSignature.GetNumDescriptors(rootIndex);
+		uint32_t numDescriptors = rootSignature->GetNumDescriptors(rootIndex);
 
 		DescriptorTableCache& descriptorTableCache = _descriptorTableCache[rootIndex];
 		descriptorTableCache.NumDescriptors = numDescriptors;

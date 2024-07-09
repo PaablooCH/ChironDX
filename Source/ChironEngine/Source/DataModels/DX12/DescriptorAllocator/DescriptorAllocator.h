@@ -26,5 +26,7 @@ private:
     std::vector<std::shared_ptr<DescriptorAllocatorPage>> _heapPool;
     // Indices of available heaps in the heap pool.
     std::unordered_set<size_t> _availableHeaps;
+
+    std::mutex _mutex;
 };
 

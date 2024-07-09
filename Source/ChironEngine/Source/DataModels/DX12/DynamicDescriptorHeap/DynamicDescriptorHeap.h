@@ -26,7 +26,7 @@ public:
     D3D12_GPU_DESCRIPTOR_HANDLE CopyDescriptor(CommandList& comandList, D3D12_CPU_DESCRIPTOR_HANDLE cpuDescriptor);
 
     // Determine which root parameters contain descriptor tables and the number of descriptors needed for each table.
-    void ParseRootSignature(const RootSignature& rootSignature);
+    void ParseRootSignature(const RootSignature* rootSignature);
 
     // Reset used descriptors. Call only if any descriptors has finished executing on the command queue.
     void Reset();
