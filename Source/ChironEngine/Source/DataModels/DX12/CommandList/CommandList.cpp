@@ -21,6 +21,19 @@ CommandList::CommandList(D3D12_COMMAND_LIST_TYPE type) : _type(type), _rootSigna
     Chiron::Utils::ThrowIfFailed(device->CreateCommandList(0, _type, _commandAllocator.Get(),
         nullptr, IID_PPV_ARGS(&_commandList)));
 
+    switch (_type)
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        _commandList->SetName(L"Direct Command List");
+        break;
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        _commandList->SetName(L"Compute Command Queue");
+        break;
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        _commandList->SetName(L"Copy Command Queue");
+        break;
+    }
+
     _uploadBuffer = std::make_unique<UploadBuffer>();
 
     _resourceStateTracker = std::make_unique<ResourceStateTracker>();
