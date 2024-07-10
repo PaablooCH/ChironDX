@@ -4,9 +4,10 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <d3d12SDKLayers.h>
 #include <d3dcompiler.h>
 #include <deque>
-#include <dxgi1_5.h>
+#include <dxgi1_6.h>
 #include <functional>
 #include <future>
 #include <list>

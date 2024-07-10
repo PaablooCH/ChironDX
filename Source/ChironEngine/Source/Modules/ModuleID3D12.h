@@ -43,7 +43,7 @@ public:
 
     // ------------- GETTERS ----------------------
 
-    inline ID3D12Device2* GetDevice() const;
+    inline ID3D12Device5* GetDevice() const;
     inline CommandQueue* GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
     ID3D12CommandQueue* GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
     std::shared_ptr<CommandList> GetCommandList(D3D12_COMMAND_LIST_TYPE type) const;
@@ -62,7 +62,6 @@ private:
     // ------------- CREATORS ----------------------
 
     bool CreateFactory();
-    bool CreateAdapter();
     bool CreateDevice();
     bool CreateCommandQueues();
     bool CreateSwapChain();
@@ -81,18 +80,14 @@ private:
     static const UINT backBufferCount = 2;
 
     // Is the entry point to the DirectX 12 API.
-    ComPtr<IDXGIFactory4> _factory;
-#ifdef DEBUG
-    // Debug Purposes
-    ComPtr<ID3D12Debug1> _debugController;
-#endif // DEBUG
+    ComPtr<IDXGIFactory5> _factory;
 
     // Provides information on the physical properties of a given DirectX device. 
     // Can query the current GPU's name, manufacturer, how much memory it has, and much more.
-    ComPtr<IDXGIAdapter1> _adapter;
+    ComPtr<IDXGIAdapter4> _adapter;
 
     // Primary entry point to the DirectX 12 API, gives access to the inner parts of the API.
-    ComPtr<ID3D12Device2> _device;
+    ComPtr<ID3D12Device5> _device;
 #ifdef DEBUG
     // Debug Purposes
     ComPtr<ID3D12DebugDevice> _debugDevice;
@@ -100,6 +95,7 @@ private:
 
     bool _vSync;
     bool _tearingSupported;
+    bool _supportsRT;
     UINT _currentBuffer;
 
     // Allows submit groups of draw calls, together to execute in order.
@@ -130,7 +126,7 @@ private:
     std::vector<std::unique_ptr<DescriptorAllocator>> _descriptorAllocators;
 };
 
-inline ID3D12Device2* ModuleID3D12::GetDevice() const
+inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
     return _device.Get();
 }
