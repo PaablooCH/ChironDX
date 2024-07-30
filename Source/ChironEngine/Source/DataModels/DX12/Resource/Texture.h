@@ -32,6 +32,8 @@ public:
 	// ------------- GETTERS ----------------------
 
 	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc = nullptr) const override;
+	inline TextureType GetTextureType() const;
+	void SetTexture(ComPtr<ID3D12Resource> texture);
 
 private:
 	DescriptorAllocation CreateShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc = nullptr) const;
@@ -40,3 +42,7 @@ private:
 	mutable std::unordered_map<size_t, DescriptorAllocation> _shaderResourceViews;
 };
 
+inline TextureType Texture::GetTextureType() const
+{
+	return TextureType::ALBEDO;
+}
