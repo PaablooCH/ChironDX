@@ -5,6 +5,7 @@ class Program;
 class Resource;
 class ResourceStateTracker;
 class RootSignature;
+class Texture;
 class UploadBuffer;
 
 class CommandList
@@ -58,6 +59,8 @@ public:
 
     void CopyResource(ID3D12Resource* dstRes, ID3D12Resource* srcRes);
     void CopyResource(const Resource* dstRes, const Resource* srcRes);
+    void CopyTextureSubresource(const std::shared_ptr<Texture>& texture, uint32_t firstSubresource,
+        uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
     void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* pViews);
@@ -114,12 +117,13 @@ private:
 
     void SetPipelineState(ComPtr<ID3D12PipelineState> pipelineState);
     void SetRootSignature(const RootSignature* rootSignature, bool graphic);
-    void SetCompute32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants);
+    void SetCompute32BitConstants(uint32_t rootParameterIndex, const void* constants, uint32_t numConstants = 1);
 
     // ------------- TRACKERS ----------------------
 
-    void TrackObject(ComPtr<ID3D12Object> object);
-    void TrackResource(ID3D12Resource* resource);
+    inline void TrackObject(ComPtr<ID3D12Object> object);
+    void TrackResource(const Resource* resource);
+    inline void TrackResource(ID3D12Resource* resource);
     
     void ReleaseTrackedObjects();
 
@@ -175,4 +179,14 @@ inline std::shared_ptr<CommandList> CommandList::GetComputeCommandList() const
 inline D3D12_COMMAND_LIST_TYPE CommandList::GetType() const
 {
     return _type;
+}
+
+inline void CommandList::TrackObject(ComPtr<ID3D12Object> object)
+{
+    _objectsTracker.push_back(object);
+}
+
+inline void CommandList::TrackResource(ID3D12Resource* resource)
+{
+    TrackObject(resource);
 }

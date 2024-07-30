@@ -52,6 +52,12 @@
     <Filter Include="Source\StdSpecialization">
       <UniqueIdentifier>{2c645517-9394-4ac1-ad4d-255a5e7d5ff8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\FileSystem">
+      <UniqueIdentifier>{d9315423-c997-4d3d-9629-706ee3ec6598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\FileSystem\Importers">
+      <UniqueIdentifier>{7b713ccc-fbf6-4cab-a9d0-1d19ea4b76c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -134,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\Resource\Texture.cpp">
       <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleFileSystem.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\Importers\TextureImporter.cpp">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
     </ClCompile>
     <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp">
       <Filter>Source\DataModels\Programs</Filter>
@@ -239,6 +251,15 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h">
       <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleFileSystem.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\TextureImporter.h">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\Importer.h">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\Programs\GenerateMipsProgram.h">
       <Filter>Source\DataModels\Programs</Filter>

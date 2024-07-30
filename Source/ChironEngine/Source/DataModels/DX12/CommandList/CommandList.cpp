@@ -6,7 +6,7 @@
 #include "Modules/ModuleID3D12.h"
 
 #include "DataModels/DX12/DynamicDescriptorHeap/DynamicDescriptorHeap.h"
-#include "DataModels/DX12/Resource/Resource.h"
+#include "DataModels/DX12/Resource/Texture.h"
 #include "DataModels/DX12/ResourceStateTracker/ResourceStateTracker.h"
 #include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/DX12/UploadBuffer/UploadBuffer.h"
@@ -157,6 +157,39 @@ void CommandList::CopyResource(const Resource* dstRes, const Resource* srcRes)
     CopyResource(dstRes->GetResource(), srcRes->GetResource());
 }
 
+void CommandList::CopyTextureSubresource(const std::shared_ptr<Texture>& texture, uint32_t firstSubresource, 
+    uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData)
+{
+    assert(texture);
+
+    auto destinationResource = texture->GetResource();
+
+    if (destinationResource)
+    {
+        auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+
+        // Resource must be in the copy-destination state.
+        TransitionBarrier(texture.get(), D3D12_RESOURCE_STATE_COPY_DEST);
+        FlushResourceBarriers();
+
+        UINT64 requiredSize = GetRequiredIntermediateSize(destinationResource, firstSubresource, numSubresources);
+
+        // Create a temporary (intermediate) resource for uploading the subresources
+        ComPtr<ID3D12Resource> intermediateResource;
+        CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+        CD3DX12_RESOURCE_DESC buffer = CD3DX12_RESOURCE_DESC::Buffer(requiredSize);
+        Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(
+            &heapProperties, D3D12_HEAP_FLAG_NONE,
+            &buffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+            IID_PPV_ARGS(&intermediateResource)));
+
+        UpdateSubresources(_commandList.Get(), destinationResource, intermediateResource.Get(), 0, firstSubresource, 
+            numSubresources, subresourceData);
+
+        TrackResource(intermediateResource.Get());
+        TrackResource(texture.get());
+    }
+}
 void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
 {
     _commandList->IASetPrimitiveTopology(primitiveTopology);
@@ -346,19 +379,14 @@ void CommandList::SetRootSignature(const RootSignature* rootSignature, bool grap
     }
 }
 
-void CommandList::SetCompute32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants)
+void CommandList::SetCompute32BitConstants(uint32_t rootParameterIndex, const void* constants, uint32_t numConstants)
 {
     _commandList->SetComputeRoot32BitConstants(rootParameterIndex, numConstants, constants, 0);
 }
 
-void CommandList::TrackObject(ComPtr<ID3D12Object> object)
+void CommandList::TrackResource(const Resource* resource)
 {
-    _objectsTracker.push_back(object);
-}
-
-void CommandList::TrackResource(ID3D12Resource* resource)
-{
-    TrackObject(resource);
+    TrackResource(resource->GetResource());
 }
 
 void CommandList::ReleaseTrackedObjects()

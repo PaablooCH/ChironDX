@@ -1,7 +1,19 @@
 #pragma once
 #include "Resource.h"
 
-class DescriptorAllocation;
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+
+CHIRON_TODO("temporary");
+enum class TextureType 
+{
+	ALBEDO,
+	DIFFUSE = ALBEDO,
+	SPECULAR,
+	METALLIC = SPECULAR,
+	NORMAL_MAP,
+	DEPTH,
+	RENDER_TARGET
+};
 
 class Texture : public Resource
 {

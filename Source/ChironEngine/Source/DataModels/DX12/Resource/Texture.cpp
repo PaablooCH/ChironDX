@@ -66,6 +66,10 @@ void Texture::Resize(uint32_t width, uint32_t height, uint32_t depthOrArraySize)
 		_resource->SetName(_name.c_str());
 
 		ResourceStateTracker::AddGlobalResourceState(_resource.Get(), D3D12_RESOURCE_STATE_COMMON);
+void Texture::SetTexture(ComPtr<ID3D12Resource> texture)
+{
+	SetResource(texture);
+}
 	}
 }
 

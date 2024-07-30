@@ -61,3 +61,8 @@ void Resource::Reset()
 	_resource.Reset();
 	_name.clear();
 }
+void Resource::SetResource(ComPtr<ID3D12Resource> resource)
+{
+	_resource = resource;
+	ResourceStateTracker::AddGlobalResourceState(_resource.Get(), D3D12_RESOURCE_STATE_COMMON);
+}

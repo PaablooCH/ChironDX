@@ -22,6 +22,8 @@ public:
 	inline ID3D12Resource* GetResource() const;
 	inline const std::wstring& GetName() const;
 
+	void SetResource(ComPtr<ID3D12Resource> resource);
+	inline void SetName(std::wstring name);
 protected:
 	ComPtr<ID3D12Resource> _resource;
 	std::wstring _name;
@@ -40,4 +42,13 @@ inline ID3D12Resource* Resource::GetResource() const
 inline const std::wstring& Resource::GetName() const
 {
 	return _name;
+}
+
+inline void Resource::SetName(std::wstring name)
+{
+	_name = name;
+	if (_resource)
+	{
+		_resource->SetName(_name.c_str());
+	}
 }
