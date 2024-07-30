@@ -101,11 +101,14 @@ public:
     inline void SetGraphicsDynamicConstantBuffer(uint32_t rootParameterIndex, const T& data);
 
     // Set the SRV on the graphics pipeline.
-    void SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Resource* resource,
+    void SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Texture* texture,
         D3D12_RESOURCE_STATES stateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE |
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, UINT firstSubresource = 0,
-        UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-        const D3D12_SHADER_RESOURCE_VIEW_DESC* srv = nullptr);
+        UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+
+    void SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t descrptorOffset, const Texture* texture, 
+        uint32_t mips = 0, D3D12_RESOURCE_STATES stateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS, 
+        UINT firstSubresource = 0, UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
     void BindDescriptorHeaps();
 

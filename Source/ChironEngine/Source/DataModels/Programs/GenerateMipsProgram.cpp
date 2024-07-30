@@ -66,7 +66,7 @@ void GenerateMipsProgram::InitPipelineState()
 #endif
 
     ComPtr<ID3DBlob> errorBuff;
-    if (FAILED(D3DCompileFromFile(L"Shaders/generate_mips_cs.hlsli", nullptr, nullptr, "main", "cs_5_1", compileFlags, 0,
+    if (FAILED(D3DCompileFromFile(L"Shaders/generate_mips_cs.hlsl", nullptr, nullptr, "main", "cs_5_1", compileFlags, 0,
         &_computeShader, &errorBuff)))
     {
         OutputDebugStringA((char*)errorBuff->GetBufferPointer());

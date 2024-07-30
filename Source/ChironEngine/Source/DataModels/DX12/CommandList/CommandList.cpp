@@ -303,26 +303,46 @@ void CommandList::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, ID3D12D
     }
 }
 
-void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Resource* resource, 
-    D3D12_RESOURCE_STATES stateAfter, UINT firstSubresource, UINT numSubresources, 
-    const D3D12_SHADER_RESOURCE_VIEW_DESC* srv)
+void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Texture* texture, 
+    D3D12_RESOURCE_STATES stateAfter, UINT firstSubresource, UINT numSubresources)
 {
     if (numSubresources != D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
     {
         for (UINT i = 0; i < numSubresources; i++)
         {
-            TransitionBarrier(resource, stateAfter, firstSubresource + i);
+            TransitionBarrier(texture, stateAfter, firstSubresource + i);
         }
     }
     else
     {
-        TransitionBarrier(resource, stateAfter);
+        TransitionBarrier(texture, stateAfter);
     }
 
     _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, 
-        descriptorOffset, 1, resource->GetShaderResourceView(srv));
+        descriptorOffset, 1, texture->GetShaderResourceView());
 
-    TrackResource(resource->GetResource());
+    TrackResource(texture);
+}
+
+void CommandList::SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t descrptorOffset, const Texture* texture,
+    uint32_t mips, D3D12_RESOURCE_STATES stateAfter, UINT firstSubresource, UINT numSubresources)
+{
+    if (numSubresources < D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+    {
+        for (uint32_t i = 0; i < numSubresources; ++i)
+        {
+            TransitionBarrier(texture, stateAfter, firstSubresource + i);
+        }
+    }
+    else
+    {
+        TransitionBarrier(texture, stateAfter);
+    }
+
+    _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, descrptorOffset, 
+        1, texture->GetUnorderedAccessView(mips));
+
+    TrackResource(texture);
 }
 
 void CommandList::BindDescriptorHeaps()
