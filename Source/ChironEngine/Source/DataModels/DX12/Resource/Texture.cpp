@@ -72,8 +72,6 @@ void Texture::SetTexture(ComPtr<ID3D12Resource> texture)
 {
 	SetResource(texture);
 }
-	}
-}
 
 D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetShaderResourceView(const D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc) const
 {
