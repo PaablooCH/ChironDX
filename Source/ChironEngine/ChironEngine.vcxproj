@@ -87,7 +87,6 @@
     <ClInclude Include="Source\Modules\ModuleProgram.h" />
     <ClInclude Include="Source\Modules\ModuleWindow.h" />
     <ClInclude Include="Source\Pch.h" />
-    <ClInclude Include="Source\StdSpecialization\HashSpecialization.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

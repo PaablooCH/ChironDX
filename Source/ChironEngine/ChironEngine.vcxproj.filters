@@ -49,9 +49,6 @@
     <Filter Include="Source\DataModels\DX12\Resources">
       <UniqueIdentifier>{ae3e24f8-95f9-426e-9383-995ab17db2c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\StdSpecialization">
-      <UniqueIdentifier>{2c645517-9394-4ac1-ad4d-255a5e7d5ff8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\DataModels\FileSystem">
       <UniqueIdentifier>{d9315423-c997-4d3d-9629-706ee3ec6598}</UniqueIdentifier>
     </Filter>
@@ -245,9 +242,6 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h">
       <Filter>Source\DataModels\DX12\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\StdSpecialization\HashSpecialization.h">
-      <Filter>Source\StdSpecialization</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h">
       <Filter>Source\DataModels\DX12\Resources</Filter>
