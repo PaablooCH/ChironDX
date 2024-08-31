@@ -6,6 +6,7 @@ class Program;
 enum class ProgramType
 {
     DEFAULT,
+    GENERATE_MIPS,
     SIZE
 };
 

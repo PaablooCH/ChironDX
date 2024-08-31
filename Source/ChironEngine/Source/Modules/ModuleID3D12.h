@@ -1,7 +1,9 @@
 #pragma once
 #include "Module.h"
 
+class CommandList;
 class CommandQueue;
+class DescriptorAllocator;
 
 class ModuleID3D12 : public Module
 {
@@ -17,6 +19,9 @@ public:
 
     void SwapCurrentBuffer();
 
+    // The caller will lose ownership of the commandList shared_ptr after calling this function.
+    uint64_t ExecuteCommandList(std::shared_ptr<CommandList>& commandList);
+
     // ------------- WINDOW FUNC ----------------------
 
     void ToggleVSync();
@@ -24,13 +29,7 @@ public:
 
     // ------------- CREATORS ----------------------
 
-    ComPtr<ID3D12GraphicsCommandList> CreateCommandList(ID3D12CommandAllocator* commandAllocator,
-        D3D12_COMMAND_LIST_TYPE type, const LPCWSTR& name = NULL);
-    void CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
-        D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter);
-    void CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resourceBefore, 
-        ComPtr<ID3D12Resource> resourceAfter);
-    void CreateUAVBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource);
+    // delete
     void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource** pDestinationResource,
         ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize, const void* bufferData,
         D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
@@ -40,11 +39,14 @@ public:
     void SaveCurrentBufferFenceValue(const uint64_t& fenceValue);
     // Waits until all the events are reached.
     void Flush();
+    void WaitForFenceValue(D3D12_COMMAND_LIST_TYPE type, uint64_t fenceValue);
 
     // ------------- GETTERS ----------------------
 
-    inline ID3D12Device2* GetDevice() const;
+    inline ID3D12Device5* GetDevice() const;
     inline CommandQueue* GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
+    ID3D12CommandQueue* GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
+    std::shared_ptr<CommandList> GetCommandList(D3D12_COMMAND_LIST_TYPE type) const;
     inline IDXGISwapChain4* GetSwapChain() const;
     inline UINT GetCurrentBuffer() const;
     inline ID3D12Resource* GetRenderBuffer() const;
@@ -54,14 +56,14 @@ public:
     inline ID3D12Resource* GetDepthStencilBuffer() const;
     inline ID3D12DescriptorHeap* GetDepthStencilViewHeap() const;
     inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilDescriptor() const;
+    inline DescriptorAllocator* GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const;
 
 private:
     // ------------- CREATORS ----------------------
 
     bool CreateFactory();
-    bool CreateAdapter();
     bool CreateDevice();
-    bool CreateCommandQueue();
+    bool CreateCommandQueues();
     bool CreateSwapChain();
     void CreateDepthStencil(unsigned width, unsigned height);
 
@@ -72,29 +74,20 @@ private:
     // ------------- INITS ---------------------------
 
     void InitFrameBuffer();
-    
-    // ------------- SYNCHRONIZATION ----------------------
+    void InitDescriptorAllocator();
 
-    uint64_t Signal(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence,
-        uint64_t& fenceValue);
-    void WaitForFenceValue(ComPtr<ID3D12Fence> fence, uint64_t fenceValue, HANDLE fenceEvent,
-        std::chrono::milliseconds duration = std::chrono::milliseconds::max());
 private:
     static const UINT backBufferCount = 2;
 
     // Is the entry point to the DirectX 12 API.
-    ComPtr<IDXGIFactory4> _factory;
-#ifdef DEBUG
-    // Debug Purposes
-    ComPtr<ID3D12Debug1> _debugController;
-#endif // DEBUG
+    ComPtr<IDXGIFactory5> _factory;
 
     // Provides information on the physical properties of a given DirectX device. 
     // Can query the current GPU's name, manufacturer, how much memory it has, and much more.
-    ComPtr<IDXGIAdapter1> _adapter;
+    ComPtr<IDXGIAdapter4> _adapter;
 
     // Primary entry point to the DirectX 12 API, gives access to the inner parts of the API.
-    ComPtr<ID3D12Device2> _device;
+    ComPtr<ID3D12Device5> _device;
 #ifdef DEBUG
     // Debug Purposes
     ComPtr<ID3D12DebugDevice> _debugDevice;
@@ -102,6 +95,7 @@ private:
 
     bool _vSync;
     bool _tearingSupported;
+    bool _supportsRT;
     UINT _currentBuffer;
 
     // Allows submit groups of draw calls, together to execute in order.
@@ -128,9 +122,11 @@ private:
     ComPtr<ID3D12Resource> _depthStencilBuffer;
     // Descriptor heap for depth buffer.
     ComPtr<ID3D12DescriptorHeap> _dsvHeap;
+
+    std::vector<std::unique_ptr<DescriptorAllocator>> _descriptorAllocators;
 };
 
-inline ID3D12Device2* ModuleID3D12::GetDevice() const
+inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
     return _device.Get();
 }
@@ -196,4 +192,9 @@ inline ID3D12DescriptorHeap* ModuleID3D12::GetDepthStencilViewHeap() const
 inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetDepthStencilDescriptor() const
 {
     return CD3DX12_CPU_DESCRIPTOR_HANDLE(_dsvHeap.Get()->GetCPUDescriptorHandleForHeapStart());
+}
+
+inline DescriptorAllocator* ModuleID3D12::GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const
+{
+    return _descriptorAllocators[type].get();
 }

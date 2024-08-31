@@ -1,6 +1,7 @@
 #pragma once
 
 class ModuleCamera;
+class ModuleFileSystem;
 class ModuleID3D12;
 class ModuleInput;
 class ModuleProgram;
@@ -12,6 +13,7 @@ enum class ModuleType
 {
 	WINDOW,
 	ID3D12,
+	FILE_SYSTEM,
 	PROGRAM,
 	INPUT,
 	CAMERA,
@@ -34,6 +36,12 @@ template<>
 struct ModuleToEnum<ModuleID3D12>
 {
 	const static ModuleType value = ModuleType::ID3D12;
+};
+
+template<>
+struct ModuleToEnum<ModuleFileSystem>
+{
+	const static ModuleType value = ModuleType::FILE_SYSTEM;
 };
 
 template<>

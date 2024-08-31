@@ -14,13 +14,26 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\Resource\Resource.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\Resource\Texture.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp" />
+    <ClCompile Include="Source\DataModels\FileSystem\Importers\TextureImporter.cpp" />
+    <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
-    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp" />
     <ClCompile Include="Source\DataModels\Programs\Program.cpp" />
-    <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp" />
+    <ClCompile Include="Source\DataModels\Programs\DefaultProgram.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
+    <ClCompile Include="Source\Modules\ModuleFileSystem.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Modules\ModuleRender.cpp" />
@@ -41,11 +54,25 @@
     <ClInclude Include="Source\Auxiliar\Formatter.h" />
     <ClCompile Include="Source\Main.cpp" />
     <ClInclude Include="Source\Auxiliar\Log.h" />
+    <ClInclude Include="Source\d3dx12.h" />
+    <ClInclude Include="Source\DataModels\DX12\CommandList\CommandList.h" />
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.h" />
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.h" />
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h" />
+    <ClInclude Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.h" />
+    <ClInclude Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.h" />
+    <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h" />
+    <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h" />
+    <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h" />
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\Importer.h" />
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\TextureImporter.h" />
+    <ClInclude Include="Source\DataModels\Programs\GenerateMipsProgram.h" />
     <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
-    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h" />
+    <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h" />
     <ClInclude Include="Source\DataModels\Programs\Program.h" />
-    <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h" />
+    <ClInclude Include="Source\DataModels\Programs\DefaultProgram.h" />
+    <ClInclude Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.h" />
     <ClInclude Include="Source\DebugDrawPass.h" />
     <ClInclude Include="Source\debug_draw.hpp" />
     <ClInclude Include="Source\Enums\ModuleType.h" />
@@ -53,6 +80,7 @@
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Modules\Module.h" />
     <ClInclude Include="Source\Modules\ModuleCamera.h" />
+    <ClInclude Include="Source\Modules\ModuleFileSystem.h" />
     <ClInclude Include="Source\Modules\ModuleID3D12.h" />
     <ClInclude Include="Source\Modules\ModuleInput.h" />
     <ClInclude Include="Source\Modules\ModuleRender.h" />
@@ -111,7 +139,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)DirectXTK12\Src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTex\;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -141,7 +169,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)DirectXTK12\Src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTex\;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -164,6 +192,5 @@
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

@@ -16,14 +16,44 @@
     <Filter Include="Source\DataModels">
       <UniqueIdentifier>{0ffecce9-bdf3-4972-939e-f1bf60a9d03b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\DataModels\CommandQueue">
-      <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\DataModels\Programs">
       <UniqueIdentifier>{9f905e72-f312-4a1a-9a55-f0b4c056a823}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\DataModels\Timer">
       <UniqueIdentifier>{ca78081a-fcb7-4c47-85fd-f2f33fa5342a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12">
+      <UniqueIdentifier>{bbfa49a3-de7b-4fb1-a837-82536c1446e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\CommandQueue">
+      <UniqueIdentifier>{1ef625fa-ee5f-431b-8b35-a02fbd49e231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\UploadBuffer">
+      <UniqueIdentifier>{d83e0e69-b6d5-4255-8604-b4f4335fdb66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\DescriptorAllocator">
+      <UniqueIdentifier>{736647ae-5df4-4029-9b49-8ccf74249af9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\DynamicDescriptorHeap">
+      <UniqueIdentifier>{7cff245e-c232-44ee-bf21-6038cabc4326}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\RootSignature">
+      <UniqueIdentifier>{9fb71034-a18f-4794-99e5-a460e7be84a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\CommandList">
+      <UniqueIdentifier>{6e5ef316-533c-41a9-b622-69e4fcde14d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\ResourceStateTracker">
+      <UniqueIdentifier>{dad4e276-b16f-4363-b752-205d844df021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\DX12\Resources">
+      <UniqueIdentifier>{ae3e24f8-95f9-426e-9383-995ab17db2c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\FileSystem">
+      <UniqueIdentifier>{d9315423-c997-4d3d-9629-706ee3ec6598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\FileSystem\Importers">
+      <UniqueIdentifier>{7b713ccc-fbf6-4cab-a9d0-1d19ea4b76c9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,10 +96,10 @@
     <ClCompile Include="Source\Modules\ModuleCamera.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\CommandQueue\CommandQueue.cpp">
-      <Filter>Source\DataModels\CommandQueue</Filter>
+    <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp">
+      <Filter>Source\DataModels\DX12\CommandQueue</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\Programs\ProgramDefault.cpp">
+    <ClCompile Include="Source\DataModels\Programs\DefaultProgram.cpp">
       <Filter>Source\DataModels\Programs</Filter>
     </ClCompile>
     <ClCompile Include="Source\DebugDrawPass.cpp">
@@ -77,6 +107,45 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp">
       <Filter>Source\DataModels\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp">
+      <Filter>Source\DataModels\DX12\UploadBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.cpp">
+      <Filter>Source\DataModels\DX12\DynamicDescriptorHeap</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp">
+      <Filter>Source\DataModels\DX12\RootSignature</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp">
+      <Filter>Source\DataModels\DX12\CommandList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.cpp">
+      <Filter>Source\DataModels\DX12\ResourceStateTracker</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\Resource\Resource.cpp">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\Resource\Texture.cpp">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleFileSystem.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\Importers\TextureImporter.cpp">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,10 +200,10 @@
     <ClInclude Include="Source\Modules\ModuleCamera.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\CommandQueue\CommandQueue.h">
-      <Filter>Source\DataModels\CommandQueue</Filter>
+    <ClInclude Include="Source\DataModels\DX12\CommandQueue\CommandQueue.h">
+      <Filter>Source\DataModels\DX12\CommandQueue</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\Programs\ProgramDefault.h">
+    <ClInclude Include="Source\DataModels\Programs\DefaultProgram.h">
       <Filter>Source\DataModels\Programs</Filter>
     </ClInclude>
     <ClInclude Include="Source\DebugDrawPass.h">
@@ -145,6 +214,49 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\Timer\Timer.h">
       <Filter>Source\DataModels\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\d3dx12.h" />
+    <ClInclude Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.h">
+      <Filter>Source\DataModels\DX12\UploadBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.h">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.h">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h">
+      <Filter>Source\DataModels\DX12\DescriptorAllocator</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.h">
+      <Filter>Source\DataModels\DX12\DynamicDescriptorHeap</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h">
+      <Filter>Source\DataModels\DX12\RootSignature</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\CommandList\CommandList.h">
+      <Filter>Source\DataModels\DX12\CommandList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.h">
+      <Filter>Source\DataModels\DX12\ResourceStateTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleFileSystem.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\TextureImporter.h">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\Importer.h">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Programs\GenerateMipsProgram.h">
+      <Filter>Source\DataModels\Programs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

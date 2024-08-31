@@ -1,6 +1,7 @@
 #pragma once
 #include "Module.h"
 
+class CommandList;
 class DebugDrawPass;
 
 struct Vertex
@@ -26,7 +27,7 @@ private:
 private:
     // Indicate to the driver how a resource should be used in upcoming commands.
     // Is used once its loaded into a Queue
-    ComPtr<ID3D12GraphicsCommandList> _drawCommandList;
+    std::shared_ptr<CommandList> _drawCommandList;
 
     ComPtr<ID3D12Resource> _vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
@@ -35,4 +36,6 @@ private:
     D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 
     std::unique_ptr<DebugDrawPass> _debugDraw;
+
+    D3D12_RECT _scissor;
 };

@@ -2,6 +2,7 @@
 #include "Application.h"
 
 #include "Modules/ModuleCamera.h"
+#include "Modules/ModuleFileSystem.h"
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleInput.h"
 #include "Modules/ModuleProgram.h"
@@ -10,11 +11,12 @@
 
 #include "DataModels/Timer/Timer.h"
 
-Application::Application(HWND hwnd, HINSTANCE hInstance) : _deltaTime(0)
+Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0)
 {
 	_modules.resize(static_cast<int>(ModuleType::LAST));
 	_modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
 	_modules[static_cast<int>(ModuleToEnum<ModuleID3D12>::value)] = std::make_unique<ModuleID3D12>();
+	_modules[static_cast<int>(ModuleToEnum<ModuleFileSystem>::value)] = std::make_unique<ModuleFileSystem>();
 	_modules[static_cast<int>(ModuleToEnum<ModuleProgram>::value)] = std::make_unique<ModuleProgram>();
 	_modules[static_cast<int>(ModuleToEnum<ModuleInput>::value)] = std::make_unique<ModuleInput>(hwnd);
 	_modules[static_cast<int>(ModuleToEnum<ModuleCamera>::value)] = std::make_unique<ModuleCamera>();
@@ -30,6 +32,12 @@ Application::~Application()
 
 bool Application::Init()
 {
+	if (FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
+	{
+		LOG_ERROR("Co Initialize Failed");
+		return false;
+	}
+
 	for (const std::unique_ptr<Module>& module : _modules)
 	{
 		if (!module->Init())
@@ -60,6 +68,8 @@ UpdateStatus Application::Update()
 {
 	float beginFrame = _timer->Read();
 	
+	_frameCount++;
+
 	for (const std::unique_ptr<Module>& module : _modules)
 	{
 		UpdateStatus result = module->PreUpdate();

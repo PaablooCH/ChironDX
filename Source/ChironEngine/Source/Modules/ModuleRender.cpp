@@ -8,12 +8,13 @@
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
 
-#include "DataModels/CommandQueue/CommandQueue.h"
+#include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/Programs/Program.h"
 
 #include "DebugDrawPass.h"
 
-ModuleRender::ModuleRender()
+ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX))
 {
 }
 
@@ -25,10 +26,12 @@ bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    auto commandQueue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandQueue();
+    auto commandQueue = d3d12->GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
     
     // -------------- VERTEX ---------------------
+    
+    auto copyCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
     
     // Define the geometry for a triangle.
     Vertex triangleVertices[] =
@@ -40,15 +43,13 @@ bool ModuleRender::Init()
     
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
-    auto commandList = copyCQ->GetCommandList();
-
     ComPtr<ID3D12Resource> intermediateResource;
-    d3d12->UpdateBufferResource(commandList.Get(), &_vertexBuffer, &intermediateResource, 
+    d3d12->UpdateBufferResource(copyCommandList->GetGraphicsCommandList(), &_vertexBuffer, &intermediateResource, 
         vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
 
     _vertexBuffer->SetName(L"Triangle Vertex Buffer");
 
+    // Tell the input assembler where the vertices are
     _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vertexBufferView.SizeInBytes = vertexBufferSize;
     _vertexBufferView.StrideInBytes = sizeof(Vertex);
@@ -60,7 +61,7 @@ bool ModuleRender::Init()
     const UINT indexBufferSize = sizeof(indexBufferData);
 
     ComPtr<ID3D12Resource> intermediateResource2;
-    d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource2,
+    d3d12->UpdateBufferResource(copyCommandList->GetGraphicsCommandList(), &_indexBuffer, &intermediateResource2,
         indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
 
     _indexBuffer->SetName(L"Triangle Index Buffer");
@@ -69,9 +70,10 @@ bool ModuleRender::Init()
     _indexBufferView.SizeInBytes = indexBufferSize;
     _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 
-    uint64_t initFenceValue = copyCQ->ExecuteCommandList(commandList);
+    auto queueType = copyCommandList->GetType();
+    uint64_t initFenceValue = d3d12->ExecuteCommandList(copyCommandList);
 
-    copyCQ->WaitForFenceValue(initFenceValue);
+    d3d12->WaitForFenceValue(queueType, initFenceValue);
 
     return true;
 }
@@ -80,19 +82,17 @@ UpdateStatus ModuleRender::PreUpdate()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
     
-    _drawCommandList = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandList();
+    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
         
     // Transition the state to render
-    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
-    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0, nullptr); // send the clear command into the list
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0); // send the clear command into the list
 
-    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, 
-        nullptr);
+    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -106,12 +106,11 @@ UpdateStatus ModuleRender::Update()
 
     Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
 
-    _drawCommandList->SetPipelineState(defaultP->GetPipelineState());
-    _drawCommandList->SetGraphicsRootSignature(defaultP->GetRootSignature());
+    _drawCommandList->UseProgram(defaultP);
 
-    _drawCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    _drawCommandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
-    _drawCommandList->IASetIndexBuffer(&_indexBufferView);
+    _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _drawCommandList->SetVertexBuffers(0, 1, &_vertexBufferView);
+    _drawCommandList->SetIndexBuffer(&_indexBufferView);
 
     unsigned width;
     unsigned height;
@@ -124,18 +123,12 @@ UpdateStatus ModuleRender::Update()
     viewport.Width = static_cast<float>(width);
     viewport.Height = static_cast<float>(height);
 
-    D3D12_RECT scissor{};
-    scissor.left = 0;
-    scissor.top = 0;
-    scissor.right = width;
-    scissor.bottom = height;
-
-    _drawCommandList->RSSetViewports(1, &viewport);
-    _drawCommandList->RSSetScissorRects(1, &scissor);
+    _drawCommandList->SetViewports(1, viewport);
+    _drawCommandList->SetScissorRects(1, _scissor);
 
     auto rtv = d3d12->GetRenderTargetDescriptor();
     auto dsv = d3d12->GetDepthStencilDescriptor();
-    _drawCommandList->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
+    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
 
     Matrix model = Matrix::Identity;
     Matrix view = camera->GetViewMatrix();
@@ -143,10 +136,9 @@ UpdateStatus ModuleRender::Update()
 
     Matrix mvp = model * view;
     mvp = mvp * proj;
-    _drawCommandList->SetGraphicsRoot32BitConstants(0, sizeof(mvp) / 4, &mvp, 0);
+    _drawCommandList->SetGraphics32BitConstants(0, sizeof(mvp) / 4, &mvp);
 
-    uint32_t indexBufferData[3] = { 0, 1, 2 };
-    _drawCommandList->DrawIndexedInstanced(_countof(indexBufferData), 1, 0, 0, 0);
+    _drawCommandList->DrawIndexed(3, 1, 0, 0, 0);
 
     // ------------- DEBUG DRAW ----------------------
 
@@ -157,12 +149,11 @@ UpdateStatus ModuleRender::Update()
     sprintf_s(lTmp, 1023, "FPS: [%d].", static_cast<uint32_t>(App->GetFPS()));
     dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
 
-    _debugDraw->record(_drawCommandList.Get(), width, height, view, proj);
+    _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
 
-    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PRESENT);
+    _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 
-    uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
+    uint64_t fenceValue = d3d12->ExecuteCommandList(_drawCommandList);
     d3d12->SaveCurrentBufferFenceValue(fenceValue);
 
     _drawCommandList = nullptr;
