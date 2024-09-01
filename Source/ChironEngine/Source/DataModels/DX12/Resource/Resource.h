@@ -3,14 +3,6 @@
 class Resource
 {
 public:
-	Resource();
-	Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& name = L"", 
-		const D3D12_CLEAR_VALUE* clearValue = nullptr);
-	Resource(ComPtr<ID3D12Resource> resource, const std::wstring& name = L"");
-	Resource(const Resource& copy);
-	
-	virtual ~Resource();
-
 	Resource& operator=(const Resource& other);
 	Resource& operator=(Resource&& other) noexcept;
 
@@ -35,6 +27,15 @@ public:
 
 	void SetResource(ComPtr<ID3D12Resource> resource);
 	inline void SetName(std::wstring name);
+
+protected:
+	Resource();
+	Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& name = L"",
+		const D3D12_CLEAR_VALUE* clearValue = nullptr);
+	Resource(ComPtr<ID3D12Resource> resource);
+	Resource(const Resource& copy);
+
+	virtual ~Resource();
 
 private:
 	void CheckFeatureSupport();

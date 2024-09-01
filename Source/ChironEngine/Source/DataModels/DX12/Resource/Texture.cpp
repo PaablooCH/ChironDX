@@ -17,7 +17,7 @@ Texture::Texture(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& na
 	CreateViews();
 }
 
-Texture::Texture(ComPtr<ID3D12Resource> resource, const std::wstring& name) : Resource(resource, name)
+Texture::Texture(ComPtr<ID3D12Resource> resource) : Resource(resource)
 {
 	CreateViews();
 }

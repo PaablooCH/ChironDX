@@ -26,7 +26,7 @@ Resource::Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& 
 	CheckFeatureSupport();
 }
 
-Resource::Resource(ComPtr<ID3D12Resource> resource, const std::wstring& name) : _resource(resource), _name(name)
+Resource::Resource(ComPtr<ID3D12Resource> resource) : _resource(resource)
 {
 	ResourceStateTracker::AddGlobalResourceState(_resource.Get(), D3D12_RESOURCE_STATE_COMMON);
 	
