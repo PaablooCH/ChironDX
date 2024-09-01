@@ -5,8 +5,23 @@ void Chiron::Utils::ThrowIfFailed(HRESULT hr, const std::string& message) noexce
 {
     if (FAILED(hr))
     {
-        throw std::runtime_error("Error: " + message + " (HRESULT: 0x" + std::to_string(hr) + ")");
+        LOG_ERROR("Error: " + GetErrorMessage(hr) + " (HRESULT: 0x" + std::to_string(hr) + ")");
+        throw std::runtime_error("");
     }
+}
+
+std::string Chiron::Utils::WStringToString(const std::wstring& wstr)
+{
+    // Get the buffer size
+    int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+
+    // Reserve space
+    std::string str(bufferSize, 0);
+
+    // Parse
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &str[0], bufferSize, nullptr, nullptr);
+
+    return str;
 }
 
 HANDLE Chiron::Utils::CreateEventHandle()
@@ -17,4 +32,32 @@ HANDLE Chiron::Utils::CreateEventHandle()
     assert(event && "Failed to create event.");
 
     return event;
+}
+
+std::string Chiron::Utils::GetErrorMessage(HRESULT hr)
+{
+    LPWSTR errorText = nullptr;
+
+    // Get the message
+    DWORD formatResult = FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPWSTR)&errorText, 0, nullptr);
+
+    std::string errorString;
+    if (formatResult > 0)
+    {
+        // Parse to string
+        std::wstring wErrorText(errorText);
+        errorString = WStringToString(wErrorText);
+
+        // Free memory
+        LocalFree(errorText);
+    }
+    else
+    {
+        errorString = "Unknown error";
+    }
+
+    return errorString;
 }
