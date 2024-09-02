@@ -7,10 +7,14 @@
 #include "ModuleID3D12.h"
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
+#include "ModuleFileSystem.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/DX12/Resource/IndexBuffer.h"
+#include "DataModels/DX12/Resource/Texture.h"
 #include "DataModels/DX12/Resource/VertexBuffer.h"
 #include "DataModels/Programs/Program.h"
 
@@ -27,6 +31,9 @@ ModuleRender::~ModuleRender()
 bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
+    auto file = App->GetModule<ModuleFileSystem>();
+    texture = std::make_shared<Texture>();
+    file->Import("Assets/Textures/DuckCM.png", texture);
 
     auto commandQueue = d3d12->GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
@@ -38,9 +45,10 @@ bool ModuleRender::Init()
     // Define the geometry for a triangle.
     Vertex triangleVertices[] =
     {
-        { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+        { { -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f } },
+        { {  0.5f,  0.5f, 0.0f }, { 1.0f, 0.0f } },
+        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f } },
+        { {  0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f } }
     };
 
     const UINT vertexBufferSize = sizeof(triangleVertices);
@@ -56,7 +64,7 @@ bool ModuleRender::Init()
 
     // -------------- INDEX ---------------------
 
-    uint32_t indexBufferData[3] = { 0, 1, 2 };
+    uint32_t indexBufferData[6] = { 0, 1, 2, 1, 3, 2 };
 
     const UINT indexBufferSize = sizeof(indexBufferData);
 
@@ -75,6 +83,7 @@ bool ModuleRender::Init()
 
     // Change states
     auto directCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    directCommandList->TransitionBarrier(texture.get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     directCommandList->TransitionBarrier(vertexBuffer.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     directCommandList->TransitionBarrier(indexBuffer.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
@@ -140,11 +149,21 @@ UpdateStatus ModuleRender::Update()
     Matrix view = camera->GetViewMatrix();
     Matrix proj = camera->GetProjMatrix();
 
-    Matrix mvp = model * view;
-    mvp = mvp * proj;
-    _drawCommandList->SetGraphics32BitConstants(0, sizeof(mvp) / 4, &mvp);
+    ModelViewProjection mvp;
+    mvp.model = model.Transpose();
+    mvp.view = view.Transpose();
+    mvp.proj = proj.Transpose();
 
-    _drawCommandList->DrawIndexed(3, 1, 0, 0, 0);
+    _drawCommandList->SetGraphics32BitConstants(0, sizeof(ModelViewProjection) / 4, &mvp);
+
+    // set the descriptor heap
+    ID3D12DescriptorHeap* descriptorHeaps[] = { 
+        texture->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
+    };
+    _drawCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    _drawCommandList->SetGraphicsRootDescriptorTable(1, texture->GetShaderResourceView().GetGPUDescriptorHandle());
+
+    _drawCommandList->DrawIndexed(6, 1, 0, 0, 0);
 
     // ------------- DEBUG DRAW ----------------------
 

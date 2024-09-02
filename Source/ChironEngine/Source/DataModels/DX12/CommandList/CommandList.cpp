@@ -229,6 +229,16 @@ void CommandList::SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
 }
 
+void CommandList::SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[])
+{
+    _commandList->SetDescriptorHeaps(numHeaps, descriptorHeaps);
+}
+
+void CommandList::SetGraphicsRootDescriptorTable(UINT indexRootDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle)
+{
+    _commandList->SetGraphicsRootDescriptorTable(indexRootDescriptor, gpuDescriptorHandle);
+}
+
 void CommandList::UseProgram(Program* program)
 {
     ID3D12PipelineState* pipelineState = program->GetPipelineState();
@@ -319,7 +329,7 @@ void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t de
     }
 
     _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, 
-        descriptorOffset, 1, texture->GetShaderResourceView());
+        descriptorOffset, 1, texture->GetShaderResourceView().GetCPUDescriptorHandle());
 
     TrackResource(texture);
 }
@@ -340,7 +350,7 @@ void CommandList::SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t d
     }
 
     _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, descrptorOffset, 
-        1, texture->GetUnorderedAccessView(mips));
+        1, texture->GetUnorderedAccessView().GetCPUDescriptorHandle(mips));
 
     TrackResource(texture);
 }

@@ -22,6 +22,7 @@ public:
     // ------------- GETTERS ----------------------
 
     inline std::shared_ptr<DescriptorAllocatorPage> GetSharedPtr();
+    inline ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() const;
     inline D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const;
     uint32_t NumFreeHandles() const;
 
@@ -79,7 +80,8 @@ private:
     // ------------- DESCRIPTOR INFO ----------------------
 
     ComPtr<ID3D12DescriptorHeap> _descriptorHeap;
-    CD3DX12_CPU_DESCRIPTOR_HANDLE _baseDescriptor;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE _baseCPUDescriptor;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE _baseGPUDescriptor;
     D3D12_DESCRIPTOR_HEAP_TYPE _heapType;
     uint32_t _descriptorSize;
 
@@ -94,6 +96,11 @@ private:
 inline std::shared_ptr<DescriptorAllocatorPage> DescriptorAllocatorPage::GetSharedPtr()
 {
     return shared_from_this();
+}
+
+inline ComPtr<ID3D12DescriptorHeap> DescriptorAllocatorPage::GetDescriptorHeap() const
+{
+    return _descriptorHeap;
 }
 
 inline D3D12_DESCRIPTOR_HEAP_TYPE DescriptorAllocatorPage::GetHeapType() const

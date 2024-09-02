@@ -24,7 +24,7 @@ GenerateMipsProgram::GenerateMipsProgram(const std::string& name) : Program(name
         uavDesc.Texture2D.MipSlice = i;
         uavDesc.Texture2D.PlaneSlice = 0;
 
-        device->CreateUnorderedAccessView(nullptr, nullptr, &uavDesc, _descriptorAllocation.GetDescriptorHandle(i));
+        device->CreateUnorderedAccessView(nullptr, nullptr, &uavDesc, _descriptorAllocation.GetCPUDescriptorHandle(i));
     }
 }
 
