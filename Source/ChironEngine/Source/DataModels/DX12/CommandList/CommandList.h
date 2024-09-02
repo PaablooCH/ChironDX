@@ -59,7 +59,7 @@ public:
 
     void CopyResource(ID3D12Resource* dstRes, ID3D12Resource* srcRes);
     void CopyResource(const Resource* dstRes, const Resource* srcRes);
-    void CopyTextureSubresource(const std::shared_ptr<Texture>& texture, uint32_t firstSubresource,
+    void UpdateBufferResource(const std::shared_ptr<Resource>& texture, uint32_t firstSubresource,
         uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
@@ -71,6 +71,8 @@ public:
         BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
     void SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
         UINT destOffsetIn32BitValues = 0);
+    void SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[]);
+    void SetGraphicsRootDescriptorTable(UINT indexRootDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle);
     void UseProgram(Program* program);
 
     void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
@@ -135,10 +137,7 @@ private:
     ComPtr<ID3D12GraphicsCommandList2> _commandList;
     ComPtr<ID3D12CommandAllocator> _commandAllocator;
 
-    // For copy queues, it may be necessary to generate mips while loading textures.
-    // Mips can't be generated on copy queues but must be generated on compute or
-    // direct queues. In this case, a Compute command list is generated and executed 
-    // after the copy queue is finished uploading the first sub resource.
+    // For copy queues in case a compute operation is needed.
     std::shared_ptr<CommandList> _computeCommandList;
 
     // Currently bound root signature.

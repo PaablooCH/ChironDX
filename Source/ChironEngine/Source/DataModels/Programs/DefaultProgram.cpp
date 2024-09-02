@@ -17,14 +17,31 @@ void DefaultProgram::InitRootSignature()
         D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
         D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
         D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-        D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-        D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+        D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-    CD3DX12_ROOT_PARAMETER1 rootParameters[1]{};
-    rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+    // It's a good idea to sort parameters by frequency of change.
+    CD3DX12_ROOT_PARAMETER1 rootParameters[2]{};
+
+    // ------------- CONSTANT ----------------------
+
+    rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 3 / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+    // ------------- DESCRIPTOR TABLE ----------------------
+
+    CD3DX12_DESCRIPTOR_RANGE1 srv(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 
+        D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
+
+    rootParameters[1].InitAsDescriptorTable(1, &srv, D3D12_SHADER_VISIBILITY_PIXEL);
+
+    // ------------- STATIC SAMPLER ----------------------
+
+    CD3DX12_STATIC_SAMPLER_DESC staticSampler = CD3DX12_STATIC_SAMPLER_DESC(0, D3D12_FILTER_ANISOTROPIC, 
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 0, 16, 
+        D3D12_COMPARISON_FUNC_NEVER, D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE, 0.0f, D3D12_FLOAT32_MAX, 
+        D3D12_SHADER_VISIBILITY_PIXEL);
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription{};
-    rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+    rootSignatureDescription.Init_1_1(_countof(rootParameters), rootParameters, 1, &staticSampler, rootSignatureFlags);
 
     CreateRootSignature(rootSignatureDescription.Desc_1_1);
     _rootSignature->GetID3D12RootSignature()->SetName(L"Default Root Signature");
@@ -68,11 +85,14 @@ void DefaultProgram::InitPipelineState()
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
-    // Describe and create the graphics pipeline state object (PSO).
+    D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+    inputLayoutDesc.NumElements = sizeof(inputElementDescs) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+    inputLayoutDesc.pInputElementDescs = inputElementDescs;
 
+    // Specify depth and stencil values
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = TRUE;
     depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
@@ -91,8 +111,9 @@ void DefaultProgram::InitPipelineState()
     depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
     depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
+    // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.InputLayout = { inputElementDescs, 2 };
+    psoDesc.InputLayout = inputLayoutDesc;
     psoDesc.pRootSignature = _rootSignature->GetID3D12RootSignature();
     psoDesc.VS = CD3DX12_SHADER_BYTECODE(_vertexShader.Get());
     psoDesc.PS = CD3DX12_SHADER_BYTECODE(_pixelShader.Get());

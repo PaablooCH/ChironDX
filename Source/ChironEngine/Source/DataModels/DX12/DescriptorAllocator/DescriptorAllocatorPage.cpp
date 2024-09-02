@@ -6,17 +6,29 @@
 #include "Modules/ModuleID3D12.h"
 
 DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) :
-	_heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap)
+	_heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE())
 {
     auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
     D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
     heapDesc.Type = _heapType;
+    if (_heapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+    {
+        heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    }
+    else
+    {
+        heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    }
     heapDesc.NumDescriptors = _numDescriptorsPerHeap;
 
     Chiron::Utils::ThrowIfFailed(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_descriptorHeap)));
 
-    _baseDescriptor = _descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    _baseCPUDescriptor = _descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    if (_heapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+    {
+        _baseGPUDescriptor = _descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+    }
     _descriptorSize = device->GetDescriptorHandleIncrementSize(_heapType);
     _numFreeHandles = _numDescriptorsPerHeap;
 
@@ -61,9 +73,14 @@ DescriptorAllocation DescriptorAllocatorPage::Allocate(uint32_t numDescriptors)
 
     // Decrement free handles counter
     _numFreeHandles -= numDescriptors;
-    
-	return DescriptorAllocation(CD3DX12_CPU_DESCRIPTOR_HANDLE(_baseDescriptor, offset, _descriptorSize),
-        numDescriptors, _descriptorSize, GetSharedPtr());
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_baseCPUDescriptor, offset, _descriptorSize);
+    CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle{};
+    if (_baseGPUDescriptor.ptr != 0)
+    {
+        gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(_baseGPUDescriptor, offset, _descriptorSize);
+    }
+	return DescriptorAllocation(cpuHandle, gpuHandle, numDescriptors, _descriptorSize, GetSharedPtr());
 }
 
 bool DescriptorAllocatorPage::HasSpace(uint32_t numDescriptors) const
@@ -78,7 +95,7 @@ bool DescriptorAllocatorPage::HasSpace(uint32_t numDescriptors) const
 
 void DescriptorAllocatorPage::Free(DescriptorAllocation&& descriptorHandle, uint64_t frameNumber)
 {
-    uint32_t offset = ComputeOffset(descriptorHandle.GetDescriptorHandle());
+    uint32_t offset = ComputeOffset(descriptorHandle.GetCPUDescriptorHandle());
 
     std::lock_guard<std::mutex> lock(_mutex);
     
@@ -98,7 +115,8 @@ void DescriptorAllocatorPage::ReleaseStaleDescriptors(uint64_t frameNumber)
 
 uint32_t DescriptorAllocatorPage::ComputeOffset(D3D12_CPU_DESCRIPTOR_HANDLE handle) const
 {
-    return static_cast<uint32_t>(handle.ptr - _baseDescriptor.ptr) / _descriptorSize;
+    // Doesn't matter if it's a CPU or GPU memory block
+    return static_cast<uint32_t>(handle.ptr - _baseCPUDescriptor.ptr) / _descriptorSize;
 }
 
 void DescriptorAllocatorPage::AddNewBlock(uint32_t offset, uint32_t numDescriptors)

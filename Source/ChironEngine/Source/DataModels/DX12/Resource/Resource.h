@@ -3,17 +3,6 @@
 class Resource
 {
 public:
-	Resource();
-	Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& name = L"", 
-		const D3D12_CLEAR_VALUE* clearValue = nullptr);
-	Resource(ComPtr<ID3D12Resource> resource, const std::wstring& name = L"");
-	Resource(const Resource& copy);
-	
-	virtual ~Resource();
-
-	Resource& operator=(const Resource& other);
-	Resource& operator=(Resource&& other) noexcept;
-
 	inline bool IsValid();
 
 	void Reset();
@@ -26,15 +15,27 @@ public:
 	inline ID3D12Resource* GetResource() const;
 	inline const std::wstring& GetName() const;
 
-	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const = 0;
-	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const = 0;
-	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView() const = 0;
-	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mips) const = 0;
+	/*virtual D3D12_CPU_DESCRIPTOR_HANDLE GetCPURenderTargetView() const = 0;
+	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDepthStencilView() const = 0;
+	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetCPUShaderResourceView(uint32_t mips = 0) const = 0;
+	virtual D3D12_CPU_DESCRIPTOR_HANDLE GetCPUUnorderedAccessView(uint32_t mips = 0) const = 0;*/
 
 	// ------------- SETTERS ----------------------
 
 	void SetResource(ComPtr<ID3D12Resource> resource);
 	inline void SetName(std::wstring name);
+
+protected:
+	Resource();
+	Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& name = L"",
+		const D3D12_CLEAR_VALUE* clearValue = nullptr);
+	Resource(ComPtr<ID3D12Resource> resource);
+	Resource(const Resource& copy);
+
+	virtual ~Resource();
+
+	Resource& operator=(const Resource& other) = delete;
+	Resource& operator=(Resource&& other) = delete;
 
 private:
 	void CheckFeatureSupport();
@@ -44,6 +45,7 @@ protected:
 	std::wstring _name;
 private:
 	D3D12_FEATURE_DATA_FORMAT_SUPPORT _featureSupport;
+	std::unique_ptr<D3D12_CLEAR_VALUE> _clearValue;
 };
 
 inline bool Resource::IsValid()

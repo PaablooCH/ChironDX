@@ -157,21 +157,21 @@ void CommandList::CopyResource(const Resource* dstRes, const Resource* srcRes)
     CopyResource(dstRes->GetResource(), srcRes->GetResource());
 }
 
-void CommandList::CopyTextureSubresource(const std::shared_ptr<Texture>& texture, uint32_t firstSubresource, 
+void CommandList::UpdateBufferResource(const std::shared_ptr<Resource>& resource, uint32_t firstSubresource, 
     uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData)
 {
-    assert(texture);
+    assert(resource);
+    assert(numSubresources > 0);
 
-    auto destinationResource = texture->GetResource();
+    auto destinationResource = resource->GetResource();
 
     if (destinationResource)
     {
         auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
         // Resource must be in the copy-destination state.
-        TransitionBarrier(texture.get(), D3D12_RESOURCE_STATE_COPY_DEST);
-        FlushResourceBarriers();
-
+        TransitionBarrier(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+        
         UINT64 requiredSize = GetRequiredIntermediateSize(destinationResource, firstSubresource, numSubresources);
 
         // Create a temporary (intermediate) resource for uploading the subresources
@@ -187,7 +187,7 @@ void CommandList::CopyTextureSubresource(const std::shared_ptr<Texture>& texture
             numSubresources, subresourceData);
 
         TrackResource(intermediateResource.Get());
-        TrackResource(texture.get());
+        TrackResource(resource.get());
     }
 }
 void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
@@ -227,6 +227,16 @@ void CommandList::SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_
     UINT destOffsetIn32BitValues)
 {
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
+}
+
+void CommandList::SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[])
+{
+    _commandList->SetDescriptorHeaps(numHeaps, descriptorHeaps);
+}
+
+void CommandList::SetGraphicsRootDescriptorTable(UINT indexRootDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle)
+{
+    _commandList->SetGraphicsRootDescriptorTable(indexRootDescriptor, gpuDescriptorHandle);
 }
 
 void CommandList::UseProgram(Program* program)
@@ -319,7 +329,7 @@ void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t de
     }
 
     _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, 
-        descriptorOffset, 1, texture->GetShaderResourceView());
+        descriptorOffset, 1, texture->GetShaderResourceView().GetCPUDescriptorHandle());
 
     TrackResource(texture);
 }
@@ -340,7 +350,7 @@ void CommandList::SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t d
     }
 
     _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, descrptorOffset, 
-        1, texture->GetUnorderedAccessView(mips));
+        1, texture->GetUnorderedAccessView().GetCPUDescriptorHandle(mips));
 
     TrackResource(texture);
 }

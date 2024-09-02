@@ -20,6 +20,7 @@
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.cpp" />
     <ClCompile Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.cpp" />
+    <ClCompile Include="Source\DataModels\DX12\Resource\IndexBuffer.cpp" />
     <ClCompile Include="Source\DataModels\DX12\Resource\Resource.cpp" />
     <ClCompile Include="Source\DataModels\DX12\Resource\Texture.cpp" />
     <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp" />
@@ -47,6 +48,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h" />
@@ -61,6 +63,7 @@
     <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocatorPage.h" />
     <ClInclude Include="Source\DataModels\DX12\DynamicDescriptorHeap\DynamicDescriptorHeap.h" />
     <ClInclude Include="Source\DataModels\DX12\ResourceStateTracker\ResourceStateTracker.h" />
+    <ClInclude Include="Source\DataModels\DX12\Resource\IndexBuffer.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\Resource.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\Texture.h" />
     <ClInclude Include="Source\DataModels\DX12\RootSignature\RootSignature.h" />
@@ -87,6 +90,7 @@
     <ClInclude Include="Source\Modules\ModuleProgram.h" />
     <ClInclude Include="Source\Modules\ModuleWindow.h" />
     <ClInclude Include="Source\Pch.h" />
+    <ClInclude Include="Source\DataModels\DX12\Resource\VertexBuffer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

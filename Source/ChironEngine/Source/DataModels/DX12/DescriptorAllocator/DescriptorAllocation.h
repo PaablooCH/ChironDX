@@ -7,8 +7,8 @@ class DescriptorAllocation
 public:
     DescriptorAllocation();
 
-    DescriptorAllocation(D3D12_CPU_DESCRIPTOR_HANDLE descriptor, uint32_t numHandles, uint32_t descriptorSize, 
-        std::shared_ptr<DescriptorAllocatorPage> page);
+    DescriptorAllocation(D3D12_CPU_DESCRIPTOR_HANDLE cpuDescriptor, CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescriptor,
+        uint32_t numHandles, uint32_t descriptorSize, std::shared_ptr<DescriptorAllocatorPage> page);
 
     // The destructor will automatically free the allocation.
     ~DescriptorAllocation();
@@ -25,19 +25,22 @@ public:
 
     // ------------- GETTERS ----------------------
 
-    // Get a descriptor at a particular offset in the allocation.
-    inline D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle(uint32_t offset = 0) const;
+    // Get a CPU descriptor at a particular offset in the allocation.
+    inline D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t offset = 0) const;
+    // Get a GPU descriptor at a particular offset in the allocation.
+    inline D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(uint32_t offset = 0) const;
 
     inline uint32_t GetNumHandles() const;
 
-    inline std::shared_ptr<DescriptorAllocatorPage> GetDescriptorAllocatorPage() const;
+    inline DescriptorAllocatorPage* GetDescriptorAllocatorPage() const;
 
 private:
     // Free the descriptor back to the heap it came from.
     void Free();
 
 private:
-    D3D12_CPU_DESCRIPTOR_HANDLE _descriptorHandle;
+    D3D12_CPU_DESCRIPTOR_HANDLE _cpuDescriptorHandle;
+    D3D12_GPU_DESCRIPTOR_HANDLE _gpuDescriptorHandle;
     uint32_t _numHandles;
     uint32_t _descriptorSize;
 
@@ -45,10 +48,16 @@ private:
     std::shared_ptr<DescriptorAllocatorPage> _page;
 };
 
-inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorAllocation::GetDescriptorHandle(uint32_t offset) const
+inline D3D12_CPU_DESCRIPTOR_HANDLE DescriptorAllocation::GetCPUDescriptorHandle(uint32_t offset) const
 {
     assert(offset < _numHandles);
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_descriptorHandle, offset, _descriptorSize);
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_cpuDescriptorHandle, offset, _descriptorSize);
+}
+
+inline D3D12_GPU_DESCRIPTOR_HANDLE DescriptorAllocation::GetGPUDescriptorHandle(uint32_t offset) const
+{
+    assert(offset < _numHandles);
+    return CD3DX12_GPU_DESCRIPTOR_HANDLE(_gpuDescriptorHandle, offset, _descriptorSize);
 }
 
 inline uint32_t DescriptorAllocation::GetNumHandles() const
@@ -56,7 +65,7 @@ inline uint32_t DescriptorAllocation::GetNumHandles() const
     return _numHandles;
 }
 
-inline std::shared_ptr<DescriptorAllocatorPage> DescriptorAllocation::GetDescriptorAllocatorPage() const
+inline DescriptorAllocatorPage* DescriptorAllocation::GetDescriptorAllocatorPage() const
 {
-    return _page;
+    return _page.get();
 }

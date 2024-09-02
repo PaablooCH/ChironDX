@@ -1,37 +1,48 @@
+// ------------- VERTEX SHADER ----------------------
+
 struct ModelViewProjection
 {
-    matrix MVP;
+    matrix model;
+    matrix view;
+    matrix projection;
 };
-ConstantBuffer<ModelViewProjection> myCB1 : register(b0);
+ConstantBuffer<ModelViewProjection> myCB0 : register(b0);
 
-struct VertexPosColor
+struct VS_INPUT
 {
-    float3 Position : POSITION;
-    float4 Color    : COLOR;
-};
-
-struct VertexShaderOutput
-{
-    float4 Color    : COLOR;
-    float4 Position : SV_Position;
+    float3 position : POSITION;
+    float2 texCoord : TEXCOORD;
 };
 
-VertexShaderOutput VSmain(VertexPosColor IN)
+struct VS_OUTPUT
 {
-    VertexShaderOutput OUT;
+    float4 position : SV_Position;
+    float2 texCoord : TEXCOORD;
+};
 
-    OUT.Position = mul(myCB1.MVP, float4(IN.Position, 1.0f));
-    OUT.Color = IN.Color;
+VS_OUTPUT VSmain(VS_INPUT input)
+{
+    VS_OUTPUT OUT;
+    float4 position = float4(input.position, 1.0f);
+    matrix mvp = mul(myCB0.model, mul(myCB0.view, myCB0.projection));
+    OUT.position = mul(position, mvp);
+    OUT.texCoord = input.texCoord;
 
     return OUT;
 }
 
-struct PixelShaderInput
+// ------------- PIXEL SHADER ----------------------
+
+Texture2D t1 : register(t0);
+SamplerState s1 : register(s0);
+
+struct PS_INPUT
 {
-    float4 Color : COLOR;
+    float4 position : SV_POSITION;
+    float2 texCoord : TEXCOORD;
 };
 
-float4 PSmain(PixelShaderInput IN) : SV_Target
+float4 PSmain(PS_INPUT input) : SV_Target
 {
-    return IN.Color;
+    return t1.Sample(s1, input.texCoord);
 }

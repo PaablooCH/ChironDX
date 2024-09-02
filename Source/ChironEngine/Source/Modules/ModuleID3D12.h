@@ -27,13 +27,6 @@ public:
     void ToggleVSync();
     void ResizeBuffers(unsigned newWidth, unsigned newHeight);
 
-    // ------------- CREATORS ----------------------
-
-    // delete
-    void UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource** pDestinationResource,
-        ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize, const void* bufferData,
-        D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
-
     // ------------- SYNCHRONIZATION ----------------------
 
     void SaveCurrentBufferFenceValue(const uint64_t& fenceValue);
@@ -128,6 +121,14 @@ private:
 
 inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
+#if DEBUG
+    HRESULT reason = _device->GetDeviceRemovedReason();
+
+    if (reason != S_OK)
+    {
+        assert(false);
+    }
+#endif
     return _device.Get();
 }
 
