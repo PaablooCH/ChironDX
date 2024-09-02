@@ -24,29 +24,30 @@ Texture::Texture(ComPtr<ID3D12Resource> resource) : Resource(resource)
 
 Texture::Texture(const Texture& copy) : Resource(copy), _type(copy._type)
 {
+	CreateViews();
 }
 
 Texture::~Texture()
 {
 }
 
-Texture& Texture::operator=(const Texture& other)
-{
-	Resource::operator=(other);
-	
-	CreateViews();
-
-	return *this;
-}
-
-Texture& Texture::operator=(Texture&& other) noexcept
-{
-	Resource::operator=(other);
-
-	CreateViews();
-	
-	return *this;
-}
+//Texture& Texture::operator=(const Texture& other)
+//{
+//	Resource::operator=(other);
+//	
+//	CreateViews();
+//
+//	return *this;
+//}
+//
+//Texture& Texture::operator=(Texture&& other) noexcept
+//{
+//	Resource::operator=(other);
+//
+//	CreateViews();
+//	
+//	return *this;
+//}
 
 void Texture::Resize(uint32_t width, uint32_t height, uint32_t depthOrArraySize)
 {
@@ -87,19 +88,22 @@ void Texture::CreateViews()
 		{
 			auto descriptorAllocator = id3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 			_renderTargetView = descriptorAllocator->Allocate();
-			device->CreateRenderTargetView(_resource.Get(), nullptr, _renderTargetView.GetDescriptorHandle());
+			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = CreateRTVDesc(resourceDesc);
+			device->CreateRenderTargetView(_resource.Get(), &rtvDesc, _renderTargetView.GetCPUDescriptorHandle());
 		}
 		if ((resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CompatibleWithDSV())
 		{
 			auto descriptorAllocator = id3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 			_depthStencilView = descriptorAllocator->Allocate();
-			device->CreateDepthStencilView(_resource.Get(), nullptr, _depthStencilView.GetDescriptorHandle());
+			D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = CreateDSVDesc(resourceDesc);
+			device->CreateDepthStencilView(_resource.Get(), &dsvDesc, _depthStencilView.GetCPUDescriptorHandle());
 		}
 		if ((resourceDesc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CompatibleWithSRV())
 		{
 			auto descriptorAllocator = id3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			_shaderResourceView = descriptorAllocator->Allocate();
-			device->CreateShaderResourceView(_resource.Get(), nullptr, _shaderResourceView.GetDescriptorHandle());
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = CreateSRVDesc(resourceDesc);
+			device->CreateShaderResourceView(_resource.Get(), &srvDesc, _shaderResourceView.GetCPUDescriptorHandle());
 		}
 		if ((resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) != 0 && CompatibleWithUAV() 
 			&& resourceDesc.DepthOrArraySize == 1)
@@ -109,7 +113,7 @@ void Texture::CreateViews()
 			for (int i = 0; i < resourceDesc.MipLevels; i++)
 			{
 				auto uavDesc = CreateUAVDesc(resourceDesc, i);
-				device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _unorderedAccessView.GetDescriptorHandle());
+				device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _unorderedAccessView.GetCPUDescriptorHandle());
 			}
 		}
 	}

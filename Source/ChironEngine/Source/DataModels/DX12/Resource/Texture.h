@@ -26,8 +26,8 @@ public:
 
 	~Texture() override;
 
-	Texture& operator=(const Texture& other);
-	Texture& operator=(Texture&& other) noexcept;
+	Texture& operator=(const Texture& other) = delete;
+	Texture& operator=(Texture&& other) = delete;
 
 	void Resize(uint32_t width, uint32_t height, uint32_t depthOrArraySize = 1);
 
@@ -44,10 +44,16 @@ public:
 
 	// ------------- GETTERS ----------------------
 
-	inline D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const override;
-	inline D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const override;
-	inline D3D12_CPU_DESCRIPTOR_HANDLE GetShaderResourceView() const override;
-	inline D3D12_CPU_DESCRIPTOR_HANDLE GetUnorderedAccessView(uint32_t mips) const override;
+	/*inline D3D12_CPU_DESCRIPTOR_HANDLE GetCPURenderTargetView() const override;
+	inline D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDepthStencilView() const override;
+	inline D3D12_CPU_DESCRIPTOR_HANDLE GetCPUShaderResourceView(uint32_t mips) const override;
+	inline D3D12_CPU_DESCRIPTOR_HANDLE GetCPUUnorderedAccessView(uint32_t mips) const override;*/
+	
+	inline const DescriptorAllocation& GetRenderTargetView() const;
+	inline const DescriptorAllocation& GetDepthStencilView() const;
+	inline const DescriptorAllocation& GetShaderResourceView() const;
+	inline const DescriptorAllocation& GetUnorderedAccessView() const;
+
 	inline TextureType GetTextureType() const;
 
 	// ------------- SETTERS ----------------------
@@ -131,24 +137,44 @@ inline bool Texture::IsSRGBFormat(DXGI_FORMAT format)
 	return false;
 }
 
-inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetRenderTargetView() const
+//inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPURenderTargetView() const
+//{
+//	return _renderTargetView.GetCPUDescriptorHandle();
+//}
+//
+//inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUDepthStencilView() const
+//{
+//	return _depthStencilView.GetCPUDescriptorHandle();
+//}
+//
+//inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUShaderResourceView(uint32_t mips) const
+//{
+//	return _shaderResourceView.GetCPUDescriptorHandle(mips);
+//}
+//
+//inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPUUnorderedAccessView(uint32_t mips) const
+//{
+//	return _unorderedAccessView.GetCPUDescriptorHandle(mips);
+//}
+
+inline const DescriptorAllocation& Texture::GetRenderTargetView() const
 {
-	return _renderTargetView.GetDescriptorHandle();
+	return _renderTargetView;
 }
 
-inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetDepthStencilView() const
+inline const DescriptorAllocation& Texture::GetDepthStencilView() const
 {
-	return _depthStencilView.GetDescriptorHandle();
+	return _depthStencilView;
 }
 
-inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetShaderResourceView() const
+inline const DescriptorAllocation& Texture::GetShaderResourceView() const
 {
-	return _shaderResourceView.GetDescriptorHandle();
+	return _shaderResourceView;
 }
 
-inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetUnorderedAccessView(uint32_t mips) const
+inline const DescriptorAllocation& Texture::GetUnorderedAccessView() const
 {
-	return _unorderedAccessView.GetDescriptorHandle(mips);
+	return _unorderedAccessView;
 }
 
 inline TextureType Texture::GetTextureType() const

@@ -13,28 +13,33 @@ Resource::Resource() : _resource(nullptr), _name(L"")
 
 Resource::Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& name, const D3D12_CLEAR_VALUE* clearValue)
 {
-	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+	if (clearValue)
+	{
+		_clearValue = std::make_unique<D3D12_CLEAR_VALUE>(*clearValue);
+	}
 
+	auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 	CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-		D3D12_RESOURCE_STATE_COMMON, clearValue, IID_PPV_ARGS(&_resource)));
+		D3D12_RESOURCE_STATE_COMMON, _clearValue.get(), IID_PPV_ARGS(&_resource)));
 
-	_resource->SetName(_name.c_str());
-
+	SetName(name);
 	ResourceStateTracker::AddGlobalResourceState(_resource.Get(), D3D12_RESOURCE_STATE_COMMON);
-
 	CheckFeatureSupport();
 }
 
 Resource::Resource(ComPtr<ID3D12Resource> resource) : _resource(resource)
 {
 	ResourceStateTracker::AddGlobalResourceState(_resource.Get(), D3D12_RESOURCE_STATE_COMMON);
-	
 	CheckFeatureSupport();
 }
 
 Resource::Resource(const Resource& copy) : _resource(copy._resource), _name(copy._name), _featureSupport(copy._featureSupport)
 {
+	if (copy._clearValue)
+	{
+		_clearValue = std::make_unique<D3D12_CLEAR_VALUE>(*copy._clearValue);
+	}
 }
 
 Resource::~Resource()
@@ -42,30 +47,33 @@ Resource::~Resource()
 	ResourceStateTracker::RemoveGlobalResourceState(_resource.Get());
 }
 
-Resource& Resource::operator=(const Resource& other)
-{
-	if (&other != this)
-	{
-		_resource = other._resource;
-		_name = other._name;
-		_featureSupport = other._featureSupport;
-	}
-	return *this;
-}
-
-Resource& Resource::operator=(Resource&& other) noexcept
-{
-	if (&other != this)
-	{
-		_resource = other._resource;
-		_name = other._name;
-		_featureSupport = other._featureSupport;
-
-		other._resource.Reset();
-		other._name.clear();
-	}
-	return *this;
-}
+//Resource& Resource::operator=(const Resource& other)
+//{
+//	if (&other != this)
+//	{
+//		D3D12_RESOURCE_DESC resourceDesc = other._resource->GetDesc();
+//		CreateCommittedResource(resourceDesc);
+//		SetName(other._name);
+//		_featureSupport = other._featureSupport;
+//		_clearValue = std::make_unique<D3D12_CLEAR_VALUE>(other._clearValue);
+//	}
+//	return *this;
+//}
+//
+//Resource& Resource::operator=(Resource&& other) noexcept
+//{
+//	if (&other != this)
+//	{
+//		D3D12_RESOURCE_DESC resourceDesc = other._resource->GetDesc();
+//		CreateCommittedResource(resourceDesc);
+//		SetName(other._name);
+//		_featureSupport = other._featureSupport;
+//		_clearValue = std::make_unique<D3D12_CLEAR_VALUE>(other._clearValue);
+//
+//		other.Reset();
+//	}
+//	return *this;
+//}
 
 void Resource::Reset()
 {
