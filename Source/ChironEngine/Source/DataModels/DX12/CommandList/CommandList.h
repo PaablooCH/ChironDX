@@ -80,9 +80,9 @@ public:
         uint32_t startInstance = 0);
     void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ = 1);
 
-    void ClearRenderTargetView(const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView, const FLOAT colorRGBA[4], 
+    void ClearRenderTargetView(const Texture* rtv, const FLOAT colorRGBA[4], 
         UINT numRects, const D3D12_RECT* pRects = nullptr);
-    void ClearDepthStencilView(const D3D12_CPU_DESCRIPTOR_HANDLE& depthStencilView, D3D12_CLEAR_FLAGS clearFlags,
+    void ClearDepthStencilView(const Texture* depthStencil, D3D12_CLEAR_FLAGS clearFlags,
         FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects = nullptr);
 
     // ------------- GETTERS ----------------------

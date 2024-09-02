@@ -4,6 +4,7 @@
 class CommandList;
 class CommandQueue;
 class DescriptorAllocator;
+class Texture;
 
 class ModuleID3D12 : public Module
 {
@@ -42,13 +43,8 @@ public:
     std::shared_ptr<CommandList> GetCommandList(D3D12_COMMAND_LIST_TYPE type) const;
     inline IDXGISwapChain4* GetSwapChain() const;
     inline UINT GetCurrentBuffer() const;
-    inline ID3D12Resource* GetRenderBuffer() const;
-    inline ID3D12DescriptorHeap* GetRenderTargetViewHeap() const;
-    inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetDescriptor() const;
-    inline UINT GetRtvSize() const;
-    inline ID3D12Resource* GetDepthStencilBuffer() const;
-    inline ID3D12DescriptorHeap* GetDepthStencilViewHeap() const;
-    inline CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilDescriptor() const;
+    inline Texture* GetRenderBuffer() const;
+    inline Texture* GetDepthStencilBuffer() const;
     inline DescriptorAllocator* GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const;
 
 private:
@@ -105,16 +101,10 @@ private:
     ComPtr<IDXGISwapChain4> _swapChain;
 
     // The texture result of drawing in the swapChain.
-    ComPtr<ID3D12Resource> _renderBuffers[backBufferCount];
-    // The heap where the rtv is located
-    ComPtr<ID3D12DescriptorHeap> _renderTargetViewHeap;
-    // The descriptor size. Depends on device.
-    UINT _renderTargetViewDesciptorSize;
+    std::unique_ptr<Texture> _renderBuffers[backBufferCount];
 
     // Depth Stencil buffer.
-    ComPtr<ID3D12Resource> _depthStencilBuffer;
-    // Descriptor heap for depth buffer.
-    ComPtr<ID3D12DescriptorHeap> _dsvHeap;
+    std::unique_ptr<Texture> _depthStencilBuffer;
 
     std::vector<std::unique_ptr<DescriptorAllocator>> _descriptorAllocators;
 };
@@ -159,40 +149,14 @@ inline UINT ModuleID3D12::GetCurrentBuffer() const
     return _currentBuffer;
 }
 
-inline ID3D12Resource* ModuleID3D12::GetRenderBuffer() const
+inline Texture* ModuleID3D12::GetRenderBuffer() const
 {
-    return _renderBuffers[_currentBuffer].Get();
+    return _renderBuffers[_currentBuffer].get();
 }
 
-inline ID3D12DescriptorHeap* ModuleID3D12::GetRenderTargetViewHeap() const
+inline Texture* ModuleID3D12::GetDepthStencilBuffer() const
 {
-    return _renderTargetViewHeap.Get();
-}
-
-inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetRenderTargetDescriptor() const
-{
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_renderTargetViewHeap.Get()->GetCPUDescriptorHandleForHeapStart(),
-        _currentBuffer, GetRtvSize()); // with the heap, the offset and the size, the position in memory is found
-}
-
-inline UINT ModuleID3D12::GetRtvSize() const
-{
-    return _renderTargetViewDesciptorSize;
-}
-
-inline ID3D12Resource* ModuleID3D12::GetDepthStencilBuffer() const
-{
-    return _depthStencilBuffer.Get();
-}
-
-inline ID3D12DescriptorHeap* ModuleID3D12::GetDepthStencilViewHeap() const
-{
-    return _dsvHeap.Get();
-}
-
-inline CD3DX12_CPU_DESCRIPTOR_HANDLE ModuleID3D12::GetDepthStencilDescriptor() const
-{
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(_dsvHeap.Get()->GetCPUDescriptorHandleForHeapStart());
+    return _depthStencilBuffer.get();
 }
 
 inline DescriptorAllocator* ModuleID3D12::GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const

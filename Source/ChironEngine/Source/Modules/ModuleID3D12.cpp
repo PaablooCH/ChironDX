@@ -8,8 +8,9 @@
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/CommandQueue/CommandQueue.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+#include "DataModels/DX12/Resource/Texture.h"
 
-ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false), _supportsRT(false), _bufferFenceValues(), _renderTargetViewDesciptorSize(0)
+ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false), _supportsRT(false), _bufferFenceValues()
 {
 }
 
@@ -26,8 +27,8 @@ bool ModuleID3D12::Init()
 
     if (ok)
     {
-        InitFrameBuffer();
         InitDescriptorAllocator();
+        InitFrameBuffer();
         _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
     }
 
@@ -50,6 +51,9 @@ UpdateStatus ModuleID3D12::PostUpdate()
     UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
     Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
 
+    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
+    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
+
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
@@ -66,6 +70,7 @@ bool ModuleID3D12::CleanUp()
 
 void ModuleID3D12::SwapCurrentBuffer()
 {
+    CHIRON_TODO("DELETE");
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
     _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
@@ -104,10 +109,9 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 
     for (int i = 0; i < backBufferCount; ++i)
     {
-        // Any references to the back buffers must be released
-        // before the swap chain can be resized.
-        _renderBuffers[i].Reset();
-        _bufferFenceValues[i] = _bufferFenceValues[_currentBuffer];
+        // Any references to the back buffers must be released before the swap chain can be resized.
+        _renderBuffers[i].release();
+        _bufferFenceValues[i] = 0;
     }
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
@@ -116,6 +120,8 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
         swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
 
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
+
+    // ------------- RENDER TARGET VIEW ---------------------------
 
     UpdateRenderTargetViews();
 
@@ -319,50 +325,21 @@ void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_D32_FLOAT;
     clearValue.DepthStencil = { 1.0f, 0 };
-    CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, 
         D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-    Chiron::Utils::ThrowIfFailed(
-        _device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &clearValue, IID_PPV_ARGS(&_depthStencilBuffer)));
-
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-    dsvHeapDesc.NumDescriptors = 1;
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&_dsvHeap)));
-    _dsvHeap->SetName(L"Depth Stencil View Heap");
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-
-    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    depthStencilDesc.Texture2D.MipSlice = 0;
-    depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
-
-    _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilDesc, dsvHandle);
-    _depthStencilBuffer->SetName(L"Depth Stencil Buffer");
+    _depthStencilBuffer = std::make_unique<Texture>(desc, L"Depth Stencil Buffer", &clearValue);
 }
 
 void ModuleID3D12::UpdateRenderTargetViews()
 {
-    _renderTargetViewDesciptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
-
     for (int i = 0; i < backBufferCount; ++i)
     {
         ComPtr<ID3D12Resource> backBuffer;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
 
-        _device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
-
-        _renderBuffers[i] = backBuffer;
+        _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
         _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
-
-        rtvHandle.Offset(_renderTargetViewDesciptorSize);
     }
 }
 
@@ -370,25 +347,14 @@ void ModuleID3D12::InitFrameBuffer()
 {
     // ------------- RTV ---------------------------
 
-    // Describe and create a render target view (RTV) descriptor heap.
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    rtvHeapDesc.NumDescriptors = backBufferCount;
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&_renderTargetViewHeap)));
-    _renderTargetViewHeap->SetName(L"Render Target View Descriptor");
-
-    _renderTargetViewDesciptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-    // Create frame resources
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
-
     // Create a RTV for each frame.
-    for (UINT n = 0; n < backBufferCount; n++)
+    for (UINT i = 0; i < backBufferCount; i++)
     {
-        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(n, IID_PPV_ARGS(&_renderBuffers[n])));
-        _device->CreateRenderTargetView(_renderBuffers[n].Get(), nullptr, rtvHandle);
-        rtvHandle.Offset(_renderTargetViewDesciptorSize);
+        ComPtr<ID3D12Resource> backBuffer;
+        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+        
+        _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
+        _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
     }
 
     // ------------- DEPTH-STENCIL ---------------------------

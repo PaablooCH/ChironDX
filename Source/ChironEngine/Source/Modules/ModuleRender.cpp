@@ -99,16 +99,13 @@ UpdateStatus ModuleRender::PreUpdate()
     
     _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
         
-    // Transition the state to render
-    _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
     // send the clear command into the list
-    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0);
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
 
-    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
+    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilBuffer(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -142,8 +139,8 @@ UpdateStatus ModuleRender::Update()
     _drawCommandList->SetViewports(1, viewport);
     _drawCommandList->SetScissorRects(1, _scissor);
 
-    auto rtv = d3d12->GetRenderTargetDescriptor();
-    auto dsv = d3d12->GetDepthStencilDescriptor();
+    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
+    auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
     _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
 
     Matrix model = Matrix::Identity;
@@ -191,7 +188,6 @@ UpdateStatus ModuleRender::Update()
 
 UpdateStatus ModuleRender::PostUpdate()
 {
-    App->GetModule<ModuleID3D12>()->SwapCurrentBuffer();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
