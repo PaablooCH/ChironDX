@@ -27,7 +27,7 @@ void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> text
 
 	DirectX::TexMetadata md{};
 	DirectX::ScratchImage* imgResult = nullptr;
-	DirectX::ScratchImage img, flippedImg, dcmprsdImg; CHIRON_TODO("Flip Image");
+	DirectX::ScratchImage img, flippedImg, dcmprsdImg;
 
 	std::string extension = ModuleFileSystem::GetFileExtension(filePath);
 	if (extension == ".dds")
@@ -64,6 +64,31 @@ void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> text
 			LOG_ERROR("No suitable conversion for texture extension: {}", extension);
 		}
 	}
+
+	/*if (options.flipVertical && options.flipHorizontal)
+	{
+		if (!FAILED(DirectX::FlipRotate(img.GetImages(), img.GetImageCount(), img.GetMetadata(), 
+			DirectX::TEX_FR_FLAGS::TEX_FR_ROTATE180, flippedImg)))
+		{
+			img = std::move(flippedImg);
+		}
+	}
+	else if (options.flipVertical)
+	{
+		if (!FAILED(DirectX::FlipRotate(img.GetImages(), img.GetImageCount(), img.GetMetadata(),
+			DirectX::TEX_FR_FLAGS::TEX_FR_FLIP_VERTICAL, flippedImg)))
+		{
+			img = std::move(flippedImg);
+		}
+	}
+	else if (options.flipHorizontal)
+	{
+		if (!FAILED(DirectX::FlipRotate(img.GetImages(), img.GetImageCount(), img.GetMetadata(), 
+			DirectX::TEX_FR_FLAGS::TEX_FR_FLIP_HORIZONTAL, flippedImg)))
+		{
+			img = std::move(flippedImg);
+		}
+	}*/
 
 	CHIRON_TODO("temporary");
 	if (texture->GetTextureType() == TextureType::ALBEDO) 
