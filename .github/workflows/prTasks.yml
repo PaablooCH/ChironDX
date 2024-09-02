@@ -1,0 +1,27 @@
+name: Check PR Tasks
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  check_tasks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if all tasks are completed
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body;
+
+            // Find all tasks in the PR description
+            const tasks = body.match(/\- \[.\] .+/g);
+
+            if (tasks) {
+              const incompleteTasks = tasks.filter(task => task.includes("[ ]"));
+
+              if (incompleteTasks.length > 0) {
+                throw new Error("There are incomplete tasks in the PR description.");
+              }
+            }
