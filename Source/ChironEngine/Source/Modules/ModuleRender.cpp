@@ -53,8 +53,8 @@ bool ModuleRender::Init()
 
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    vertexBuffer = std::make_shared<VertexBuffer>(CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), _countof(triangleVertices), sizeof(Vertex),
-        L"Triangle Vertex Buffer");
+    vertexBuffer = std::make_shared<VertexBuffer>(CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), 
+        _countof(triangleVertices), sizeof(Vertex), L"Triangle Vertex Buffer");
 
     D3D12_SUBRESOURCE_DATA subresourceData = {};
     subresourceData.pData = triangleVertices;
@@ -68,8 +68,8 @@ bool ModuleRender::Init()
 
     const UINT indexBufferSize = sizeof(indexBufferData);
 
-    indexBuffer = std::make_shared<IndexBuffer>(CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize), _countof(indexBufferData), DXGI_FORMAT_R32_UINT,
-        L"Triangle Index Buffer");
+    indexBuffer = std::make_shared<IndexBuffer>(CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize), _countof(indexBufferData), 
+        DXGI_FORMAT_R32_UINT, L"Triangle Index Buffer");
 
     D3D12_SUBRESOURCE_DATA subresourceData2 = {};
     subresourceData2.pData = indexBufferData;
@@ -105,7 +105,8 @@ UpdateStatus ModuleRender::PreUpdate()
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
-    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0); // send the clear command into the list
+    // send the clear command into the list
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0);
 
     _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 

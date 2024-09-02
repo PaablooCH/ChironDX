@@ -121,6 +121,14 @@ private:
 
 inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
+#if DEBUG
+    HRESULT reason = _device->GetDeviceRemovedReason();
+
+    if (reason != S_OK)
+    {
+        assert(false);
+    }
+#endif
     return _device.Get();
 }
 
