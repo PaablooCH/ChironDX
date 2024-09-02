@@ -157,21 +157,21 @@ void CommandList::CopyResource(const Resource* dstRes, const Resource* srcRes)
     CopyResource(dstRes->GetResource(), srcRes->GetResource());
 }
 
-void CommandList::CopyTextureSubresource(const std::shared_ptr<Texture>& texture, uint32_t firstSubresource, 
+void CommandList::UpdateBufferResource(const std::shared_ptr<Resource>& resource, uint32_t firstSubresource, 
     uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData)
 {
-    assert(texture);
+    assert(resource);
+    assert(numSubresources > 0);
 
-    auto destinationResource = texture->GetResource();
+    auto destinationResource = resource->GetResource();
 
     if (destinationResource)
     {
         auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
         // Resource must be in the copy-destination state.
-        TransitionBarrier(texture.get(), D3D12_RESOURCE_STATE_COPY_DEST);
-        FlushResourceBarriers();
-
+        TransitionBarrier(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+        
         UINT64 requiredSize = GetRequiredIntermediateSize(destinationResource, firstSubresource, numSubresources);
 
         // Create a temporary (intermediate) resource for uploading the subresources
@@ -187,7 +187,7 @@ void CommandList::CopyTextureSubresource(const std::shared_ptr<Texture>& texture
             numSubresources, subresourceData);
 
         TrackResource(intermediateResource.Get());
-        TrackResource(texture.get());
+        TrackResource(resource.get());
     }
 }
 void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)

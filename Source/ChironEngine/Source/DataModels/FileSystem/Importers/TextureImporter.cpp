@@ -138,7 +138,7 @@ void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> text
 
 	auto commandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
 
-	commandList->CopyTextureSubresource(texture, 0, numSubresources, subresources.data());
+	commandList->UpdateBufferResource(texture, 0, numSubresources, subresources.data());
 
 	d3d12->ExecuteCommandList(commandList);
 

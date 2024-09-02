@@ -10,6 +10,8 @@
 
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/RootSignature/RootSignature.h"
+#include "DataModels/DX12/Resource/IndexBuffer.h"
+#include "DataModels/DX12/Resource/VertexBuffer.h"
 #include "DataModels/Programs/Program.h"
 
 #include "DebugDrawPass.h"
@@ -40,19 +42,17 @@ bool ModuleRender::Init()
         { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
         { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
     };
-    
+
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    ComPtr<ID3D12Resource> intermediateResource;
-    d3d12->UpdateBufferResource(copyCommandList->GetGraphicsCommandList(), &_vertexBuffer, &intermediateResource, 
-        vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
+    vertexBuffer = std::make_shared<VertexBuffer>(CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize), _countof(triangleVertices), sizeof(Vertex),
+        L"Triangle Vertex Buffer");
 
-    _vertexBuffer->SetName(L"Triangle Vertex Buffer");
-
-    // Tell the input assembler where the vertices are
-    _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-    _vertexBufferView.SizeInBytes = vertexBufferSize;
-    _vertexBufferView.StrideInBytes = sizeof(Vertex);
+    D3D12_SUBRESOURCE_DATA subresourceData = {};
+    subresourceData.pData = triangleVertices;
+    subresourceData.RowPitch = vertexBufferSize;
+    subresourceData.SlicePitch = subresourceData.RowPitch;
+    copyCommandList->UpdateBufferResource(vertexBuffer, 0, 1, &subresourceData);
 
     // -------------- INDEX ---------------------
 
@@ -60,20 +60,26 @@ bool ModuleRender::Init()
 
     const UINT indexBufferSize = sizeof(indexBufferData);
 
-    ComPtr<ID3D12Resource> intermediateResource2;
-    d3d12->UpdateBufferResource(copyCommandList->GetGraphicsCommandList(), &_indexBuffer, &intermediateResource2,
-        indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
+    indexBuffer = std::make_shared<IndexBuffer>(CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize), _countof(indexBufferData), DXGI_FORMAT_R32_UINT,
+        L"Triangle Index Buffer");
 
-    _indexBuffer->SetName(L"Triangle Index Buffer");
-
-    _indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
-    _indexBufferView.SizeInBytes = indexBufferSize;
-    _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+    D3D12_SUBRESOURCE_DATA subresourceData2 = {};
+    subresourceData2.pData = indexBufferData;
+    subresourceData2.RowPitch = indexBufferSize;
+    subresourceData2.SlicePitch = subresourceData2.RowPitch;
+    copyCommandList->UpdateBufferResource(indexBuffer, 0, 1, &subresourceData2);
 
     auto queueType = copyCommandList->GetType();
     uint64_t initFenceValue = d3d12->ExecuteCommandList(copyCommandList);
-
     d3d12->WaitForFenceValue(queueType, initFenceValue);
+
+    // Change states
+    auto directCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    directCommandList->TransitionBarrier(vertexBuffer.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    directCommandList->TransitionBarrier(indexBuffer.get(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+    initFenceValue = d3d12->ExecuteCommandList(directCommandList);
+    d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, initFenceValue);
 
     return true;
 }
@@ -109,8 +115,8 @@ UpdateStatus ModuleRender::Update()
     _drawCommandList->UseProgram(defaultP);
 
     _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    _drawCommandList->SetVertexBuffers(0, 1, &_vertexBufferView);
-    _drawCommandList->SetIndexBuffer(&_indexBufferView);
+    _drawCommandList->SetVertexBuffers(0, 1, &vertexBuffer->GetVertexBufferView());
+    _drawCommandList->SetIndexBuffer(&indexBuffer->GetIndexBufferView());
 
     unsigned width;
     unsigned height;
@@ -150,6 +156,8 @@ UpdateStatus ModuleRender::Update()
     dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
 
     _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
+
+    // ------------- CLOSE COMMANDLIST ----------------------
 
     _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 

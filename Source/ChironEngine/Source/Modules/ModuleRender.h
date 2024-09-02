@@ -2,6 +2,8 @@
 #include "Module.h"
 
 class CommandList;
+class IndexBuffer;
+class VertexBuffer;
 class DebugDrawPass;
 
 struct Vertex
@@ -29,13 +31,9 @@ private:
     // Is used once its loaded into a Queue
     std::shared_ptr<CommandList> _drawCommandList;
 
-    ComPtr<ID3D12Resource> _vertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
-
-    ComPtr<ID3D12Resource> _indexBuffer;
-    D3D12_INDEX_BUFFER_VIEW _indexBufferView;
-
     std::unique_ptr<DebugDrawPass> _debugDraw;
+    std::shared_ptr<VertexBuffer> vertexBuffer;
+    std::shared_ptr<IndexBuffer> indexBuffer;
 
     D3D12_RECT _scissor;
 };
