@@ -118,8 +118,11 @@ void ResourceStateTracker::FlushResourceBarriers(CommandList* commandList)
             }
         }
         numBarriers = static_cast<UINT>(availableBarriers.size());
-        auto d3d12CommandList = commandList->GetGraphicsCommandList();
-        d3d12CommandList->ResourceBarrier(numBarriers, availableBarriers.data());
+        if (numBarriers > 0)
+        {
+            auto d3d12CommandList = commandList->GetGraphicsCommandList();
+            d3d12CommandList->ResourceBarrier(numBarriers, availableBarriers.data());
+        }
 
         _resourceBarriers.clear();
     }
