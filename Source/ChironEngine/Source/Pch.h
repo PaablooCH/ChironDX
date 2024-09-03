@@ -40,7 +40,6 @@
 #include "Auxiliar/Log.h"
 #include "Auxiliar/Utils.h"
 #include "d3dx12.h"
-#include "debug_draw.hpp"
 #include "Globals.h"
 
 // ------------- NAMESPACES ----------------------

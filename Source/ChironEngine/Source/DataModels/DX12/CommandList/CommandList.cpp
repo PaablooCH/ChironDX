@@ -284,15 +284,23 @@ void CommandList::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCount
     _commandList->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
 
-void CommandList::ClearRenderTargetView(const D3D12_CPU_DESCRIPTOR_HANDLE& renderTargetView, const FLOAT colorRGBA[4], UINT numRects, const D3D12_RECT* pRects)
+void CommandList::ClearRenderTargetView(const Texture* rtv, const FLOAT colorRGBA[4], UINT numRects, 
+    const D3D12_RECT* pRects)
 {
-    _commandList->ClearRenderTargetView(renderTargetView, colorRGBA, numRects, pRects);
+    assert(rtv);
+
+    TransitionBarrier(rtv, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+    _commandList->ClearRenderTargetView(rtv->GetRenderTargetView().GetCPUDescriptorHandle(), colorRGBA, numRects, pRects);
 }
 
-void CommandList::ClearDepthStencilView(const D3D12_CPU_DESCRIPTOR_HANDLE& depthStencilView, D3D12_CLEAR_FLAGS clearFlags,
+void CommandList::ClearDepthStencilView(const Texture* depthStencil, D3D12_CLEAR_FLAGS clearFlags,
     FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects)
 {
-    _commandList->ClearDepthStencilView(depthStencilView, clearFlags, depth, stencil, numRects, pRects);
+    assert(depthStencil);
+
+    TransitionBarrier(depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+    _commandList->ClearDepthStencilView(depthStencil->GetDepthStencilView().GetCPUDescriptorHandle(), clearFlags, depth, 
+        stencil, numRects, pRects);
 }
 
 void CommandList::SetGraphicsDynamicConstantBuffer(uint32_t rootParameterIndex, size_t sizeInBytes, const void* bufferData)
