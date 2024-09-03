@@ -193,5 +193,15 @@ UpdateStatus ModuleRender::PostUpdate()
 
 bool ModuleRender::CleanUp()
 {
+    _drawCommandList.reset();
+    _debugDraw.reset();
+    texture.reset();
+    vertexBuffer.reset();
+    indexBuffer.reset();
+    _drawCommandList = nullptr;
+    texture = nullptr;
+    vertexBuffer = nullptr;
+    indexBuffer = nullptr;
+    
     return true;
 }

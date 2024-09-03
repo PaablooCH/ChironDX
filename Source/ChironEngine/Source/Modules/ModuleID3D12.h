@@ -18,8 +18,6 @@ public:
     UpdateStatus PostUpdate() override;
     bool CleanUp() override;
 
-    void SwapCurrentBuffer();
-
     // The caller will lose ownership of the commandList shared_ptr after calling this function.
     uint64_t ExecuteCommandList(std::shared_ptr<CommandList>& commandList);
 
@@ -111,6 +109,7 @@ private:
 
 inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
+    CHIRON_TODO("Reduce calls, saving the comptr where its used mostly");
 #if DEBUG
     HRESULT reason = _device->GetDeviceRemovedReason();
 

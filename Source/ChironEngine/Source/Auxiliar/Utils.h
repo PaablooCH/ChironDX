@@ -119,6 +119,7 @@ namespace Chiron
     {
         return reinterpret_cast<const ddVec3&>(v);
     }
+
     inline const ddMat4x4& Utils::ddConvert(const DirectX::SimpleMath::Matrix& m)
     {
         return reinterpret_cast<const ddMat4x4&>(m);

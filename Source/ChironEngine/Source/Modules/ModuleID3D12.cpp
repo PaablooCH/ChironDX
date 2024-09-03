@@ -61,19 +61,24 @@ bool ModuleID3D12::CleanUp()
 {
     Flush();
 
+    _commandQueueDirect.reset();
+    _commandQueueCompute.reset();
+    _commandQueueCopy.reset();
+    _swapChain = nullptr;
+    _depthStencilBuffer.reset();
+    _descriptorAllocators.clear();
+    for (int i = 0; i < backBufferCount; i++)
+    {
+        _renderBuffers[i].reset();
+    }
+
 #ifdef DEBUG
     _debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
 #endif // DEBUG
 
+
+
     return true;
-}
-
-void ModuleID3D12::SwapCurrentBuffer()
-{
-    CHIRON_TODO("DELETE");
-    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
-
-    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
 }
 
 uint64_t ModuleID3D12::ExecuteCommandList(std::shared_ptr<CommandList>& commandList)
@@ -110,7 +115,7 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
     for (int i = 0; i < backBufferCount; ++i)
     {
         // Any references to the back buffers must be released before the swap chain can be resized.
-        _renderBuffers[i].release();
+        _renderBuffers[i].reset();
         _bufferFenceValues[i] = 0;
     }
 
@@ -198,6 +203,7 @@ bool ModuleID3D12::CreateFactory()
     Chiron::Utils::ThrowIfFailed(debugInterface->QueryInterface(IID_PPV_ARGS(&debugController)));
     debugController->EnableDebugLayer();
     debugController->SetEnableGPUBasedValidation(true);
+    //debugController->SetEnableSynchronizedCommandQueueValidation(true);
 
     dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif

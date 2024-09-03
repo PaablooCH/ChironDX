@@ -1,6 +1,7 @@
 #include "Pch.h"
 
 #define DEBUG_DRAW_IMPLEMENTATION
+#define DEBUG_DRAW_CXX11_SUPPORTED 1
 
 #include "DebugDrawPass.h"
 
