@@ -59,8 +59,6 @@ UpdateStatus ModuleID3D12::PostUpdate()
 
 bool ModuleID3D12::CleanUp()
 {
-    Flush();
-
     _commandQueueDirect.reset();
     _commandQueueCompute.reset();
     _commandQueueCopy.reset();
