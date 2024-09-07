@@ -74,8 +74,6 @@ bool ModuleID3D12::CleanUp()
     _debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
 #endif // DEBUG
 
-
-
     return true;
 }
 

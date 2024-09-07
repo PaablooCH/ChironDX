@@ -9,6 +9,8 @@
 #include "ModuleWindow.h"
 #include "ModuleFileSystem.h"
 
+#include "DataModels/Camera/Camera.h"
+
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
@@ -115,7 +117,7 @@ UpdateStatus ModuleRender::Update()
     auto d3d12 = App->GetModule<ModuleID3D12>();
     auto programs = App->GetModule<ModuleProgram>();
     auto window = App->GetModule<ModuleWindow>();
-    auto camera = App->GetModule<ModuleCamera>();
+    auto moduleCamera = App->GetModule<ModuleCamera>();
 
     Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
 
@@ -142,6 +144,8 @@ UpdateStatus ModuleRender::Update()
     auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
     auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
     _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
+
+    auto camera = moduleCamera->GetCamera();
 
     Matrix model = Matrix::Identity;
     Matrix view = camera->GetViewMatrix();
