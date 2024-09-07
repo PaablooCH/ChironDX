@@ -35,6 +35,7 @@ void Camera::Update()
 
 	if (mouseState.rightButton)
 	{
+		App->GetModule<ModuleWindow>()->UnlimitedCursor();
 
 		float deltaTime = App->GetDeltaTime();
 		float moveSpeed = (keyState.LeftShift ? RunSpeed() : WalkSpeed()) * deltaTime;

@@ -20,6 +20,10 @@ public:
     void Resize(unsigned width, unsigned height);
     void ToggleFullScreen();
 
+    // ------------- WINDOW CURSOR ----------------------
+
+    void UnlimitedCursor() const;
+
     // ------------- GETTERS ----------------------
 
     inline HWND GetWindowId() const;
