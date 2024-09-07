@@ -169,7 +169,7 @@ UpdateStatus ModuleRender::Update()
 
     // ------------- DEBUG DRAW ----------------------
 
-    dd::xzSquareGrid(-10.0f, 10.0f, 0.0f, 1.0f, dd::colors::LightGray);
+    dd::xzSquareGrid(-50.0f, 50.0f, 0.0f, 1.0f, dd::colors::LightGray);
     dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.1f, 1.0f);
 
     char lTmp[1024];
