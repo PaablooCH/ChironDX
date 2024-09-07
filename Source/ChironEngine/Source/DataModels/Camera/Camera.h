@@ -28,6 +28,7 @@ protected:
 	inline float WalkSpeed();
 
 private:
+    void Move();
     void FreeLook();
     void ApplyRotationWithFixedUp(const Quaternion& rotationQuat, const Vector3& fixedUp);
 

@@ -29,56 +29,54 @@ Camera::~Camera()
 void Camera::Update()
 {
 	DirectX::Mouse& mouse = DirectX::Mouse::Get();
-	DirectX::Keyboard& keyboard = DirectX::Keyboard::Get();
 	const DirectX::Mouse::State& mouseState = mouse.GetState();
-	const DirectX::Keyboard::State& keyState = keyboard.GetState();
 
 	if (mouseState.rightButton)
 	{
 		App->GetModule<ModuleWindow>()->UnlimitedCursor();
-
-		float deltaTime = App->GetDeltaTime();
-		float moveSpeed = (keyState.LeftShift ? RunSpeed() : WalkSpeed()) * deltaTime;
-
-		_forward.Normalize();
-		_up.Normalize();
-		Vector3 right = _forward.Cross(_up).Normalized();
-
-		// Movement
-		if (keyState.W)
-		{
-			// Forward
-			_position += _forward * moveSpeed;
-		}
-		if (keyState.S)
-		{
-			// Backward
-			_position -= _forward * moveSpeed;
-		}
-		if (keyState.A)
-		{
-			// Left
-			_position -= right * moveSpeed;
-		}
-		if (keyState.D)
-		{
-			// Right
-			_position += right * moveSpeed;
-		}
-		if (keyState.Q)
-		{
-			// Up
-			_position += _up * moveSpeed;
-		}
-		if (keyState.E)
-		{
-			// Down
-			_position -= _up * moveSpeed;
-		}
+		Move();
 		FreeLook();
-		
 	}
 	_view = Matrix::CreateLookAt(_position, _position + _forward, _up);
+}
+
+void Camera::Move()
+{
+	DirectX::Keyboard& keyboard = DirectX::Keyboard::Get();
+	const DirectX::Keyboard::State& keyState = keyboard.GetState();
+
+	float deltaTime = App->GetDeltaTime();
+	float moveSpeed = (keyState.LeftShift ? RunSpeed() : WalkSpeed()) * deltaTime;
+
+	_forward.Normalize();
+	_up.Normalize();
+	Vector3 right = _forward.Cross(_up).Normalized();
+
+	// Movement
+	if (keyState.W)
+	{
+		_position += _forward * moveSpeed; // Forward
+	}
+	if (keyState.S)
+	{
+		_position -= _forward * moveSpeed; // Backward
+	}
+	if (keyState.A)
+	{
+		_position -= right * moveSpeed; // Left
+	}
+	if (keyState.D)
+	{
+		_position += right * moveSpeed; // Right
+	}
+	if (keyState.Q)
+	{
+		_position += _up * moveSpeed; // Up
+	}
+	if (keyState.E)
+	{
+		_position -= _up * moveSpeed; // Down
+	}
 }
 
 void Camera::FreeLook()
