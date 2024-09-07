@@ -271,6 +271,7 @@ namespace DirectX
 
             void Normalize() noexcept;
             void Normalize(Vector3& result) const noexcept;
+            Vector3 Normalized() const noexcept;
 
             void Clamp(const Vector3& vmin, const Vector3& vmax) noexcept;
             void Clamp(const Vector3& vmin, const Vector3& vmax, Vector3& result) const noexcept;
