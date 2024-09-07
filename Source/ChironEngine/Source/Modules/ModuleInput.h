@@ -28,16 +28,16 @@ private:
 
 inline const Vector2 ModuleInput::MouseRel()
 {
-	const auto& mouseState = _mouse->GetState();
-	if (mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
-	{
-		return Vector2(static_cast<float>(mouseState.x - _mousePos.x), static_cast<float>(mouseState.y - _mousePos.y));
-	}
-	else // MODE_RELATIVE
-	{
-		_captureMousePos = true;
-		return Vector2(static_cast<float>(mouseState.x), static_cast<float>(mouseState.y));
-	}
+    const auto& mouseState = _mouse->GetState();
+    if (mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
+    {
+        return Vector2(static_cast<float>(mouseState.x - _mousePos.x), static_cast<float>(mouseState.y - _mousePos.y));
+    }
+    else // MODE_RELATIVE
+    {
+        _captureMousePos = true;
+        return Vector2(static_cast<float>(mouseState.x), static_cast<float>(mouseState.y));
+    }
 }
 
 inline void ModuleInput::CaptureMousePos()

@@ -23,14 +23,14 @@ public:
     inline const Matrix& GetViewMatrix();
     inline const Matrix& GetProjMatrix();
 
-protected:
-	inline float RunSpeed();
-	inline float WalkSpeed();
-
 private:
     void Move();
     void FreeLook();
+
     void ApplyRotationWithFixedUp(const Quaternion& rotationQuat, const Vector3& fixedUp);
+
+    inline float RunSpeed();
+    inline float WalkSpeed();
 
 private:
     Vector3 _position;
