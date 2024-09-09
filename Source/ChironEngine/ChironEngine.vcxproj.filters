@@ -159,6 +159,10 @@
     <ClCompile Include="Source\DataModels\Camera\Camera.cpp">
       <Filter>Source\DataModels\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\Importers\ModelImporter.cpp">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Model\Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -279,5 +283,9 @@
     <ClInclude Include="Source\DataModels\Camera\Camera.h">
       <Filter>Source\DataModels\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\ModelImporter.h">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Model\Model.h" />
   </ItemGroup>
 </Project>
