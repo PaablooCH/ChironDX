@@ -4,6 +4,7 @@
 #include "Application.h"
 
 #include "ModuleID3D12.h"
+#include "ModuleInput.h"
 
 ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false), 
 _width(0), _height(0)
@@ -130,5 +131,39 @@ void ModuleWindow::ToggleFullScreen()
             SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
         ::ShowWindow(_hWnd, SW_NORMAL);
+    }
+}
+
+void ModuleWindow::UnlimitedCursor() const
+{
+    auto input = App->GetModule<ModuleInput>();
+    POINT cursorPos;
+    GetCursorPos(&cursorPos);
+
+    // Get the dimensions of the current window
+    RECT windowRect;
+    GetClientRect(_hWnd, &windowRect);
+    MapWindowPoints(_hWnd, nullptr, reinterpret_cast<POINT*>(&windowRect), 2); // Convert to screen coordinates
+
+    if (cursorPos.x < windowRect.left)
+    {
+        SetCursorPos(windowRect.right - 1, cursorPos.y); // Move to the right side
+        input->CaptureMousePos();
+    }
+    else if (cursorPos.x >= windowRect.right)
+    {
+        SetCursorPos(windowRect.left + 1, cursorPos.y); // Move to the left side
+        input->CaptureMousePos();
+    }
+
+    if (cursorPos.y < windowRect.top)
+    {
+        SetCursorPos(cursorPos.x, windowRect.bottom - 1); // Move to the bottom edge
+        input->CaptureMousePos();
+    }
+    else if (cursorPos.y >= windowRect.bottom)
+    {
+        SetCursorPos(cursorPos.x, windowRect.top + 1); // Move to the top edge
+        input->CaptureMousePos();
     }
 }

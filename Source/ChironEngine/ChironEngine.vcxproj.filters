@@ -55,6 +55,9 @@
     <Filter Include="Source\DataModels\FileSystem\Importers">
       <UniqueIdentifier>{7b713ccc-fbf6-4cab-a9d0-1d19ea4b76c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Camera">
+      <UniqueIdentifier>{f145d87a-5943-4369-a2bd-39632ad00672}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -152,6 +155,9 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\Resource\IndexBuffer.cpp">
       <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Camera\Camera.cpp">
+      <Filter>Source\DataModels\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -269,6 +275,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\IndexBuffer.h">
       <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Camera\Camera.h">
+      <Filter>Source\DataModels\Camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -107,6 +107,7 @@ UpdateStatus Application::Update()
 bool Application::CleanUp()
 {
 	GetModule<ModuleID3D12>()->Flush();
+
 	std::ranges::reverse_view reverseModules = std::ranges::reverse_view{ _modules };
 	for (const std::unique_ptr<Module>& module : reverseModules)
 	{
