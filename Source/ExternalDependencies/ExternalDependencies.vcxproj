@@ -23,88 +23,6 @@
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="assimp\assimp\aabb.h" />
-    <ClInclude Include="assimp\assimp\ai_assert.h" />
-    <ClInclude Include="assimp\assimp\anim.h" />
-    <ClInclude Include="assimp\assimp\AssertHandler.h" />
-    <ClInclude Include="assimp\assimp\Base64.hpp" />
-    <ClInclude Include="assimp\assimp\BaseImporter.h" />
-    <ClInclude Include="assimp\assimp\Bitmap.h" />
-    <ClInclude Include="assimp\assimp\BlobIOSystem.h" />
-    <ClInclude Include="assimp\assimp\ByteSwapper.h" />
-    <ClInclude Include="assimp\assimp\camera.h" />
-    <ClInclude Include="assimp\assimp\cexport.h" />
-    <ClInclude Include="assimp\assimp\cfileio.h" />
-    <ClInclude Include="assimp\assimp\cimport.h" />
-    <ClInclude Include="assimp\assimp\ColladaMetaData.h" />
-    <ClInclude Include="assimp\assimp\color4.h" />
-    <ClInclude Include="assimp\assimp\commonMetaData.h" />
-    <ClInclude Include="assimp\assimp\Compiler\poppack1.h" />
-    <ClInclude Include="assimp\assimp\Compiler\pstdint.h" />
-    <ClInclude Include="assimp\assimp\Compiler\pushpack1.h" />
-    <ClInclude Include="assimp\assimp\CreateAnimMesh.h" />
-    <ClInclude Include="assimp\assimp\DefaultIOStream.h" />
-    <ClInclude Include="assimp\assimp\DefaultIOSystem.h" />
-    <ClInclude Include="assimp\assimp\DefaultLogger.hpp" />
-    <ClInclude Include="assimp\assimp\defs.h" />
-    <ClInclude Include="assimp\assimp\Exceptional.h" />
-    <ClInclude Include="assimp\assimp\Exporter.hpp" />
-    <ClInclude Include="assimp\assimp\fast_atof.h" />
-    <ClInclude Include="assimp\assimp\GenericProperty.h" />
-    <ClInclude Include="assimp\assimp\GltfMaterial.h" />
-    <ClInclude Include="assimp\assimp\Hash.h" />
-    <ClInclude Include="assimp\assimp\Importer.hpp" />
-    <ClInclude Include="assimp\assimp\importerdesc.h" />
-    <ClInclude Include="assimp\assimp\IOStream.hpp" />
-    <ClInclude Include="assimp\assimp\IOStreamBuffer.h" />
-    <ClInclude Include="assimp\assimp\IOSystem.hpp" />
-    <ClInclude Include="assimp\assimp\light.h" />
-    <ClInclude Include="assimp\assimp\LineSplitter.h" />
-    <ClInclude Include="assimp\assimp\LogAux.h" />
-    <ClInclude Include="assimp\assimp\Logger.hpp" />
-    <ClInclude Include="assimp\assimp\LogStream.hpp" />
-    <ClInclude Include="assimp\assimp\material.h" />
-    <ClInclude Include="assimp\assimp\MathFunctions.h" />
-    <ClInclude Include="assimp\assimp\matrix3x3.h" />
-    <ClInclude Include="assimp\assimp\matrix4x4.h" />
-    <ClInclude Include="assimp\assimp\MemoryIOWrapper.h" />
-    <ClInclude Include="assimp\assimp\mesh.h" />
-    <ClInclude Include="assimp\assimp\metadata.h" />
-    <ClInclude Include="assimp\assimp\NullLogger.hpp" />
-    <ClInclude Include="assimp\assimp\ObjMaterial.h" />
-    <ClInclude Include="assimp\assimp\ParsingUtils.h" />
-    <ClInclude Include="assimp\assimp\pbrmaterial.h" />
-    <ClInclude Include="assimp\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
-    <ClInclude Include="assimp\assimp\port\AndroidJNI\BundledAssetIOSystem.h" />
-    <ClInclude Include="assimp\assimp\postprocess.h" />
-    <ClInclude Include="assimp\assimp\Profiler.h" />
-    <ClInclude Include="assimp\assimp\ProgressHandler.hpp" />
-    <ClInclude Include="assimp\assimp\qnan.h" />
-    <ClInclude Include="assimp\assimp\quaternion.h" />
-    <ClInclude Include="assimp\assimp\RemoveComments.h" />
-    <ClInclude Include="assimp\assimp\scene.h" />
-    <ClInclude Include="assimp\assimp\SceneCombiner.h" />
-    <ClInclude Include="assimp\assimp\SGSpatialSort.h" />
-    <ClInclude Include="assimp\assimp\SkeletonMeshBuilder.h" />
-    <ClInclude Include="assimp\assimp\SmallVector.h" />
-    <ClInclude Include="assimp\assimp\SmoothingGroups.h" />
-    <ClInclude Include="assimp\assimp\SpatialSort.h" />
-    <ClInclude Include="assimp\assimp\StandardShapes.h" />
-    <ClInclude Include="assimp\assimp\StreamReader.h" />
-    <ClInclude Include="assimp\assimp\StreamWriter.h" />
-    <ClInclude Include="assimp\assimp\StringComparison.h" />
-    <ClInclude Include="assimp\assimp\StringUtils.h" />
-    <ClInclude Include="assimp\assimp\Subdivision.h" />
-    <ClInclude Include="assimp\assimp\texture.h" />
-    <ClInclude Include="assimp\assimp\TinyFormatter.h" />
-    <ClInclude Include="assimp\assimp\types.h" />
-    <ClInclude Include="assimp\assimp\vector2.h" />
-    <ClInclude Include="assimp\assimp\vector3.h" />
-    <ClInclude Include="assimp\assimp\version.h" />
-    <ClInclude Include="assimp\assimp\Vertex.h" />
-    <ClInclude Include="assimp\assimp\XmlParser.h" />
-    <ClInclude Include="assimp\assimp\XMLTools.h" />
-    <ClInclude Include="assimp\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />
     <ClInclude Include="ImGui\ImGuizmo.h" />
@@ -116,16 +34,6 @@
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assimp\assimp\color4.inl" />
-    <None Include="assimp\assimp\material.inl" />
-    <None Include="assimp\assimp\matrix3x3.inl" />
-    <None Include="assimp\assimp\matrix4x4.inl" />
-    <None Include="assimp\assimp\quaternion.inl" />
-    <None Include="assimp\assimp\SmoothingGroups.inl" />
-    <None Include="assimp\assimp\vector2.inl" />
-    <None Include="assimp\assimp\vector3.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -188,10 +96,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>DirectXTex.lib;DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mt.lib;DirectXTex.lib;DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTex\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTex\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\;$(SolutionDir)$(ProjectName)\assimp</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
