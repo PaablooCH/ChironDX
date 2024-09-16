@@ -58,6 +58,7 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Structs\MVPStruct.h" />
     <ClInclude Include="Source\Defines\FileSystemDefine.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Auxiliar\ChironTodo.h" />

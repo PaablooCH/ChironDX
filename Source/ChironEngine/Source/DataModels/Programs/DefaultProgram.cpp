@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "DefaultProgram.h"
 
+#include "Structs/MVPStruct.h"
+
 DefaultProgram::DefaultProgram(const std::string& name) : Program(name, true)
 {
     InitRootSignature();
@@ -24,7 +26,7 @@ void DefaultProgram::InitRootSignature()
 
     // ------------- CONSTANT ----------------------
 
-    rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 3 / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+    rootParameters[0].InitAsConstants(sizeof(ModelViewProjection) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
     // ------------- DESCRIPTOR TABLE ----------------------
 

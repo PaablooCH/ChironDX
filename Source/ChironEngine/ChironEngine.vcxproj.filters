@@ -64,6 +64,9 @@
     <Filter Include="Source\Defines">
       <UniqueIdentifier>{4e61a0ea-a57e-46d8-825e-a34ae97fe834}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Structs">
+      <UniqueIdentifier>{006e16d5-f067-45fa-bc51-b3dda36f8458}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -323,6 +326,9 @@
     </ClInclude>
     <ClInclude Include="Source\Defines\FileSystemDefine.h">
       <Filter>Source\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\MVPStruct.h">
+      <Filter>Source\Structs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
