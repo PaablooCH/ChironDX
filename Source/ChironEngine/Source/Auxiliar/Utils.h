@@ -17,6 +17,10 @@ namespace Chiron
 
         // ------------- PARSE ----------------------
 
+        static inline float RadToDeg(float radians);
+
+        // ------------- PARSE ----------------------
+
         static std::string WStringToString(const std::wstring& wstr);
 
         // ------------- CONTAINERS ----------------------
@@ -89,6 +93,11 @@ namespace Chiron
     private:
         static std::string GetErrorMessage(HRESULT hr);
     };
+
+    inline float Chiron::Utils::RadToDeg(float radians)
+    {
+        return radians * (180.0f / DirectX::XM_PI);
+    }
 
     template<typename T>
     inline void Utils::TryFrontPop(std::queue<T>& queue, T& element)

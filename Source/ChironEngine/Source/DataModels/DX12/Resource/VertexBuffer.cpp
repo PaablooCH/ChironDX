@@ -2,7 +2,7 @@
 #include "VertexBuffer.h"
 
 VertexBuffer::VertexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numVertices, size_t vertexStride, 
-	const std::wstring& name, const D3D12_CLEAR_VALUE* clearValue) : Resource(resourceDesc, name, clearValue), 
+	const std::wstring& name) : Resource(resourceDesc, name, nullptr),
 	_numVertices(numVertices), _vertexStride(vertexStride)
 {
 	_vertexBufferView.BufferLocation = _resource->GetGPUVirtualAddress();
