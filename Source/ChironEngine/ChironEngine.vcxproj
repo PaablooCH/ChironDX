@@ -14,6 +14,10 @@
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Auxiliar\Formatter.cpp" />
     <ClCompile Include="Source\Auxiliar\Log.cpp" />
+    <ClCompile Include="Source\DataModels\Assets\Asset.cpp" />
+    <ClCompile Include="Source\DataModels\Assets\MaterialAsset.cpp" />
+    <ClCompile Include="Source\DataModels\Assets\MeshAsset.cpp" />
+    <ClCompile Include="Source\DataModels\Assets\TextureAsset.cpp" />
     <ClCompile Include="Source\DataModels\Camera\Camera.cpp" />
     <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp" />
@@ -27,7 +31,7 @@
     <ClCompile Include="Source\DataModels\DX12\RootSignature\RootSignature.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\Importers\ModelImporter.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\Importers\TextureImporter.cpp" />
-    <ClCompile Include="Source\DataModels\Model\Model.cpp" />
+    <ClCompile Include="Source\DataModels\Assets\ModelAsset.cpp" />
     <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
@@ -60,6 +64,10 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClInclude Include="Source\Auxiliar\Log.h" />
     <ClInclude Include="Source\d3dx12.h" />
+    <ClInclude Include="Source\DataModels\Assets\Asset.h" />
+    <ClInclude Include="Source\DataModels\Assets\MaterialAsset.h" />
+    <ClInclude Include="Source\DataModels\Assets\MeshAsset.h" />
+    <ClInclude Include="Source\DataModels\Assets\TextureAsset.h" />
     <ClInclude Include="Source\DataModels\Camera\Camera.h" />
     <ClInclude Include="Source\DataModels\DX12\CommandList\CommandList.h" />
     <ClInclude Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.h" />
@@ -74,7 +82,7 @@
     <ClInclude Include="Source\DataModels\FileSystem\Importers\Importer.h" />
     <ClInclude Include="Source\DataModels\FileSystem\Importers\ModelImporter.h" />
     <ClInclude Include="Source\DataModels\FileSystem\Importers\TextureImporter.h" />
-    <ClInclude Include="Source\DataModels\Model\Model.h" />
+    <ClInclude Include="Source\DataModels\Assets\ModelAsset.h" />
     <ClInclude Include="Source\DataModels\Programs\GenerateMipsProgram.h" />
     <ClInclude Include="Source\DataModels\Timer\Timer.h" />
     <ClInclude Include="Source\Auxiliar\Utils.h" />
