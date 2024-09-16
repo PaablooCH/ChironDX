@@ -61,6 +61,9 @@
     <Filter Include="Source\DataModels\Assets">
       <UniqueIdentifier>{66a9c272-311b-40fc-a50b-0ccbfbe728e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Defines">
+      <UniqueIdentifier>{4e61a0ea-a57e-46d8-825e-a34ae97fe834}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -317,6 +320,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\Assets\MaterialAsset.h">
       <Filter>Source\DataModels\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Defines\FileSystemDefine.h">
+      <Filter>Source\Defines</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

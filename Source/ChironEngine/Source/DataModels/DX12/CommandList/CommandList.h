@@ -11,7 +11,6 @@ class UploadBuffer;
 class CommandList
 {
 public:
-
     CommandList(D3D12_COMMAND_LIST_TYPE type);
     ~CommandList();
 
@@ -59,7 +58,7 @@ public:
 
     void CopyResource(ID3D12Resource* dstRes, ID3D12Resource* srcRes);
     void CopyResource(const Resource* dstRes, const Resource* srcRes);
-    void UpdateBufferResource(const std::shared_ptr<Resource>& texture, uint32_t firstSubresource,
+    void UpdateBufferResource(const Resource* resource, uint32_t firstSubresource,
         uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);

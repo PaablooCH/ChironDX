@@ -1,15 +1,15 @@
 #pragma once
 #include "Importer.h"
 
-class Texture;
+class TextureAsset;
 
-class TextureImporter : public Importer<Texture>
+class TextureImporter : public Importer<TextureAsset>
 {
 public:
 	TextureImporter();
 	~TextureImporter() override;
 
-	void Import(const char* filePath, std::shared_ptr<Texture> texture) override;
+	void Import(const char* filePath, const std::shared_ptr<TextureAsset>& texture) override;
 
 private:
 	int CalculateMipLevels(int width, int height);
