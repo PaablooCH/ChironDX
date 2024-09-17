@@ -45,7 +45,7 @@ void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
         mvp.view = view.Transpose();
         mvp.proj = proj.Transpose();
 
-        commandList->SetGraphics32BitConstants(0, sizeof(ModelViewProjection) / 4, &mvp);
+        commandList->SetGraphicsRoot32BitConstants(0, sizeof(ModelViewProjection) / 4, &mvp);
 
         auto texture = _material[i]->GetDiffuse();
         // set the descriptor heap
@@ -55,6 +55,6 @@ void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
         commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
         commandList->SetGraphicsRootDescriptorTable(1, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
 
-        commandList->DrawIndexed(static_cast<UINT>(_mesh[i]->GetIndexBuffer()->GetNumIndices()), 1, 0, 0, 0);
+        commandList->DrawIndexed(static_cast<UINT>(_mesh[i]->GetIndexBuffer()->GetNumIndices()));
     }
 }

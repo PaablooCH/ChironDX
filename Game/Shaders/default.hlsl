@@ -47,5 +47,6 @@ struct PS_INPUT
 
 float4 PSmain(PS_INPUT input) : SV_Target
 {
-    return t1.Sample(s1, input.texCoord);
+    float2 coord = float2(input.texCoord.x, 1.0f - input.texCoord.y);
+    return t1.Sample(s1, coord);
 }

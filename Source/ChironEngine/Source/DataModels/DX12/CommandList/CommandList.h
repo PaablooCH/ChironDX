@@ -68,7 +68,7 @@ public:
     void SetScissorRects(UINT numRects, const D3D12_RECT& scissorRect);
     void SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
         BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
-    void SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+    void SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
         UINT destOffsetIn32BitValues = 0);
     void SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[]);
     void SetGraphicsRootDescriptorTable(UINT indexRootDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle);

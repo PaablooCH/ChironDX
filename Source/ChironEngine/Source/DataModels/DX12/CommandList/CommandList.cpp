@@ -223,7 +223,7 @@ void CommandList::SetRenderTargets(UINT numRenderTargetDescriptors,
         RTsSingleHandleToDescriptorRange, pDepthStencilDescriptor);
 }
 
-void CommandList::SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+void CommandList::SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
     UINT destOffsetIn32BitValues)
 {
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
