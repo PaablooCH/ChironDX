@@ -33,7 +33,7 @@ bool ModuleRender::Init()
     auto d3d12 = App->GetModule<ModuleID3D12>();
     auto file = App->GetModule<ModuleFileSystem>();
     model = std::make_shared<ModelAsset>();
-    file->Import("Assets/Models/Duck.gltf", model);
+    file->Import("Assets/Models/BakerHouse.fbx", model);
 
     auto commandQueue = d3d12->GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
