@@ -42,6 +42,7 @@
     <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
+    <ClCompile Include="Source\Modules\ModuleEditor.cpp" />
     <ClCompile Include="Source\Modules\ModuleFileSystem.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
@@ -59,6 +60,7 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Modules\ModuleEditor.h" />
     <ClInclude Include="Source\Structs\ModelAttributes.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h" />
     <ClInclude Include="Source\Structs\ViewProjection.h" />

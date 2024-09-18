@@ -2,6 +2,7 @@
 
 class ModuleCamera;
 class ModuleFileSystem;
+class ModuleEditor;
 class ModuleID3D12;
 class ModuleInput;
 class ModuleProgram;
@@ -14,6 +15,7 @@ enum class ModuleType
     WINDOW,
     ID3D12,
     FILE_SYSTEM,
+    EDITOR,
     PROGRAM,
     INPUT,
     CAMERA,
@@ -42,6 +44,12 @@ template<>
 struct ModuleToEnum<ModuleFileSystem>
 {
     const static ModuleType value = ModuleType::FILE_SYSTEM;
+};
+
+template<>
+struct ModuleToEnum<ModuleEditor>
+{
+    const static ModuleType value = ModuleType::EDITOR;
 };
 
 template<>

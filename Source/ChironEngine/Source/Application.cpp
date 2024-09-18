@@ -3,6 +3,7 @@
 
 #include "Modules/ModuleCamera.h"
 #include "Modules/ModuleFileSystem.h"
+#include "Modules/ModuleEditor.h"
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleInput.h"
 #include "Modules/ModuleProgram.h"
@@ -17,6 +18,7 @@ Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _delt
     _modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
     _modules[static_cast<int>(ModuleToEnum<ModuleID3D12>::value)] = std::make_unique<ModuleID3D12>();
     _modules[static_cast<int>(ModuleToEnum<ModuleFileSystem>::value)] = std::make_unique<ModuleFileSystem>();
+    _modules[static_cast<int>(ModuleToEnum<ModuleEditor>::value)] = std::make_unique<ModuleEditor>();
     _modules[static_cast<int>(ModuleToEnum<ModuleProgram>::value)] = std::make_unique<ModuleProgram>();
     _modules[static_cast<int>(ModuleToEnum<ModuleInput>::value)] = std::make_unique<ModuleInput>(hwnd);
     _modules[static_cast<int>(ModuleToEnum<ModuleCamera>::value)] = std::make_unique<ModuleCamera>();

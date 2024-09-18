@@ -189,6 +189,9 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\ConstantBuffer.cpp">
       <Filter>Source\DataModels\DX12\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleEditor.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -338,6 +341,9 @@
     </ClInclude>
     <ClInclude Include="Source\Structs\ModelAttributes.h">
       <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleEditor.h">
+      <Filter>Source\Modules</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
