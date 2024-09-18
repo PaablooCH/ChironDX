@@ -2,9 +2,8 @@
 
 #include <SimpleMath.h>
 
-struct ModelViewProjection
+struct ViewProjection
 {
-	DirectX::SimpleMath::Matrix model;
 	DirectX::SimpleMath::Matrix view;
 	DirectX::SimpleMath::Matrix proj;
 };

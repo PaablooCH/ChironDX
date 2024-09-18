@@ -18,9 +18,9 @@
 #include "DataModels/DX12/Resource/VertexBuffer.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
-#include "Structs/MVPStruct.h"
+#include "Structs/ModelAttributes.h"
 
-ModelAsset::ModelAsset() : Asset(AssetType::Model)
+ModelAsset::ModelAsset() : Asset(AssetType::Model), _isTopLeft(false)
 {
 }
 
@@ -30,9 +30,6 @@ ModelAsset::~ModelAsset()
 
 void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
 {
-    auto camera = App->GetModule<ModuleCamera>()->GetCamera();
-    Matrix view = camera->GetViewMatrix();
-    Matrix proj = camera->GetProjMatrix();
     for (int i = 0; i < _mesh.size(); i++)
     {
         commandList->SetVertexBuffers(0, 1, &_mesh[i]->GetVertexBuffer()->GetVertexBufferView());
@@ -40,12 +37,11 @@ void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
 
         Matrix model = Matrix::Identity;
 
-        ModelViewProjection mvp;
-        mvp.model = model.Transpose();
-        mvp.view = view.Transpose();
-        mvp.proj = proj.Transpose();
+        ModelAttributes modelAttributes;
+        modelAttributes.model = Matrix::Identity;
+        modelAttributes.uvCorrector = !_isTopLeft;
 
-        commandList->SetGraphicsRoot32BitConstants(0, sizeof(ModelViewProjection) / 4, &mvp);
+        commandList->SetGraphicsRoot32BitConstants(1, sizeof(ModelAttributes) / 4, &modelAttributes);
 
         auto texture = _material[i]->GetDiffuse();
         // set the descriptor heap
@@ -53,7 +49,7 @@ void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
             texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
         };
         commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-        commandList->SetGraphicsRootDescriptorTable(1, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
+        commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
 
         commandList->DrawIndexed(static_cast<UINT>(_mesh[i]->GetIndexBuffer()->GetNumIndices()));
     }

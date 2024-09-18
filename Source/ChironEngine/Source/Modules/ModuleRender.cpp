@@ -18,6 +18,8 @@
 #include "DataModels/DX12/Resource/Texture.h"
 #include "DataModels/Programs/Program.h"
 
+#include "Structs/ViewProjection.h"
+
 #include "DebugDrawPass.h"
 
 ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX))
@@ -70,9 +72,6 @@ UpdateStatus ModuleRender::Update()
     _drawCommandList->UseProgram(defaultP);
 
     _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    CHIRON_TODO("MOVE TO MODEL");
-    /*_drawCommandList->SetVertexBuffers(0, 1, &vertexBuffer->GetVertexBufferView());
-    _drawCommandList->SetIndexBuffer(&indexBuffer->GetIndexBufferView());*/
 
     unsigned width;
     unsigned height;
@@ -88,19 +87,19 @@ UpdateStatus ModuleRender::Update()
     _drawCommandList->SetViewports(1, viewport);
     _drawCommandList->SetScissorRects(1, _scissor);
 
+    auto camera = moduleCamera->GetCamera();
+    Matrix view = camera->GetViewMatrix();
+    Matrix proj = camera->GetProjMatrix();
+
+    ViewProjection vp;
+    vp.view = view.Transpose();
+    vp.proj = proj.Transpose();
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
+
     auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
     auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
     _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
 
-    CHIRON_TODO("MOVE TO MODEL");
-    // set the descriptor heap
-    /*ID3D12DescriptorHeap* descriptorHeaps[] = { 
-        texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
-    };
-    _drawCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    _drawCommandList->SetGraphicsRootDescriptorTable(1, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
-
-    _drawCommandList->DrawIndexed(6, 1, 0, 0, 0);*/
     model->Draw(_drawCommandList);
 
     // ------------- DEBUG DRAW ----------------------
@@ -111,10 +110,6 @@ UpdateStatus ModuleRender::Update()
     char lTmp[1024];
     sprintf_s(lTmp, 1023, "FPS: [%d].", static_cast<uint32_t>(App->GetFPS()));
     dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
-
-    auto camera = moduleCamera->GetCamera();
-    Matrix view = camera->GetViewMatrix();
-    Matrix proj = camera->GetProjMatrix();
 
     _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
 

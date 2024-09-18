@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "DefaultProgram.h"
 
-#include "Structs/MVPStruct.h"
+#include "Structs/ModelAttributes.h"
 
 DefaultProgram::DefaultProgram(const std::string& name) : Program(name, true)
 {
@@ -22,18 +22,22 @@ void DefaultProgram::InitRootSignature()
         D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
     // It's a good idea to sort parameters by frequency of change.
-    CD3DX12_ROOT_PARAMETER1 rootParameters[2]{};
+    CD3DX12_ROOT_PARAMETER1 rootParameters[3]{};
 
+    // ------------- CONSTANT BUFFER ----------------------
+
+    rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+    
     // ------------- CONSTANT ----------------------
 
-    rootParameters[0].InitAsConstants(sizeof(ModelViewProjection) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+    rootParameters[1].InitAsConstants(sizeof(ModelAttributes) / 4, 1);
 
     // ------------- DESCRIPTOR TABLE ----------------------
 
     CD3DX12_DESCRIPTOR_RANGE1 srv(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 
         D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
 
-    rootParameters[1].InitAsDescriptorTable(1, &srv, D3D12_SHADER_VISIBILITY_PIXEL);
+    rootParameters[2].InitAsDescriptorTable(1, &srv, D3D12_SHADER_VISIBILITY_PIXEL);
 
     // ------------- STATIC SAMPLER ----------------------
 

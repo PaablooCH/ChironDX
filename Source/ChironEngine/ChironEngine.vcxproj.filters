@@ -186,6 +186,9 @@
     <ClCompile Include="Source\DataModels\Assets\MaterialAsset.cpp">
       <Filter>Source\DataModels\Assets</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\Resource\ConstantBuffer.cpp">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -327,7 +330,13 @@
     <ClInclude Include="Source\Defines\FileSystemDefine.h">
       <Filter>Source\Defines</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Structs\MVPStruct.h">
+    <ClInclude Include="Source\Structs\ViewProjection.h">
+      <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\ModelAttributes.h">
       <Filter>Source\Structs</Filter>
     </ClInclude>
   </ItemGroup>

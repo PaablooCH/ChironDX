@@ -1,12 +1,20 @@
-// ------------- VERTEX SHADER ----------------------
+// ------------- BUFFERS ----------------------
 
-struct ModelViewProjection
+struct ViewProjection
 {
-    matrix model;
     matrix view;
     matrix projection;
 };
-ConstantBuffer<ModelViewProjection> myCB0 : register(b0);
+ConstantBuffer<ViewProjection> viewProjection : register(b0);
+
+struct ModelAttributes
+{
+    matrix model;
+    int uvCorrector;
+};
+ConstantBuffer<ModelAttributes> modelAttributes : register(b1);
+
+// ------------- VERTEX SHADER ----------------------
 
 struct VS_INPUT
 {
@@ -27,7 +35,7 @@ VS_OUTPUT VSmain(VS_INPUT input)
 {
     VS_OUTPUT OUT;
     float4 position = float4(input.position, 1.0f);
-    matrix mvp = mul(myCB0.model, mul(myCB0.view, myCB0.projection));
+    matrix mvp = mul(modelAttributes.model, mul(viewProjection.view, viewProjection.projection));
     OUT.position = mul(position, mvp);
     OUT.texCoord = input.texCoord;
 
@@ -47,6 +55,10 @@ struct PS_INPUT
 
 float4 PSmain(PS_INPUT input) : SV_Target
 {
-    float2 coord = float2(input.texCoord.x, 1.0f - input.texCoord.y);
+    float2 coord = input.texCoord;
+    if (modelAttributes.uvCorrector == 1)
+    {
+        coord.y = 1.0f - coord.y;
+    }
     return t1.Sample(s1, coord);
 }

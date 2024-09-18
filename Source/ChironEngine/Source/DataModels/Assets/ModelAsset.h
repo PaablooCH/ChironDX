@@ -28,6 +28,8 @@ public:
 private:
     std::vector<std::shared_ptr<MaterialAsset>> _material;
     std::vector<std::shared_ptr<MeshAsset>> _mesh;
+
+    bool _isTopLeft;
 };
 
 inline std::wstring ModelAsset::GetName() const
