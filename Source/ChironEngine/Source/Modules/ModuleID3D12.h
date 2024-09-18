@@ -57,7 +57,7 @@ private:
     // ------------- UPDATES ----------------------
 
     void UpdateRenderTargetViews();
-    
+
     // ------------- INITS ---------------------------
 
     void InitFrameBuffer();
@@ -69,7 +69,7 @@ private:
     // Is the entry point to the DirectX 12 API.
     ComPtr<IDXGIFactory5> _factory;
 
-    // Provides information on the physical properties of a given DirectX device. 
+    // Provides information on the physical properties of a given DirectX device.
     // Can query the current GPU's name, manufacturer, how much memory it has, and much more.
     ComPtr<IDXGIAdapter4> _adapter;
 
@@ -91,7 +91,7 @@ private:
     std::unique_ptr<CommandQueue> _commandQueueCompute; // command buffer for computing
     std::unique_ptr<CommandQueue> _commandQueueCopy;    // command buffer for copying
 
-    // Lets the program know when certain tasks have been executed by the GPU, 
+    // Lets the program know when certain tasks have been executed by the GPU,
     // when it uploads to GPU exclusive memory, or when it've finished presenting to the screen.
     UINT64 _bufferFenceValues[backBufferCount];
 

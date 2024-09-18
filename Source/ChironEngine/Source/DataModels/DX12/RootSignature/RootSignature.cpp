@@ -5,15 +5,15 @@
 
 #include "Modules/ModuleID3D12.h"
 
-RootSignature::RootSignature() : _rootSignature(nullptr), _rootSignatureDesc({}), _numDescriptorsPerTable{ 0 }, 
+RootSignature::RootSignature() : _rootSignature(nullptr), _rootSignatureDesc({}), _numDescriptorsPerTable{ 0 },
 _samplerTableBitMask(0), _descriptorTableBitMask(0)
 {
 }
 
-RootSignature::RootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc, 
-	D3D_ROOT_SIGNATURE_VERSION rootSignatureVersion)
+RootSignature::RootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc,
+    D3D_ROOT_SIGNATURE_VERSION rootSignatureVersion)
 {
-	SetRootSignatureDesc(rootSignatureDesc, rootSignatureVersion);
+    SetRootSignatureDesc(rootSignatureDesc, rootSignatureVersion);
 }
 
 RootSignature::~RootSignature()
@@ -21,8 +21,8 @@ RootSignature::~RootSignature()
     Destroy();
 }
 
-void RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc, 
-	D3D_ROOT_SIGNATURE_VERSION rootSignatureVersion)
+void RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc,
+    D3D_ROOT_SIGNATURE_VERSION rootSignatureVersion)
 {
     Destroy();
 
@@ -39,7 +39,7 @@ void RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootS
         if (rootParameter.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
         {
             UINT numDescriptorRanges = rootParameter.DescriptorTable.NumDescriptorRanges;
-            D3D12_DESCRIPTOR_RANGE1* pDescriptorRanges = 
+            D3D12_DESCRIPTOR_RANGE1* pDescriptorRanges =
                 numDescriptorRanges > 0 ? new D3D12_DESCRIPTOR_RANGE1[numDescriptorRanges] : nullptr;
 
             if (pDescriptorRanges)
@@ -47,7 +47,7 @@ void RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootS
                 memcpy(pDescriptorRanges, rootParameter.DescriptorTable.pDescriptorRanges,
                     sizeof(D3D12_DESCRIPTOR_RANGE1) * numDescriptorRanges);
             }
-            
+
             pParameters[i].DescriptorTable.NumDescriptorRanges = numDescriptorRanges;
             pParameters[i].DescriptorTable.pDescriptorRanges = pDescriptorRanges;
 
@@ -79,7 +79,7 @@ void RootSignature::SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootS
     _rootSignatureDesc.pParameters = pParameters;
 
     UINT numStaticSamplers = rootSignatureDesc.NumStaticSamplers;
-    D3D12_STATIC_SAMPLER_DESC* pStaticSamplers = 
+    D3D12_STATIC_SAMPLER_DESC* pStaticSamplers =
         numStaticSamplers > 0 ? new D3D12_STATIC_SAMPLER_DESC[numStaticSamplers] : nullptr;
 
     if (pStaticSamplers)

@@ -6,11 +6,11 @@ class TextureAsset;
 class TextureImporter : public Importer<TextureAsset>
 {
 public:
-	TextureImporter();
-	~TextureImporter() override;
+    TextureImporter();
+    ~TextureImporter() override;
 
-	void Import(const char* filePath, const std::shared_ptr<TextureAsset>& texture) override;
+    void Import(const char* filePath, const std::shared_ptr<TextureAsset>& texture) override;
 
 private:
-	int CalculateMipLevels(int width, int height);
+    int CalculateMipLevels(int width, int height);
 };

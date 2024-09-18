@@ -23,7 +23,7 @@ public:
         D3D12_GPU_VIRTUAL_ADDRESS GPU;
     };
 
-	explicit UploadBuffer(size_t pageSize = _2MB);
+    explicit UploadBuffer(size_t pageSize = _2MB);
 
     Allocation Allocate(size_t sizeInBytes, size_t alignment);
 
@@ -68,4 +68,3 @@ inline size_t UploadBuffer::GetPageSize() const
 {
     return _pageSize;
 }
-

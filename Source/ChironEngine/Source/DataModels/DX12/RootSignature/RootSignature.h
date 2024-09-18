@@ -8,7 +8,7 @@ public:
 
     ~RootSignature();
 
-    void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc, 
+    void SetRootSignatureDesc(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc,
         D3D_ROOT_SIGNATURE_VERSION rootSignatureVersion);
 
     void Destroy();
@@ -59,4 +59,3 @@ inline uint32_t RootSignature::GetNumDescriptors(uint32_t rootIndex) const
 {
     return _numDescriptorsPerTable[rootIndex];
 }
-

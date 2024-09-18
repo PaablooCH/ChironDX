@@ -28,14 +28,13 @@ public:
     // ------------- GETTERS ----------------------
 
     void SetIndexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numIndices, const DXGI_FORMAT& indexFormat,
-		const std::wstring& name = L"");
+        const std::wstring& name = L"");
     void SetVertexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numVertices, const std::wstring& name = L"");
 
 private:
     std::unique_ptr<IndexBuffer> _indexBuffer;
     std::unique_ptr<VertexBuffer> _vertexBuffer;
 };
-
 
 inline std::wstring MeshAsset::GetName() const
 {

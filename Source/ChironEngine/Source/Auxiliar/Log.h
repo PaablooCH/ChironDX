@@ -6,12 +6,12 @@
 
 enum class LogSeverity
 {
-	TRACE_LOG,
-	DEBUG_LOG,
-	INFO_LOG,
-	WARNING_LOG,
-	ERROR_LOG,
-	FATAL_LOG
+    TRACE_LOG,
+    DEBUG_LOG,
+    INFO_LOG,
+    WARNING_LOG,
+    ERROR_LOG,
+    FATAL_LOG
 };
 
 #define LOG_TRACE(format, ...)		CHIRON_LOG(format, LogSeverity::TRACE_LOG, __VA_ARGS__)
@@ -24,39 +24,39 @@ enum class LogSeverity
 
 namespace Chiron
 {
-	class Log
-	{
-	public:
-		Log() = default;
-		~Log();
+    class Log
+    {
+    public:
+        Log() = default;
+        ~Log();
 
-		template<typename... Args>
-		void LogMessage(const char file[], int line, LogSeverity severity, const std::string& format, Args&&... args);
+        template<typename... Args>
+        void LogMessage(const char file[], int line, LogSeverity severity, const std::string& format, Args&&... args);
 
-		void Write(const char file[], int line, LogSeverity severity, std::string&& formattedLine);
+        void Write(const char file[], int line, LogSeverity severity, std::string&& formattedLine);
 
-	private:
-		struct LogLine
-		{
-		public:
-			std::string ToString(bool addBreak) const;
+    private:
+        struct LogLine
+        {
+        public:
+            std::string ToString(bool addBreak) const;
 
-		public:
-			// Info of each line
-			LogSeverity severity;
-			std::string file;
-			uint16_t line;
-			std::string message;
-		};
+        public:
+            // Info of each line
+            LogSeverity severity;
+            std::string file;
+            uint16_t line;
+            std::string message;
+        };
 
-		std::vector<LogLine> _logLines;
-	};
+        std::vector<LogLine> _logLines;
+    };
 
-	template<typename ...Args>
-	inline void Log::LogMessage(const char file[], int line, LogSeverity severity, const std::string& format, Args && ...args)
-	{
-		Write(file, line, severity, Chiron::Format(format, std::forward<Args>(args)...));
-	}
+    template<typename ...Args>
+    inline void Log::LogMessage(const char file[], int line, LogSeverity severity, const std::string& format, Args && ...args)
+    {
+        Write(file, line, severity, Chiron::Format(format, std::forward<Args>(args)...));
+    }
 }
 
 extern std::unique_ptr<Chiron::Log> logContext;

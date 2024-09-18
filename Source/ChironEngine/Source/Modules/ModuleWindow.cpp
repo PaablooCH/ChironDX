@@ -6,7 +6,7 @@
 #include "ModuleID3D12.h"
 #include "ModuleInput.h"
 
-ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false), 
+ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false),
 _width(0), _height(0)
 {
 }
@@ -33,17 +33,17 @@ bool ModuleWindow::Init()
         return false;
     }
 
-	return true;
+    return true;
 }
 
 UpdateStatus ModuleWindow::PreUpdate()
 {
-	return UpdateStatus::UPDATE_CONTINUE;
+    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleWindow::Update()
 {
-	return UpdateStatus::UPDATE_CONTINUE;
+    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleWindow::PostUpdate()
@@ -53,7 +53,7 @@ UpdateStatus ModuleWindow::PostUpdate()
 
 bool ModuleWindow::CleanUp()
 {
-	return true;
+    return true;
 }
 
 void ModuleWindow::Resize()

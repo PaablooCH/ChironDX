@@ -5,7 +5,6 @@
 class MaterialAsset;
 class MeshAsset;
 
-
 class CommandList;
 
 class ModelAsset : public Asset
@@ -21,7 +20,7 @@ public:
     inline std::wstring GetName() const override;
 
     // ------------- GETTERS ----------------------
-	
+
     inline void AddMaterial(std::shared_ptr<MaterialAsset>& material);
     inline void AddMesh(std::shared_ptr<MeshAsset>& mesh);
 

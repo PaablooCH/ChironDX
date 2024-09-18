@@ -16,7 +16,7 @@ std::unique_ptr<Chiron::Log> logContext = std::make_unique<Chiron::Log>();
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
-	int mainReturn = EXIT_FAILURE;
+    int mainReturn = EXIT_FAILURE;
 
     LOG_INFO("Application Creation --------------");
 
@@ -36,9 +36,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
     UnregisterClass(WND_CLASS_NAME, hInstance);
 
-	LOG_INFO("Bye :)\n");
+    LOG_INFO("Bye :)\n");
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 BOOL CreateApplication(HINSTANCE hInstance)
@@ -47,7 +47,7 @@ BOOL CreateApplication(HINSTANCE hInstance)
     {
         assert(false && "Error creating Window Class.");
     }
-    
+
     HWND hwnd = CreateWindowW(
         WND_CLASS_NAME,         // Window Class
         WND_NAME,               // Window title
@@ -92,24 +92,24 @@ BOOL CreateApplication(HINSTANCE hInstance)
 
 ATOM CreateWindowClass(HINSTANCE hIstance)
 {
-    WNDCLASSEXW wcex {};
+    WNDCLASSEXW wcex{};
 
-    // Fill in the window class structure with parameters 
-    // that describe the main window. 
+    // Fill in the window class structure with parameters
+    // that describe the main window.
 
-    wcex.cbSize = sizeof(WNDCLASSEXW);                  // size of structure 
-    wcex.lpszClassName = WND_CLASS_NAME;                // name of window class 
-    wcex.style = CS_HREDRAW | CS_VREDRAW;               // redraw if size changes 
-    wcex.lpfnWndProc = WndProc;                         // points to window procedure 
-    wcex.cbClsExtra = 0;                                // no extra class memory 
-    wcex.cbWndExtra = 0;                                // no extra window memory 
-    wcex.hInstance = hIstance;                          // handle to instance 
-    wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);       // predefined app. icon 
-    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);         // predefined arrow 
-    wcex.lpszMenuName = NULL;                           // name of menu resource 
+    wcex.cbSize = sizeof(WNDCLASSEXW);                  // size of structure
+    wcex.lpszClassName = WND_CLASS_NAME;                // name of window class
+    wcex.style = CS_HREDRAW | CS_VREDRAW;               // redraw if size changes
+    wcex.lpfnWndProc = WndProc;                         // points to window procedure
+    wcex.cbClsExtra = 0;                                // no extra class memory
+    wcex.cbWndExtra = 0;                                // no extra window memory
+    wcex.hInstance = hIstance;                          // handle to instance
+    wcex.hIcon = LoadIcon(nullptr, IDI_APPLICATION);       // predefined app. icon
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);         // predefined arrow
+    wcex.lpszMenuName = NULL;                           // name of menu resource
     wcex.hIconSm = LoadIcon(nullptr, IDI_APPLICATION); // small class icon
 
-    // Register the window class. 
+    // Register the window class.
     return RegisterClassExW(&wcex);
 }
 
@@ -183,4 +183,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return 0;
 }
-

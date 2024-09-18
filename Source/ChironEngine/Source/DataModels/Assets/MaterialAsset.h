@@ -8,7 +8,7 @@ class MaterialAsset : public Asset
 public:
     MaterialAsset();
     ~MaterialAsset() override;
-	
+
     // ------------- GETTERS ----------------------
 
     inline std::wstring GetName() const override;

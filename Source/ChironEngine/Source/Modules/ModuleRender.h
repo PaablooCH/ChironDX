@@ -23,7 +23,7 @@ private:
     std::shared_ptr<CommandList> _drawCommandList;
 
     std::unique_ptr<DebugDrawPass> _debugDraw;
-    
+
     std::shared_ptr<ModelAsset> model;
 
     D3D12_RECT _scissor;

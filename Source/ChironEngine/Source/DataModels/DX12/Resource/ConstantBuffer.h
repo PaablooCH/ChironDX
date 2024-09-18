@@ -14,7 +14,6 @@ private:
 
 private:
     size_t _sizeInBytes;
-    
+
     mutable DescriptorAllocation _constantBufferView;
 };
-

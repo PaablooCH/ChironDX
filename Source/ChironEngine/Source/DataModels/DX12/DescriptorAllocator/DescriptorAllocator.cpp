@@ -3,8 +3,8 @@
 
 #include "DescriptorAllocatorPage.h"
 
-DescriptorAllocator::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) : 
-	_heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap)
+DescriptorAllocator::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) :
+    _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap)
 {
 }
 
@@ -67,10 +67,10 @@ void DescriptorAllocator::ReleaseStaleDescriptors(uint64_t frameNumber)
 
 std::shared_ptr<DescriptorAllocatorPage> DescriptorAllocator::CreateAllocatorPage()
 {
-	auto newPage = std::make_shared<DescriptorAllocatorPage>(_heapType, _numDescriptorsPerHeap);
+    auto newPage = std::make_shared<DescriptorAllocatorPage>(_heapType, _numDescriptorsPerHeap);
 
-	_heapPool.emplace_back(newPage);
-	_availableHeaps.insert(_heapPool.size() - 1);
+    _heapPool.emplace_back(newPage);
+    _availableHeaps.insert(_heapPool.size() - 1);
 
-	return newPage;
+    return newPage;
 }

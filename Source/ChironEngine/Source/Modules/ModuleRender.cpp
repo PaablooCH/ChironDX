@@ -46,9 +46,9 @@ bool ModuleRender::Init()
 UpdateStatus ModuleRender::PreUpdate()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
-    
+
     _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-        
+
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
@@ -137,6 +137,6 @@ bool ModuleRender::CleanUp()
     model.reset();
     _drawCommandList = nullptr;
     model = nullptr;
-    
+
     return true;
 }

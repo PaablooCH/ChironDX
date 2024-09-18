@@ -12,8 +12,8 @@ MeshAsset::~MeshAsset()
 {
 }
 
-void MeshAsset::SetIndexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numIndices, const DXGI_FORMAT& indexFormat, 
-	const std::wstring& name)
+void MeshAsset::SetIndexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numIndices, const DXGI_FORMAT& indexFormat,
+    const std::wstring& name)
 {
     _indexBuffer = std::make_unique<IndexBuffer>(resourceDesc, numIndices, indexFormat, name);
 }
