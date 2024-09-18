@@ -88,8 +88,6 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
 			scale.z);
 
 		// loading meshes and materials
-		std::string fileName = ModuleFileSystem::GetFileName(std::string(filePath));
-
 		auto d3d12 = App->GetModule<ModuleID3D12>();
 		CHIRON_TODO("Move this to meshImporter");
 		auto copyCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
@@ -100,11 +98,11 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-			LOG_INFO("Importing mesh {}", mesh->mName.C_Str());
+			LOG_INFO("Importing mesh {}", name);
 			LOG_INFO("Importing material {}", material->GetName().C_Str());
 
-			std::shared_ptr<MeshAsset> meshAsset = ImportMesh(mesh, fileName, i, copyCommandList);
-			std::shared_ptr<MaterialAsset> materialAsset = ImportMaterial(material, fileName, i);
+			std::shared_ptr<MeshAsset> meshAsset = ImportMesh(mesh, name, i, copyCommandList);
+			std::shared_ptr<MaterialAsset> materialAsset = ImportMaterial(material, name, i);
 
 			CHIRON_TODO("Move this to meshImporter");
 			// Change states
