@@ -4,6 +4,6 @@
 
 struct ViewProjection
 {
-	DirectX::SimpleMath::Matrix view;
-	DirectX::SimpleMath::Matrix proj;
+    DirectX::SimpleMath::Matrix view;
+    DirectX::SimpleMath::Matrix proj;
 };

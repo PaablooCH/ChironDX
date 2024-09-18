@@ -5,7 +5,7 @@
 class DescriptorAllocatorPage : public std::enable_shared_from_this<DescriptorAllocatorPage>
 {
 public:
-	DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap);
+    DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap);
 
     // ------------- MEMORY ----------------------
 
@@ -60,7 +60,7 @@ private:
 
     struct StaleDescriptorInfo
     {
-        StaleDescriptorInfo(uint32_t offset, uint32_t size, uint64_t frame) : offset(offset), size(size), 
+        StaleDescriptorInfo(uint32_t offset, uint32_t size, uint64_t frame) : offset(offset), size(size),
             frameNumber(frame)
         {}
 

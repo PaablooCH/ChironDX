@@ -6,18 +6,18 @@ class RootSignature;
 class DynamicDescriptorHeap
 {
 public:
-    DynamicDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType,uint32_t numDescriptorsPerHeap = 1024);
+    DynamicDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32_t numDescriptorsPerHeap = 1024);
 
     ~DynamicDescriptorHeap();
 
     // ------------- MEMORY GPU ----------------------
 
-    // Stages a contiguous range of CPU visible descriptors. Descriptors are copied to the GPU when the 
+    // Stages a contiguous range of CPU visible descriptors. Descriptors are copied to the GPU when the
     // CommitStagedDescriptors function is called.
-    void StageDescriptors(uint32_t rootParameterIndex, uint32_t offset, uint32_t numDescriptors, 
+    void StageDescriptors(uint32_t rootParameterIndex, uint32_t offset, uint32_t numDescriptors,
         const D3D12_CPU_DESCRIPTOR_HANDLE srcDescriptors);
 
-    // Copy all of the staged descriptors to the GPU visible descriptor heap and bind the descriptor heap and 
+    // Copy all of the staged descriptors to the GPU visible descriptor heap and bind the descriptor heap and
     // the descriptor tables to the command list.
     void CommitStagedDescriptorsForDraw(CommandList& commandList);
     void CommitStagedDescriptorsForDispatch(CommandList& commandList);
@@ -32,10 +32,10 @@ public:
     void Reset();
 
 private:
-    // Copy all of the staged descriptors to the GPU visible descriptor heap and bind the descriptor heap and 
-    // the descriptor tables to the command list. The passed-in function object is used to set the GPU visible descriptors 
-    // on the command list. Two possible functions are: 
-    // Before a draw: ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable 
+    // Copy all of the staged descriptors to the GPU visible descriptor heap and bind the descriptor heap and
+    // the descriptor tables to the command list. The passed-in function object is used to set the GPU visible descriptors
+    // on the command list. Two possible functions are:
+    // Before a draw: ID3D12GraphicsCommandList::SetGraphicsRootDescriptorTable
     // Before a dispatch: ID3D12GraphicsCommandList::SetComputeRootDescriptorTable
     void CommitStagedDescriptors(CommandList& commandList,
         std::function<void(ID3D12GraphicsCommandList*, UINT, D3D12_GPU_DESCRIPTOR_HANDLE)> setFunc);
@@ -87,7 +87,7 @@ private:
 
     // Each bit represents the index in the root signature that contains a descriptor table.
     uint32_t _descriptorTableBitMask;
-    // Each bit represents a descriptor table in the root signature that has changed since the last time the 
+    // Each bit represents a descriptor table in the root signature that has changed since the last time the
     // descriptors were copied.
     uint32_t _staleDescriptorTableBitMask;
 
@@ -102,4 +102,3 @@ private:
 
     uint32_t _numFreeHandles;
 };
-

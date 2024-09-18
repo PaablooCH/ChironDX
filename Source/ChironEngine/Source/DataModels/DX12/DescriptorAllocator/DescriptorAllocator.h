@@ -29,4 +29,3 @@ private:
 
     std::mutex _mutex;
 };
-

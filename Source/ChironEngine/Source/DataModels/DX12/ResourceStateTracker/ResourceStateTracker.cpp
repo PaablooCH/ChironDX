@@ -41,7 +41,7 @@ uint32_t ResourceStateTracker::FlushPendingResourceBarriers(const CommandList* c
 
     std::vector<D3D12_RESOURCE_BARRIER> barriersToPush;
     barriersToPush.reserve(_pendingResourceBarriers.size());
-    
+
     for (auto& pendingBarrier : _pendingResourceBarriers)
     {
         // All pendings are transition barriers
@@ -104,7 +104,7 @@ void ResourceStateTracker::FlushResourceBarriers(CommandList* commandList)
                 exists = ExistsResource(barrier.Transition.pResource);
                 break;
             case D3D12_RESOURCE_BARRIER_TYPE_ALIASING:
-                exists = ExistsResource(barrier.Aliasing.pResourceBefore) && 
+                exists = ExistsResource(barrier.Aliasing.pResourceBefore) &&
                     ExistsResource(barrier.Aliasing.pResourceAfter);
                 break;
             case D3D12_RESOURCE_BARRIER_TYPE_UAV:
@@ -223,7 +223,7 @@ void ResourceStateTracker::ResourceBarrier(const D3D12_RESOURCE_BARRIER& barrier
                 }
             }
         }
-        else // In this case, the resource is being used on the command list for the first time. 
+        else // In this case, the resource is being used on the command list for the first time.
         {
             // Add a pending barrier. The pending barriers will be resolved
             // before the command list is executed on the command queue.

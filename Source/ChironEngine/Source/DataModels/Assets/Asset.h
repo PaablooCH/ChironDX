@@ -29,7 +29,6 @@ private:
     AssetType _type;
 };
 
-
 inline AssetType Asset::GetType() const
 {
     return _type;

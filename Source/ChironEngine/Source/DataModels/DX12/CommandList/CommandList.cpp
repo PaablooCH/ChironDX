@@ -49,7 +49,7 @@ CommandList::~CommandList()
 {
 }
 
-void CommandList::TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource, 
+void CommandList::TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, UINT subresource,
     bool flushBarriers)
 {
     TransitionBarrier(resource->GetResource(), stateAfter, subresource, flushBarriers);
@@ -157,7 +157,7 @@ void CommandList::CopyResource(const Resource* dstRes, const Resource* srcRes)
     CopyResource(dstRes->GetResource(), srcRes->GetResource());
 }
 
-void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstSubresource, 
+void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstSubresource,
     uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData)
 {
     assert(resource);
@@ -171,7 +171,7 @@ void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstS
 
         // Resource must be in the copy-destination state.
         TransitionBarrier(resource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
-        
+
         UINT64 requiredSize = GetRequiredIntermediateSize(destinationResource, firstSubresource, numSubresources);
 
         // Create a temporary (intermediate) resource for uploading the subresources
@@ -183,7 +183,7 @@ void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstS
             &buffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
             IID_PPV_ARGS(&intermediateResource)));
 
-        UpdateSubresources(_commandList.Get(), destinationResource, intermediateResource.Get(), 0, firstSubresource, 
+        UpdateSubresources(_commandList.Get(), destinationResource, intermediateResource.Get(), 0, firstSubresource,
             numSubresources, subresourceData);
 
         TrackResource(intermediateResource.Get());
@@ -215,15 +215,15 @@ void CommandList::SetScissorRects(UINT numRects, const D3D12_RECT& scissorRect)
     _commandList->RSSetScissorRects(numRects, &scissorRect);
 }
 
-void CommandList::SetRenderTargets(UINT numRenderTargetDescriptors, 
-    const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange, 
+void CommandList::SetRenderTargets(UINT numRenderTargetDescriptors,
+    const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors, BOOL RTsSingleHandleToDescriptorRange,
     const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor)
 {
-    _commandList->OMSetRenderTargets(numRenderTargetDescriptors, pRenderTargetDescriptors, 
+    _commandList->OMSetRenderTargets(numRenderTargetDescriptors, pRenderTargetDescriptors,
         RTsSingleHandleToDescriptorRange, pDepthStencilDescriptor);
 }
 
-void CommandList::SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+void CommandList::SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants,
     UINT destOffsetIn32BitValues)
 {
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
@@ -284,7 +284,7 @@ void CommandList::Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCount
     _commandList->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
 
-void CommandList::ClearRenderTargetView(const Texture* rtv, const FLOAT colorRGBA[4], UINT numRects, 
+void CommandList::ClearRenderTargetView(const Texture* rtv, const FLOAT colorRGBA[4], UINT numRects,
     const D3D12_RECT* pRects)
 {
     assert(rtv);
@@ -299,7 +299,7 @@ void CommandList::ClearDepthStencilView(const Texture* depthStencil, D3D12_CLEAR
     assert(depthStencil);
 
     TransitionBarrier(depthStencil, D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
-    _commandList->ClearDepthStencilView(depthStencil->GetDepthStencilView().GetCPUDescriptorHandle(), clearFlags, depth, 
+    _commandList->ClearDepthStencilView(depthStencil->GetDepthStencilView().GetCPUDescriptorHandle(), clearFlags, depth,
         stencil, numRects, pRects);
 }
 
@@ -321,7 +321,7 @@ void CommandList::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, ID3D12D
     }
 }
 
-void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Texture* texture, 
+void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t descriptorOffset, const Texture* texture,
     D3D12_RESOURCE_STATES stateAfter, UINT firstSubresource, UINT numSubresources)
 {
     if (numSubresources != D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
@@ -336,7 +336,7 @@ void CommandList::SetShaderResourceView(uint32_t rootParameterIndex, uint32_t de
         TransitionBarrier(texture, stateAfter);
     }
 
-    _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, 
+    _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex,
         descriptorOffset, 1, texture->GetShaderResourceView().GetCPUDescriptorHandle());
 
     TrackResource(texture);
@@ -357,7 +357,7 @@ void CommandList::SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t d
         TransitionBarrier(texture, stateAfter);
     }
 
-    _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, descrptorOffset, 
+    _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV]->StageDescriptors(rootParameterIndex, descrptorOffset,
         1, texture->GetUnorderedAccessView().GetCPUDescriptorHandle(mips));
 
     TrackResource(texture);
@@ -403,7 +403,7 @@ void CommandList::SetRootSignature(const RootSignature* rootSignature, bool grap
         {
             _dynamicDescriptorHeap[i]->ParseRootSignature(rootSignature);
         }
-        
+
         if (graphic)
         {
             _commandList->SetGraphicsRootSignature(_rootSignature);

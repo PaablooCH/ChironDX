@@ -4,32 +4,32 @@
 class IndexBuffer : public Resource
 {
 public:
-	IndexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numIndices, const DXGI_FORMAT& indexFormat,
-		const std::wstring& name = L"");
-	IndexBuffer(const IndexBuffer& copy);
+    IndexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numIndices, const DXGI_FORMAT& indexFormat,
+        const std::wstring& name = L"");
+    IndexBuffer(const IndexBuffer& copy);
 
-	~IndexBuffer() override;
+    ~IndexBuffer() override;
 
-	// ------------- GETTERS ----------------------
+    // ------------- GETTERS ----------------------
 
-	inline const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const;
-	inline const size_t& GetNumIndices() const;
-
-private:
-	IndexBuffer();
+    inline const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const;
+    inline const size_t& GetNumIndices() const;
 
 private:
-	size_t _numIndices;
-	DXGI_FORMAT _format;
-	D3D12_INDEX_BUFFER_VIEW _indexBufferView;
+    IndexBuffer();
+
+private:
+    size_t _numIndices;
+    DXGI_FORMAT _format;
+    D3D12_INDEX_BUFFER_VIEW _indexBufferView;
 };
 
 inline const D3D12_INDEX_BUFFER_VIEW& IndexBuffer::GetIndexBufferView() const
 {
-	return _indexBufferView;
+    return _indexBufferView;
 }
 
 inline const size_t& IndexBuffer::GetNumIndices() const
 {
-	return _numIndices;
+    return _numIndices;
 }

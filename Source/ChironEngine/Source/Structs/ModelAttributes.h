@@ -4,6 +4,6 @@
 
 struct ModelAttributes
 {
-	DirectX::SimpleMath::Matrix model;
-	int uvCorrector;
+    DirectX::SimpleMath::Matrix model;
+    int uvCorrector;
 };

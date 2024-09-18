@@ -24,7 +24,7 @@ public:
      * @param subresource The subresource to transition. By default, this is D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES which indicates that all subresources are transitioned to the same state.
      * @param flushBarriers Force flush any barriers. Resource barriers need to be flushed before a command (draw, dispatch, or copy) that expects the resource to be in a particular state can run.
      */
-    void TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter, 
+    void TransitionBarrier(const Resource* resource, D3D12_RESOURCE_STATES stateAfter,
         UINT subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, bool flushBarriers = false);
 
     void TransitionBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter,
@@ -68,18 +68,18 @@ public:
     void SetScissorRects(UINT numRects, const D3D12_RECT& scissorRect);
     void SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
         BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
-    void SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+    void SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants,
         UINT destOffsetIn32BitValues = 0);
     void SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[]);
     void SetGraphicsRootDescriptorTable(UINT indexRootDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle);
     void UseProgram(Program* program);
 
     void Draw(uint32_t vertexCount, uint32_t instanceCount = 1, uint32_t startVertex = 0, uint32_t startInstance = 0);
-    void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0, 
+    void DrawIndexed(uint32_t indexCount, uint32_t instanceCount = 1, uint32_t startIndex = 0, int32_t baseVertex = 0,
         uint32_t startInstance = 0);
     void Dispatch(uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ = 1);
 
-    void ClearRenderTargetView(const Texture* rtv, const FLOAT colorRGBA[4], 
+    void ClearRenderTargetView(const Texture* rtv, const FLOAT colorRGBA[4],
         UINT numRects, const D3D12_RECT* pRects = nullptr);
     void ClearDepthStencilView(const Texture* depthStencil, D3D12_CLEAR_FLAGS clearFlags,
         FLOAT depth, UINT8 stencil, UINT numRects, const D3D12_RECT* pRects = nullptr);
@@ -107,8 +107,8 @@ public:
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, UINT firstSubresource = 0,
         UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
-    void SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t descrptorOffset, const Texture* texture, 
-        uint32_t mips = 0, D3D12_RESOURCE_STATES stateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS, 
+    void SetUnorderedAccessView(uint32_t rootParameterIndex, uint32_t descrptorOffset, const Texture* texture,
+        uint32_t mips = 0, D3D12_RESOURCE_STATES stateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
         UINT firstSubresource = 0, UINT numSubresources = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
     void BindDescriptorHeaps();
@@ -128,7 +128,7 @@ private:
     inline void TrackObject(ComPtr<ID3D12Object> object);
     void TrackResource(const Resource* resource);
     inline void TrackResource(ID3D12Resource* resource);
-    
+
     void ReleaseTrackedObjects();
 
 private:
@@ -153,7 +153,7 @@ private:
     // being committed to the command list. Dynamic descriptors need to be committed before a Draw or Dispatch.
     std::unique_ptr<DynamicDescriptorHeap> _dynamicDescriptorHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
-    // Keep track of the currently bound descriptor heaps. Only change descriptor 
+    // Keep track of the currently bound descriptor heaps. Only change descriptor
     // heaps if they are different than the currently bound descriptor heaps.
     ID3D12DescriptorHeap* _descriptorHeaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 

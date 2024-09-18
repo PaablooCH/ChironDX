@@ -48,7 +48,7 @@ void GenerateMipsProgram::InitRootSignature()
         D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
         D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
 
-    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription(static_cast<int>(GenerateMipsRootParameters::SIZE), 
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription(static_cast<int>(GenerateMipsRootParameters::SIZE),
         rootParameters, 1, &linearClampSampler);
 
     CreateRootSignature(rootSignatureDescription.Desc_1_1);

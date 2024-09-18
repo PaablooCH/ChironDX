@@ -6,7 +6,7 @@
 #include "Modules/ModuleID3D12.h"
 
 DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) :
-	_heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE())
+    _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE())
 {
     auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
@@ -80,7 +80,7 @@ DescriptorAllocation DescriptorAllocatorPage::Allocate(uint32_t numDescriptors)
     {
         gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(_baseGPUDescriptor, offset, _descriptorSize);
     }
-	return DescriptorAllocation(cpuHandle, gpuHandle, numDescriptors, _descriptorSize, GetSharedPtr());
+    return DescriptorAllocation(cpuHandle, gpuHandle, numDescriptors, _descriptorSize, GetSharedPtr());
 }
 
 bool DescriptorAllocatorPage::HasSpace(uint32_t numDescriptors) const
@@ -98,7 +98,7 @@ void DescriptorAllocatorPage::Free(DescriptorAllocation&& descriptorHandle, uint
     uint32_t offset = ComputeOffset(descriptorHandle.GetCPUDescriptorHandle());
 
     std::lock_guard<std::mutex> lock(_mutex);
-    
+
     _staleDescriptors.emplace(offset, descriptorHandle.GetNumHandles(), frameNumber);
 }
 
@@ -156,7 +156,7 @@ void DescriptorAllocatorPage::FreeBlock(uint32_t offset, uint32_t numDescriptors
     }
     else if (nextBlockIt != _freeBlocksByOffset.end() && offset + numDescriptors == nextBlockIt->first)
     {
-        // Offset                      NextBlock.Offset 
+        // Offset                      NextBlock.Offset
         // |                           |
         // |<------Descriptors-------->|<-----NextBlock.Size----->|
         //

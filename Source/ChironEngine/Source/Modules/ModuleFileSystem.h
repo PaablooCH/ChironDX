@@ -23,4 +23,3 @@ private:
     std::unique_ptr<TextureImporter> _textureImporter;
     std::unique_ptr<ModelImporter> _modelImporter;
 };
-

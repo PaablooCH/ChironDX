@@ -27,7 +27,7 @@ public:
     inline std::shared_ptr<Texture> GetTexture() const;
     inline TextureType GetTextureType() const;
     std::wstring GetName() const override;
-	
+
     // ------------- SETTERS ----------------------
 
     inline void SetTexture(std::shared_ptr<Texture>& newTexture);

@@ -105,7 +105,7 @@ void ModuleID3D12::ToggleVSync()
 void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 {
     Flush();
-    
+
     // ------------- SWAP-CHAIN ---------------------------
 
     for (int i = 0; i < backBufferCount; ++i)
@@ -127,7 +127,7 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
     UpdateRenderTargetViews();
 
     // ------------- DEPTH-STENCIL ---------------------------
- 
+
     CreateDepthStencil(newWidth, newHeight);
 }
 
@@ -307,7 +307,7 @@ bool ModuleID3D12::CreateSwapChain()
         swapChainDesc.Flags = _tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
         ComPtr<IDXGISwapChain1> newSwapchain1;
-        Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd, 
+        Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd,
             &swapChainDesc, nullptr, nullptr, &newSwapchain1));
 
         Chiron::Utils::ThrowIfFailed(newSwapchain1.As(&_swapChain));
@@ -315,7 +315,7 @@ bool ModuleID3D12::CreateSwapChain()
         // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
         // will be handled manually.
         Chiron::Utils::ThrowIfFailed(_factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER));
-        
+
         return true;
     }
 
@@ -327,7 +327,7 @@ void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_D32_FLOAT;
     clearValue.DepthStencil = { 1.0f, 0 };
-    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, 
+    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0,
         D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
     _depthStencilBuffer = std::make_unique<Texture>(desc, L"Depth Stencil Buffer", &clearValue);
@@ -354,13 +354,13 @@ void ModuleID3D12::InitFrameBuffer()
     {
         ComPtr<ID3D12Resource> backBuffer;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-        
+
         _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
         _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
     }
 
     // ------------- DEPTH-STENCIL ---------------------------
-    
+
     unsigned width;
     unsigned height;
 
