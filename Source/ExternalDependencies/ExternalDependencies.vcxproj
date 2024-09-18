@@ -84,7 +84,7 @@
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\ExternalDependencies\;..\ExternalDependencies\SDL\include;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ExternalDependencies\;..\ExternalDependencies\assimp;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <SupportJustMyCode>true</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -96,10 +96,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>DirectXTex.lib;DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mt.lib;DirectXTex.lib;DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTex\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTex\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\;$(SolutionDir)$(ProjectName)\assimp</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

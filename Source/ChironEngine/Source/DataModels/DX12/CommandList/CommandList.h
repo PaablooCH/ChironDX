@@ -11,7 +11,6 @@ class UploadBuffer;
 class CommandList
 {
 public:
-
     CommandList(D3D12_COMMAND_LIST_TYPE type);
     ~CommandList();
 
@@ -59,7 +58,7 @@ public:
 
     void CopyResource(ID3D12Resource* dstRes, ID3D12Resource* srcRes);
     void CopyResource(const Resource* dstRes, const Resource* srcRes);
-    void UpdateBufferResource(const std::shared_ptr<Resource>& texture, uint32_t firstSubresource,
+    void UpdateBufferResource(const Resource* resource, uint32_t firstSubresource,
         uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData);
 
     void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
@@ -69,7 +68,7 @@ public:
     void SetScissorRects(UINT numRects, const D3D12_RECT& scissorRect);
     void SetRenderTargets(UINT numRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
         BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
-    void SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+    void SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
         UINT destOffsetIn32BitValues = 0);
     void SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[]);
     void SetGraphicsRootDescriptorTable(UINT indexRootDescriptor, D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle);

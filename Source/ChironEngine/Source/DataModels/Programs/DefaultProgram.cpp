@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "DefaultProgram.h"
 
+#include "Structs/ModelAttributes.h"
+
 DefaultProgram::DefaultProgram(const std::string& name) : Program(name, true)
 {
     InitRootSignature();
@@ -20,18 +22,22 @@ void DefaultProgram::InitRootSignature()
         D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
     // It's a good idea to sort parameters by frequency of change.
-    CD3DX12_ROOT_PARAMETER1 rootParameters[2]{};
+    CD3DX12_ROOT_PARAMETER1 rootParameters[3]{};
 
+    // ------------- CONSTANT BUFFER ----------------------
+
+    rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+    
     // ------------- CONSTANT ----------------------
 
-    rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 3 / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+    rootParameters[1].InitAsConstants(sizeof(ModelAttributes) / 4, 1);
 
     // ------------- DESCRIPTOR TABLE ----------------------
 
     CD3DX12_DESCRIPTOR_RANGE1 srv(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 
         D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
 
-    rootParameters[1].InitAsDescriptorTable(1, &srv, D3D12_SHADER_VISIBILITY_PIXEL);
+    rootParameters[2].InitAsDescriptorTable(1, &srv, D3D12_SHADER_VISIBILITY_PIXEL);
 
     // ------------- STATIC SAMPLER ----------------------
 
@@ -85,7 +91,10 @@ void DefaultProgram::InitPipelineState()
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "BITANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 
     D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
@@ -111,6 +120,19 @@ void DefaultProgram::InitPipelineState()
     depthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
     depthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
+    D3D12_RASTERIZER_DESC rasterizeState{};
+    rasterizeState.FillMode = D3D12_FILL_MODE_SOLID;
+    rasterizeState.CullMode = D3D12_CULL_MODE_BACK;
+    rasterizeState.FrontCounterClockwise = TRUE;
+    rasterizeState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+    rasterizeState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+    rasterizeState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+    rasterizeState.DepthClipEnable = TRUE;
+    rasterizeState.MultisampleEnable = FALSE;
+    rasterizeState.AntialiasedLineEnable = FALSE;
+    rasterizeState.ForcedSampleCount = 0;
+    rasterizeState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
     // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
     psoDesc.InputLayout = inputLayoutDesc;
@@ -122,7 +144,7 @@ void DefaultProgram::InitPipelineState()
     psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     psoDesc.SampleDesc = { 1, 0 };
     psoDesc.SampleMask = UINT_MAX;
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psoDesc.RasterizerState = rasterizeState;
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     psoDesc.NumRenderTargets = 1;
     psoDesc.DepthStencilState = depthStencilDesc;

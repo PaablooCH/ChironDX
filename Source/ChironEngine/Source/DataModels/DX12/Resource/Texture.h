@@ -3,18 +3,6 @@
 
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 
-CHIRON_TODO("temporary");
-enum class TextureType 
-{
-	ALBEDO,
-	DIFFUSE = ALBEDO,
-	SPECULAR,
-	METALLIC = SPECULAR,
-	NORMAL_MAP,
-	DEPTH,
-	RENDER_TARGET
-};
-
 class Texture : public Resource
 {
 public:
@@ -54,8 +42,6 @@ public:
 	inline const DescriptorAllocation& GetShaderResourceView() const;
 	inline const DescriptorAllocation& GetUnorderedAccessView() const;
 
-	inline TextureType GetTextureType() const;
-
 	// ------------- SETTERS ----------------------
 
 	void SetTexture(ComPtr<ID3D12Resource> texture);
@@ -72,8 +58,6 @@ private:
 	mutable DescriptorAllocation _depthStencilView;
 	mutable DescriptorAllocation _shaderResourceView;
 	mutable DescriptorAllocation _unorderedAccessView;
-
-	TextureType _type;
 };
 
 inline bool Texture::CompatibleWithRTV() const
@@ -175,9 +159,4 @@ inline const DescriptorAllocation& Texture::GetShaderResourceView() const
 inline const DescriptorAllocation& Texture::GetUnorderedAccessView() const
 {
 	return _unorderedAccessView;
-}
-
-inline TextureType Texture::GetTextureType() const
-{
-	return TextureType::ALBEDO;
 }

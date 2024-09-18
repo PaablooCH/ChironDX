@@ -6,6 +6,8 @@
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleFileSystem.h"
 
+#include "DataModels/Assets/TextureAsset.h"
+
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
@@ -19,7 +21,7 @@ TextureImporter::~TextureImporter()
 {
 }
 
-void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> texture)
+void TextureImporter::Import(const char* filePath, const std::shared_ptr<TextureAsset>& texture)
 {
 	std::string sFilePath(filePath);
 	std::wstring wFilePath = std::wstring(sFilePath.begin(), sFilePath.end());
@@ -90,7 +92,6 @@ void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> text
 		}
 	}*/
 
-	CHIRON_TODO("temporary");
 	if (texture->GetTextureType() == TextureType::ALBEDO) 
 	{
 		md.format = DirectX::MakeSRGB(md.format);
@@ -130,20 +131,12 @@ void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> text
 		break;
 	}
 
-	auto d3d12 = App->GetModule<ModuleID3D12>();
-	auto device = d3d12->GetDevice();
-	
-	ComPtr<ID3D12Resource> newTexture;
-	CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureDesc,
-		D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&newTexture)));
-
+	std::shared_ptr<Texture> newTexture = std::make_shared<Texture>(textureDesc, wFilePath);
 	texture->SetTexture(newTexture);
-	texture->SetName(wFilePath);
-	
+
 	imgResult = &img;
 	DirectX::ScratchImage mipChain;
-	mipLevels = newTexture->GetDesc().MipLevels;
+	mipLevels = newTexture->GetResource()->GetDesc().MipLevels;
 	if (1 < mipLevels)
 	{
 		DirectX::GenerateMipMaps(img.GetImages(), img.GetImageCount(), md, DirectX::TEX_FILTER_DEFAULT, mipLevels, mipChain);
@@ -160,12 +153,18 @@ void TextureImporter::Import(const char* filePath, std::shared_ptr<Texture> text
 		subresource.RowPitch = pImages[i].rowPitch;
 		subresource.SlicePitch = pImages[i].slicePitch;
 	}
-
+	auto d3d12 = App->GetModule<ModuleID3D12>();
 	auto commandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
 
-	commandList->UpdateBufferResource(texture, 0, numSubresources, subresources.data());
+	commandList->UpdateBufferResource(texture->GetTexture().get(), 0, numSubresources, subresources.data());
 
-	d3d12->ExecuteCommandList(commandList);
+	uint64_t initFenceValue = d3d12->ExecuteCommandList(commandList);
+	d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_COPY, initFenceValue);
+
+	commandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+	commandList->TransitionBarrier(texture->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	initFenceValue = d3d12->ExecuteCommandList(commandList);
+	d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, initFenceValue);
 
 	imgResult->Release();
 }

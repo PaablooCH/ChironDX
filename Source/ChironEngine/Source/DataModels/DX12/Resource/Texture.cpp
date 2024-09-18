@@ -22,7 +22,7 @@ Texture::Texture(ComPtr<ID3D12Resource> resource) : Resource(resource)
 	CreateViews();
 }
 
-Texture::Texture(const Texture& copy) : Resource(copy), _type(copy._type)
+Texture::Texture(const Texture& copy) : Resource(copy)
 {
 	CreateViews();
 }

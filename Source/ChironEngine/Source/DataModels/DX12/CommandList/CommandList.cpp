@@ -157,7 +157,7 @@ void CommandList::CopyResource(const Resource* dstRes, const Resource* srcRes)
     CopyResource(dstRes->GetResource(), srcRes->GetResource());
 }
 
-void CommandList::UpdateBufferResource(const std::shared_ptr<Resource>& resource, uint32_t firstSubresource, 
+void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstSubresource, 
     uint32_t numSubresources, D3D12_SUBRESOURCE_DATA* subresourceData)
 {
     assert(resource);
@@ -170,7 +170,7 @@ void CommandList::UpdateBufferResource(const std::shared_ptr<Resource>& resource
         auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
         // Resource must be in the copy-destination state.
-        TransitionBarrier(resource.get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
+        TransitionBarrier(resource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
         
         UINT64 requiredSize = GetRequiredIntermediateSize(destinationResource, firstSubresource, numSubresources);
 
@@ -187,7 +187,7 @@ void CommandList::UpdateBufferResource(const std::shared_ptr<Resource>& resource
             numSubresources, subresourceData);
 
         TrackResource(intermediateResource.Get());
-        TrackResource(resource.get());
+        TrackResource(resource);
     }
 }
 void CommandList::SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
@@ -223,7 +223,7 @@ void CommandList::SetRenderTargets(UINT numRenderTargetDescriptors,
         RTsSingleHandleToDescriptorRange, pDepthStencilDescriptor);
 }
 
-void CommandList::SetGraphics32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
+void CommandList::SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uint32_t numConstants, const void* constants, 
     UINT destOffsetIn32BitValues)
 {
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);

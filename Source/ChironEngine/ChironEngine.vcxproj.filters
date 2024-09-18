@@ -58,6 +58,15 @@
     <Filter Include="Source\DataModels\Camera">
       <UniqueIdentifier>{f145d87a-5943-4369-a2bd-39632ad00672}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Assets">
+      <UniqueIdentifier>{66a9c272-311b-40fc-a50b-0ccbfbe728e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Defines">
+      <UniqueIdentifier>{4e61a0ea-a57e-46d8-825e-a34ae97fe834}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Structs">
+      <UniqueIdentifier>{006e16d5-f067-45fa-bc51-b3dda36f8458}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -158,6 +167,27 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\Camera\Camera.cpp">
       <Filter>Source\DataModels\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\Importers\ModelImporter.cpp">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Assets\Asset.cpp">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Assets\TextureAsset.cpp">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Assets\MeshAsset.cpp">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Assets\ModelAsset.cpp">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Assets\MaterialAsset.cpp">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\DX12\Resource\ConstantBuffer.cpp">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,6 +308,36 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\Camera\Camera.h">
       <Filter>Source\DataModels\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\Importers\ModelImporter.h">
+      <Filter>Source\DataModels\FileSystem\Importers</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Assets\Asset.h">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Assets\TextureAsset.h">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Assets\ModelAsset.h">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Assets\MeshAsset.h">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Assets\MaterialAsset.h">
+      <Filter>Source\DataModels\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Defines\FileSystemDefine.h">
+      <Filter>Source\Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\ViewProjection.h">
+      <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h">
+      <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\ModelAttributes.h">
+      <Filter>Source\Structs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

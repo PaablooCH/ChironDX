@@ -4,9 +4,8 @@
 class VertexBuffer : public Resource
 {
 public:
-	VertexBuffer() = delete;
 	VertexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t numVertices, size_t vertexStride, 
-		const std::wstring& name = L"",	const D3D12_CLEAR_VALUE* clearValue = nullptr);
+		const std::wstring& name = L"");
 	VertexBuffer(const VertexBuffer& copy);
 
 	~VertexBuffer() override;
@@ -14,6 +13,9 @@ public:
 	// ------------- GETTERS ----------------------
 
 	inline const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const;
+
+private:
+	VertexBuffer();
 
 private:
 	size_t _numVertices;

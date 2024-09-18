@@ -48,8 +48,10 @@ private:
         size_t _pageSize;
         size_t _offset;
     };
+
 private:
     std::shared_ptr<Page> RequestPage();
+
 private:
 
     size_t _pageSize;
