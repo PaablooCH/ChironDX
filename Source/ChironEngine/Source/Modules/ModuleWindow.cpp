@@ -36,6 +36,12 @@ bool ModuleWindow::Init()
     return true;
 }
 
+bool ModuleWindow::Start()
+{
+    ToggleFullScreen();
+    return true;
+}
+
 UpdateStatus ModuleWindow::PreUpdate()
 {
     return UpdateStatus::UPDATE_CONTINUE;

@@ -9,6 +9,7 @@ public:
     ~ModuleWindow() override;
 
     bool Init() override;
+    bool Start() override;
     UpdateStatus PreUpdate() override;
     UpdateStatus Update() override;
     UpdateStatus PostUpdate() override;
