@@ -13,9 +13,6 @@ public:
     ~ModuleID3D12() override;
 
     bool Init() override;
-    UpdateStatus PreUpdate() override;
-    UpdateStatus Update() override;
-    UpdateStatus PostUpdate() override;
     bool CleanUp() override;
 
     // The caller will lose ownership of the commandList shared_ptr after calling this function.
@@ -25,6 +22,7 @@ public:
 
     void ToggleVSync();
     void ResizeBuffers(unsigned newWidth, unsigned newHeight);
+    void PresentAndSwapBuffer();
 
     // ------------- SYNCHRONIZATION ----------------------
 

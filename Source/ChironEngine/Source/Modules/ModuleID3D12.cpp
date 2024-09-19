@@ -35,28 +35,6 @@ bool ModuleID3D12::Init()
     return ok;
 }
 
-UpdateStatus ModuleID3D12::PreUpdate()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleID3D12::Update()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleID3D12::PostUpdate()
-{
-    UINT syncInterval = _vSync ? 1 : 0;
-    UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
-    Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
-
-    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
-    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
-
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
 bool ModuleID3D12::CleanUp()
 {
     _commandQueueDirect.reset();
@@ -129,6 +107,16 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
     // ------------- DEPTH-STENCIL ---------------------------
 
     CreateDepthStencil(newWidth, newHeight);
+}
+
+void ModuleID3D12::PresentAndSwapBuffer()
+{
+    UINT syncInterval = _vSync ? 1 : 0;
+    UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
+
+    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
+    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
 }
 
 void ModuleID3D12::Flush()

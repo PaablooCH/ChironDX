@@ -128,6 +128,7 @@ UpdateStatus ModuleRender::Update()
 
 UpdateStatus ModuleRender::PostUpdate()
 {
+    App->GetModule<ModuleID3D12>()->PresentAndSwapBuffer();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
