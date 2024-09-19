@@ -42,7 +42,7 @@ bool ModuleEditor::Init()
     _srvDescHeap = std::make_unique<DescriptorAllocation>(
         d3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->Allocate(NUM_FRAMES_IN_FLIGHT));
     ImGui_ImplDX12_Init(d3d12->GetDevice(), NUM_FRAMES_IN_FLIGHT, DXGI_FORMAT_R8G8B8A8_UNORM, 
-        nullptr,
+        _srvDescHeap->GetDescriptorAllocatorPage()->GetDescriptorHeap().Get(),
         _srvDescHeap->GetCPUDescriptorHandle(), _srvDescHeap->GetGPUDescriptorHandle(),
         _srvDescHeap->GetCPUDescriptorHandle(1), _srvDescHeap->GetGPUDescriptorHandle(1));
 
