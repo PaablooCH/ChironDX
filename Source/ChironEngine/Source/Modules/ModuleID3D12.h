@@ -64,8 +64,6 @@ private:
     void InitDescriptorAllocator();
 
 private:
-    static const UINT backBufferCount = 2;
-
     // Is the entry point to the DirectX 12 API.
     ComPtr<IDXGIFactory5> _factory;
 
@@ -93,13 +91,13 @@ private:
 
     // Lets the program know when certain tasks have been executed by the GPU,
     // when it uploads to GPU exclusive memory, or when it've finished presenting to the screen.
-    UINT64 _bufferFenceValues[backBufferCount];
+    UINT64 _bufferFenceValues[NUM_FRAMES_IN_FLIGHT];
 
     // Handle swapping and allocating back and front buffers to display what it is rendering (back) and what is showed (front).
     ComPtr<IDXGISwapChain4> _swapChain;
 
     // The texture result of drawing in the swapChain.
-    std::unique_ptr<Texture> _renderBuffers[backBufferCount];
+    std::unique_ptr<Texture> _renderBuffers[NUM_FRAMES_IN_FLIGHT];
 
     // Depth Stencil buffer.
     std::unique_ptr<Texture> _depthStencilBuffer;

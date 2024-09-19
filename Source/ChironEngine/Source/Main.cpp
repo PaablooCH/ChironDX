@@ -5,10 +5,12 @@
 
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
+#include "ImGui/imgui.h"
 
-BOOL                CreateApplication(HINSTANCE hInstance);
-ATOM                CreateWindowClass(HINSTANCE hInstance);
-LRESULT CALLBACK    WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL                            CreateApplication(HINSTANCE hInstance);
+ATOM                            CreateWindowClass(HINSTANCE hInstance);
+LRESULT CALLBACK                WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT   ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 std::unique_ptr<Application> App;
 
@@ -115,6 +117,10 @@ ATOM CreateWindowClass(HINSTANCE hIstance)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+    {
+        return true;
+    }
     switch (message)
     {
     case WM_ACTIVATE:

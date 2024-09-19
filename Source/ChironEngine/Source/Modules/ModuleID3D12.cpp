@@ -65,7 +65,7 @@ bool ModuleID3D12::CleanUp()
     _swapChain = nullptr;
     _depthStencilBuffer.reset();
     _descriptorAllocators.clear();
-    for (int i = 0; i < backBufferCount; i++)
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
         _renderBuffers[i].reset();
     }
@@ -108,7 +108,7 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 
     // ------------- SWAP-CHAIN ---------------------------
 
-    for (int i = 0; i < backBufferCount; ++i)
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; ++i)
     {
         // Any references to the back buffers must be released before the swap chain can be resized.
         _renderBuffers[i].reset();
@@ -117,7 +117,7 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
     Chiron::Utils::ThrowIfFailed(_swapChain->GetDesc(&swapChainDesc)); // Get the current descr to apply it to the newer.
-    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(backBufferCount, newWidth, newHeight,
+    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(NUM_FRAMES_IN_FLIGHT, newWidth, newHeight,
         swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
 
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
@@ -286,7 +286,7 @@ bool ModuleID3D12::CreateSwapChain()
     if (_swapChain != nullptr)
     {
         // Create Render Target Attachments from swapchain
-        _swapChain->ResizeBuffers(backBufferCount, width, height,
+        _swapChain->ResizeBuffers(NUM_FRAMES_IN_FLIGHT, width, height,
             DXGI_FORMAT_R8G8B8A8_UNORM, 0);
         return true;
     }
@@ -300,7 +300,7 @@ bool ModuleID3D12::CreateSwapChain()
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = backBufferCount;
+        swapChainDesc.BufferCount = NUM_FRAMES_IN_FLIGHT;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -335,7 +335,7 @@ void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
 
 void ModuleID3D12::UpdateRenderTargetViews()
 {
-    for (int i = 0; i < backBufferCount; ++i)
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; ++i)
     {
         ComPtr<ID3D12Resource> backBuffer;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
@@ -350,7 +350,7 @@ void ModuleID3D12::InitFrameBuffer()
     // ------------- RTV ---------------------------
 
     // Create a RTV for each frame.
-    for (UINT i = 0; i < backBufferCount; i++)
+    for (UINT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
         ComPtr<ID3D12Resource> backBuffer;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));

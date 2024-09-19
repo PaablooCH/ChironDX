@@ -229,7 +229,7 @@ void CommandList::SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uin
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
 }
 
-void CommandList::SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[])
+void CommandList::SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[]) const
 {
     _commandList->SetDescriptorHeaps(numHeaps, descriptorHeaps);
 }

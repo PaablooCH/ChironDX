@@ -5,6 +5,8 @@
 
 #include "Modules/ModuleID3D12.h"
 
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+
 ConstantBuffer::ConstantBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t sizeInBytes, const std::wstring& name) :
     Resource(resourceDesc, name), _sizeInBytes(sizeInBytes)
 {

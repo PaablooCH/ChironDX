@@ -47,15 +47,16 @@ UpdateStatus ModuleRender::PreUpdate()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
     // send the clear command into the list
-    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
+    drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
+    drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilBuffer(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 
-    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilBuffer(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
+    d3d12->ExecuteCommandList(drawCommandList);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -66,12 +67,14 @@ UpdateStatus ModuleRender::Update()
     auto programs = App->GetModule<ModuleProgram>();
     auto window = App->GetModule<ModuleWindow>();
     auto moduleCamera = App->GetModule<ModuleCamera>();
+    
+    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
 
-    _drawCommandList->UseProgram(defaultP);
+    drawCommandList->UseProgram(defaultP);
 
-    _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     unsigned width;
     unsigned height;
@@ -84,8 +87,8 @@ UpdateStatus ModuleRender::Update()
     viewport.Width = static_cast<float>(width);
     viewport.Height = static_cast<float>(height);
 
-    _drawCommandList->SetViewports(1, viewport);
-    _drawCommandList->SetScissorRects(1, _scissor);
+    drawCommandList->SetViewports(1, viewport);
+    drawCommandList->SetScissorRects(1, _scissor);
 
     auto camera = moduleCamera->GetCamera();
     Matrix view = camera->GetViewMatrix();
@@ -94,13 +97,13 @@ UpdateStatus ModuleRender::Update()
     ViewProjection vp;
     vp.view = view.Transpose();
     vp.proj = proj.Transpose();
-    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
+    drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
 
     auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
     auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
-    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
+    drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
 
-    model->Draw(_drawCommandList);
+    model->Draw(drawCommandList);
 
     // ------------- DEBUG DRAW ----------------------
 
@@ -111,16 +114,14 @@ UpdateStatus ModuleRender::Update()
     sprintf_s(lTmp, 1023, "FPS: [%d].", static_cast<uint32_t>(App->GetFPS()));
     dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
 
-    _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
+    _debugDraw->record(drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
 
     // ------------- CLOSE COMMANDLIST ----------------------
 
-    _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 
-    uint64_t fenceValue = d3d12->ExecuteCommandList(_drawCommandList);
+    uint64_t fenceValue = d3d12->ExecuteCommandList(drawCommandList);
     d3d12->SaveCurrentBufferFenceValue(fenceValue);
-
-    _drawCommandList = nullptr;
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -132,10 +133,8 @@ UpdateStatus ModuleRender::PostUpdate()
 
 bool ModuleRender::CleanUp()
 {
-    _drawCommandList.reset();
     _debugDraw.reset();
     model.reset();
-    _drawCommandList = nullptr;
     model = nullptr;
 
     return true;

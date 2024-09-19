@@ -15,11 +15,11 @@ enum class ModuleType
     WINDOW,
     ID3D12,
     FILE_SYSTEM,
-    EDITOR,
     PROGRAM,
     INPUT,
     CAMERA,
     RENDER,
+    EDITOR,
     LAST,
 };
 
@@ -47,12 +47,6 @@ struct ModuleToEnum<ModuleFileSystem>
 };
 
 template<>
-struct ModuleToEnum<ModuleEditor>
-{
-    const static ModuleType value = ModuleType::EDITOR;
-};
-
-template<>
 struct ModuleToEnum<ModuleProgram>
 {
     const static ModuleType value = ModuleType::PROGRAM;
@@ -74,4 +68,10 @@ template<>
 struct ModuleToEnum<ModuleRender>
 {
     const static ModuleType value = ModuleType::RENDER;
+};
+
+template<>
+struct ModuleToEnum<ModuleEditor>
+{
+    const static ModuleType value = ModuleType::EDITOR;
 };

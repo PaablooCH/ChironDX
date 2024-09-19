@@ -109,7 +109,6 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
             directCommandList->TransitionBarrier(meshAsset->GetIndexBuffer(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
             directCommandList->TransitionBarrier(meshAsset->GetVertexBuffer(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
-            CHIRON_TODO("We should safe each mesh");
             model->AddMaterial(materialAsset);
             model->AddMesh(meshAsset);
         }
