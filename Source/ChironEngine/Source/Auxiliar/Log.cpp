@@ -20,11 +20,21 @@ namespace Chiron
         LogLine logLine{ severity, file, static_cast<uint16_t>(line), std::move(formattedLine) };
         _logLines.push_back(logLine);
 
-        std::string toString = logLine.ToString(true);
+        std::string toString = logLine.ToDetailedString();
         OutputDebugStringA(toString.c_str());
     }
 
-    std::string Log::LogLine::ToString(bool addBreak) const
+    std::string Log::LogLine::ToDetailedString(bool addBreak) const
+    {
+        return ToString(true, addBreak);
+    }
+
+    std::string Log::LogLine::ToSimpleString(bool addBreak) const
+    {
+        return ToString(false, addBreak);
+    }
+
+    std::string Log::LogLine::ToString(bool detailed, bool addBreak) const
     {
         std::string result;
         switch (severity)
@@ -49,7 +59,10 @@ namespace Chiron
             break;
         }
 
-        result += file + "(" + std::to_string(line) + ") : ";
+        if (detailed)
+        {
+            result += file + "(" + std::to_string(line) + ") : ";
+        }
 
         result += message;
         if (addBreak)

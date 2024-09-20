@@ -67,7 +67,7 @@ UpdateStatus ModuleRender::Update()
     auto programs = App->GetModule<ModuleProgram>();
     auto window = App->GetModule<ModuleWindow>();
     auto moduleCamera = App->GetModule<ModuleCamera>();
-    
+
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
@@ -118,10 +118,7 @@ UpdateStatus ModuleRender::Update()
 
     // ------------- CLOSE COMMANDLIST ----------------------
 
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
-
-    uint64_t fenceValue = d3d12->ExecuteCommandList(drawCommandList);
-    d3d12->SaveCurrentBufferFenceValue(fenceValue);
+    d3d12->ExecuteCommandList(drawCommandList);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

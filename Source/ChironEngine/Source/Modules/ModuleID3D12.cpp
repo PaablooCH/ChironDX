@@ -31,6 +31,9 @@ bool ModuleID3D12::Init()
         InitFrameBuffer();
         _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
     }
+#ifdef DEBUG
+    PrintMessages();
+#endif // DEBUG
 
     return ok;
 }
@@ -53,6 +56,15 @@ bool ModuleID3D12::CleanUp()
 #endif // DEBUG
 
     return true;
+}
+
+UpdateStatus ModuleID3D12::PostUpdate()
+{
+#ifdef DEBUG
+    PrintMessages();
+#endif // DEBUG
+
+    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 uint64_t ModuleID3D12::ExecuteCommandList(std::shared_ptr<CommandList>& commandList)
@@ -247,6 +259,7 @@ bool ModuleID3D12::CreateDevice()
 #ifdef DEBUG
         // Get debug device
         ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_debugDevice)));
+        ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_infoQueue)));
 #endif
     }
 
@@ -365,4 +378,48 @@ void ModuleID3D12::InitDescriptorAllocator()
     {
         _descriptorAllocators.push_back(std::make_unique<DescriptorAllocator>(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i)));
     }
+}
+
+void ModuleID3D12::PrintMessages()
+{
+#ifdef DEBUG
+    static std::set<std::string> shownMessages;
+    const UINT64 numMessages = _infoQueue->GetNumStoredMessages();
+    for (UINT64 i = 0; i < numMessages; ++i)
+    {
+        SIZE_T messageLength = 0;
+        // Get Message Lenght
+        _infoQueue->GetMessage(i, nullptr, &messageLength);
+
+        std::vector<char> messageData(messageLength);
+        D3D12_MESSAGE* message = reinterpret_cast<D3D12_MESSAGE*>(messageData.data());
+
+        // Get Message
+        _infoQueue->GetMessage(i, message, &messageLength);
+
+        if (shownMessages.insert(message->pDescription).second)
+        {
+            switch (message->Severity)
+            {
+            case D3D12_MESSAGE_SEVERITY_CORRUPTION:
+                LOG_FATAL("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_ERROR:
+                LOG_ERROR("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_WARNING:
+                LOG_WARNING("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_INFO:
+                LOG_INFO("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_MESSAGE:
+                LOG_TRACE("{}", message->pDescription);
+                break;
+            }
+        }
+    }
+
+    _infoQueue->ClearStoredMessages();
+#endif // DEBUG
 }

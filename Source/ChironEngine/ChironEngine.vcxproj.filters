@@ -67,6 +67,12 @@
     <Filter Include="Source\Structs">
       <UniqueIdentifier>{006e16d5-f067-45fa-bc51-b3dda36f8458}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Windows">
+      <UniqueIdentifier>{4f68c722-593d-40f2-a316-a6406874559c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Windows\EditorWindow">
+      <UniqueIdentifier>{3c6ca3fe-d03d-4e88-9dee-090da4325e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -191,6 +197,18 @@
     </ClCompile>
     <ClCompile Include="Source\Modules\ModuleEditor.cpp">
       <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\Window.cpp">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\MainMenuWindow.cpp">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\EditorWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -344,6 +362,18 @@
     </ClInclude>
     <ClInclude Include="Source\Modules\ModuleEditor.h">
       <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\Window.h">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\MainMenuWindow.h">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\EditorWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

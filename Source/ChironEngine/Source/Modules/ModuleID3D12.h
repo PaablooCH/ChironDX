@@ -15,6 +15,8 @@ public:
     bool Init() override;
     bool CleanUp() override;
 
+    UpdateStatus PostUpdate() override;
+
     // The caller will lose ownership of the commandList shared_ptr after calling this function.
     uint64_t ExecuteCommandList(std::shared_ptr<CommandList>& commandList);
 
@@ -61,6 +63,8 @@ private:
     void InitFrameBuffer();
     void InitDescriptorAllocator();
 
+    void PrintMessages();
+
 private:
     // Is the entry point to the DirectX 12 API.
     ComPtr<IDXGIFactory5> _factory;
@@ -74,6 +78,7 @@ private:
 #ifdef DEBUG
     // Debug Purposes
     ComPtr<ID3D12DebugDevice> _debugDevice;
+    ComPtr<ID3D12InfoQueue1> _infoQueue;
 #endif // DEBUG
 
     bool _vSync;

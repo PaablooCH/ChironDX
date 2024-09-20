@@ -15,14 +15,12 @@ public:
 
     void Draw(std::shared_ptr<CommandList> commandList);
 
+    inline void AddMaterial(std::shared_ptr<MaterialAsset>& material);
+    inline void AddMesh(std::shared_ptr<MeshAsset>& mesh);
+
     // ------------- GETTERS ----------------------
 
     inline std::wstring GetName() const override;
-
-    // ------------- GETTERS ----------------------
-
-    inline void AddMaterial(std::shared_ptr<MaterialAsset>& material);
-    inline void AddMesh(std::shared_ptr<MeshAsset>& mesh);
 
 private:
     std::vector<std::shared_ptr<MaterialAsset>> _material;
