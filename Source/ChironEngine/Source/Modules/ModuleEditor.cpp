@@ -87,6 +87,8 @@ UpdateStatus ModuleEditor::Update()
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
+    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+
     unsigned width;
     unsigned height;
     window->GetWindowSize(width, height);
