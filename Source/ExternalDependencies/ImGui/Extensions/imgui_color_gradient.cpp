@@ -331,7 +331,7 @@ namespace ImGui
         ImVec2 widget_pos = ImGui::GetCursorScreenPos();
         // ImDrawList* draw_list = ImGui::GetWindowDrawList();
         
-        float maxWidth = ImMax(250.0f, ImGui::GetWindowContentRegionWidth() - 100.0f);
+        float maxWidth = ImMax(250.0f, ImGui::GetContentRegionAvail().x - 100.0f);
         bool clicked = ImGui::InvisibleButton("gradient_bar", ImVec2(maxWidth, GRADIENT_BAR_WIDGET_HEIGHT));
         
         DrawGradientBar(gradient, widget_pos, maxWidth, GRADIENT_BAR_WIDGET_HEIGHT);
@@ -349,7 +349,7 @@ namespace ImGui
         
         ImVec2 bar_pos = ImGui::GetCursorScreenPos();
         bar_pos.x += 10;
-        float maxWidth = ImMax(250.0f, ImGui::GetWindowContentRegionWidth() - 50.0f);
+        float maxWidth = ImMax(250.0f, ImGui::GetContentRegionAvail().x - 50.0f);
         float barBottom = bar_pos.y + GRADIENT_BAR_EDITOR_HEIGHT;
         
         ImGui::InvisibleButton("gradient_editor_bar", ImVec2(maxWidth, GRADIENT_BAR_EDITOR_HEIGHT));
