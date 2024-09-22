@@ -210,6 +210,9 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp">
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -373,6 +376,12 @@
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\ThemeColors.h">
+      <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SceneWindow.h">
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClInclude>
   </ItemGroup>
