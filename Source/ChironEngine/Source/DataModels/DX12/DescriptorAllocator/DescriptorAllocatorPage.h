@@ -5,7 +5,7 @@
 class DescriptorAllocatorPage : public std::enable_shared_from_this<DescriptorAllocatorPage>
 {
 public:
-    DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap);
+    DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap, const std::wstring& name);
 
     // ------------- MEMORY ----------------------
 
@@ -84,6 +84,7 @@ private:
     CD3DX12_GPU_DESCRIPTOR_HANDLE _baseGPUDescriptor;
     D3D12_DESCRIPTOR_HEAP_TYPE _heapType;
     uint32_t _descriptorSize;
+    std::wstring _name;
 
     // Max num of descriptors
     uint32_t _numDescriptorsPerHeap;

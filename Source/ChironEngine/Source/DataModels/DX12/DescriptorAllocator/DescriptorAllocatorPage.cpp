@@ -5,8 +5,10 @@
 
 #include "Modules/ModuleID3D12.h"
 
-DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) :
-    _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE())
+DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap, 
+    const std::wstring& name) :
+    _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE()), 
+    _name(name)
 {
     auto device = App->GetModule<ModuleID3D12>()->GetDevice();
 
@@ -23,6 +25,7 @@ DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type
     heapDesc.NumDescriptors = _numDescriptorsPerHeap;
 
     Chiron::Utils::ThrowIfFailed(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_descriptorHeap)));
+    _descriptorHeap->SetName(_name.c_str());
 
     _baseCPUDescriptor = _descriptorHeap->GetCPUDescriptorHandleForHeapStart();
     if (_heapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)

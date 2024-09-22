@@ -27,5 +27,7 @@ private:
     // Indices of available heaps in the heap pool.
     std::unordered_set<size_t> _availableHeaps;
 
+    std::wstring _name;
+
     std::mutex _mutex;
 };
