@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "ConsoleWindow.h"
 
+#include "DataModels/DX12/CommandList/CommandList.h"
+
 namespace
 {
     const std::vector<size_t> consoleLineLengths{ 10U, 25U, 50U, 100U };
@@ -18,7 +20,7 @@ ConsoleWindow::ConsoleWindow() : EditorWindow("Console")
     _severityFilters[LogSeverity::ERROR_LOG] = true;
     _severityFilters[LogSeverity::FATAL_LOG] = true;
 
-    _severityColors[LogSeverity::INFO_LOG] = ImVec4(1.f, 1.f, 1.f, 1.f);		// white
+    _severityColors[LogSeverity::INFO_LOG] = ImVec4(0.f, 1.f, 0.f, 1.f);		// green
     _severityColors[LogSeverity::TRACE_LOG] = ImVec4(0.f, 1.f, 1.f, 1.f);	    // cyan
     _severityColors[LogSeverity::DEBUG_LOG] = ImVec4(0.22f, 1.f, 0.08f, 1.f);   // lime
     _severityColors[LogSeverity::WARNING_LOG] = ImVec4(1.f, 1.f, 0.f, 1.f);	    // yellow
@@ -30,7 +32,7 @@ ConsoleWindow::~ConsoleWindow()
 {
 }
 
-void ConsoleWindow::DrawWindowContent()
+void ConsoleWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
     _consoleContents.insert(std::end(_consoleContents), std::begin(logContext->_logLines), std::end(logContext->_logLines));
     logContext->_logLines.clear();

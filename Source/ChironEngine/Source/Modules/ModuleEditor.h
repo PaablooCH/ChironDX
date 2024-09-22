@@ -1,5 +1,6 @@
 #pragma once
 #include "Module.h"
+#include "Structs/ThemeColors.h"
 
 class MainMenuWindow;
 class Window;
@@ -20,8 +21,16 @@ public:
     UpdateStatus PostUpdate() override;
 
 private:
+    void SetStyles();
+    void ApplyTheme(const ThemeColors& theme);
+
+private:
     std::vector<std::unique_ptr<Window>> _windows;
     std::unique_ptr<MainMenuWindow> _mainMenu;
+
+    ThemeColors _colorfullStyle;
+    ThemeColors _minimalistStyle;
+    ThemeColors _darkCyanStyle;
 
     std::unique_ptr<DescriptorAllocation> _srvDescHeap;
 };

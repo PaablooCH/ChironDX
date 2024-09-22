@@ -8,12 +8,12 @@ class EditorWindow : public Window
 public:
     virtual ~EditorWindow();
 
-    void Draw(bool& enabled) override;
+    void Draw(bool& enabled, const std::shared_ptr<CommandList>& commandList) override;
 
 protected:
     EditorWindow(const std::string& name);
 
-    virtual void DrawWindowContent() = 0;
+    virtual void DrawWindowContent(const std::shared_ptr<CommandList>& commandList) = 0;
 
     ImGuiWindowFlags _flags;
 

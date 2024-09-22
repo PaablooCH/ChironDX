@@ -22,3 +22,12 @@ SceneWindow::~SceneWindow()
 {
 }
 
+void SceneWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
+{
+    auto renderTexture = App->GetModule<ModuleRender>()->model->GetMaterials()[0]->GetDiffuse()->GetTexture();
+    commandList->TransitionBarrier(renderTexture.get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    ImGui::Text("CPU handle = %p", renderTexture->GetShaderResourceView().GetCPUDescriptorHandle().ptr);
+    ImGui::Text("GPU handle = %p", renderTexture->GetShaderResourceView().GetGPUDescriptorHandle().ptr);
+    ImGui::Image((ImTextureID)(renderTexture->GetShaderResourceView().GetGPUDescriptorHandle().ptr),
+        ImVec2(512, 512));
+}

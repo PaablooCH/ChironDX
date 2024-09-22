@@ -10,7 +10,7 @@ MainMenuWindow::MainMenuWindow() : Window("Main Menu"), _showAbout(false)
 {
 }
 
-void MainMenuWindow::Draw(bool& enabled)
+void MainMenuWindow::Draw(bool& enabled, const std::shared_ptr<CommandList>& commandList)
 {
     if (ImGui::BeginMainMenuBar())
     {

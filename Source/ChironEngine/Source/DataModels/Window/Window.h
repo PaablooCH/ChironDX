@@ -1,10 +1,13 @@
 #pragma once
+
+class CommandList;
+
 class Window
 {
 public:
     virtual ~Window();
 
-    virtual void Draw(bool& enabled) = 0;
+    virtual void Draw(bool& enabled, const std::shared_ptr<CommandList>& commandList) = 0;
 
     // ------------- GETTERS ----------------------
 

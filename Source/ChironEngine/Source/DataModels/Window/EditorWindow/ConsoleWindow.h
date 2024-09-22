@@ -8,7 +8,7 @@ public:
     ~ConsoleWindow() override;
 
 private:
-    void DrawWindowContent() override;
+    void DrawWindowContent(const std::shared_ptr<CommandList>& commandList) override;
 
     void DrawOptionsMenu();
     void DrawMaxLengthSelection();

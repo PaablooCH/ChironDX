@@ -16,10 +16,10 @@ public:
     UpdateStatus PostUpdate() override;
     bool CleanUp() override;
 
+    std::shared_ptr<ModelAsset> model;
 private:
     std::unique_ptr<DebugDrawPass> _debugDraw;
 
-    std::shared_ptr<ModelAsset> model;
 
     D3D12_RECT _scissor;
 };
