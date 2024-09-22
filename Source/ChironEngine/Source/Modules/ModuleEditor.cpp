@@ -16,10 +16,10 @@
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
-#include "ImGui/Extensions/ImGuizmo.h"
-#include "ImGui/ImGui/"
+#include "ImGui/ImGuizmo.h"
 #include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_dx12.h"
+#include "ImGui/imgui_impl_win32.h"
 
 #include "ModuleRender.h"
 #include "DataModels/Assets/ModelAsset.h"
@@ -91,11 +91,8 @@ UpdateStatus ModuleEditor::PreUpdate()
 UpdateStatus ModuleEditor::Update()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
-    auto window = App->GetModule<ModuleWindow>();
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
     auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
@@ -151,6 +148,8 @@ UpdateStatus ModuleEditor::Update()
         bool canDraw = true;
         window->Draw(canDraw, drawCommandList);
     }
+    
+    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     ImGui::Render();
     
