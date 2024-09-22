@@ -11,29 +11,29 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ImGui\Extensions\ImGuizmo.cpp" />
-    <ClCompile Include="ImGui\Extensions\imgui_bezier.cpp" />
-    <ClCompile Include="ImGui\Extensions\imgui_color_gradient.cpp" />
-    <ClCompile Include="ImGui\ImGui\backends\imgui_impl_dx12.cpp" />
-    <ClCompile Include="ImGui\ImGui\backends\imgui_impl_win32.cpp" />
-    <ClCompile Include="ImGui\ImGui\imgui.cpp" />
-    <ClCompile Include="ImGui\ImGui\imgui_demo.cpp" />
-    <ClCompile Include="ImGui\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="ImGui\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="ImGui\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="ImGui\imgui.cpp" />
+    <ClCompile Include="ImGui\ImGuizmo.cpp" />
+    <ClCompile Include="ImGui\imgui_bezier.cpp" />
+    <ClCompile Include="ImGui\imgui_color_gradient.cpp" />
+    <ClCompile Include="ImGui\imgui_demo.cpp" />
+    <ClCompile Include="ImGui\imgui_draw.cpp" />
+    <ClCompile Include="ImGui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="ImGui\imgui_tables.cpp" />
+    <ClCompile Include="ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImGui\Extensions\ImGuizmo.h" />
-    <ClInclude Include="ImGui\Extensions\imgui_bezier.h" />
-    <ClInclude Include="ImGui\Extensions\imgui_color_gradient.h" />
-    <ClInclude Include="ImGui\ImGui\backends\imgui_impl_dx12.h" />
-    <ClInclude Include="ImGui\ImGui\backends\imgui_impl_win32.h" />
-    <ClInclude Include="ImGui\ImGui\imconfig.h" />
-    <ClInclude Include="ImGui\ImGui\imgui.h" />
-    <ClInclude Include="ImGui\ImGui\imgui_internal.h" />
-    <ClInclude Include="ImGui\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="ImGui\ImGui\imstb_textedit.h" />
-    <ClInclude Include="ImGui\ImGui\imstb_truetype.h" />
+    <ClInclude Include="ImGui\imconfig.h" />
+    <ClInclude Include="ImGui\imgui.h" />
+    <ClInclude Include="ImGui\ImGuizmo.h" />
+    <ClInclude Include="ImGui\imgui_bezier.h" />
+    <ClInclude Include="ImGui\imgui_color_gradient.h" />
+    <ClInclude Include="ImGui\imgui_impl_dx12.h" />
+    <ClInclude Include="ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="ImGui\imgui_internal.h" />
+    <ClInclude Include="ImGui\imstb_rectpack.h" />
+    <ClInclude Include="ImGui\imstb_textedit.h" />
+    <ClInclude Include="ImGui\imstb_truetype.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -80,11 +80,11 @@
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>IMGUI_DEFINE_MATH_OPERATORS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\ExternalDependencies\ImGui\ImGui;..\ExternalDependencies\;..\ExternalDependencies\assimp;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ExternalDependencies\;..\ExternalDependencies\assimp;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <SupportJustMyCode>true</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -109,11 +109,11 @@
       </FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>IMGUI_DEFINE_MATH_OPERATORS;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\ExternalDependencies\ImGui\ImGui;..\ExternalDependencies\;..\ExternalDependencies\SDL\include;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ExternalDependencies\;..\ExternalDependencies\SDL\include;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
