@@ -5,6 +5,7 @@
 
 #include "ModuleID3D12.h"
 #include "ModuleInput.h"
+#include "ModuleRender.h"
 
 ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false),
 _width(0), _height(0)
@@ -91,6 +92,7 @@ void ModuleWindow::Resize(unsigned width, unsigned height)
         // Flush the GPU queue to make sure the swap chain's back buffers
         // are not being referenced by an in-flight command list.
         App->GetModule<ModuleID3D12>()->ResizeBuffers(_width, _height);
+        App->GetModule<ModuleRender>()->ResizeBuffers(_width, _height);
     }
 }
 

@@ -28,7 +28,7 @@ bool ModuleID3D12::Init()
     if (ok)
     {
         InitDescriptorAllocator();
-        InitFrameBuffer();
+        ObtainRTVFromSwapChain();
         _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
     }
 #ifdef DEBUG
@@ -44,7 +44,6 @@ bool ModuleID3D12::CleanUp()
     _commandQueueCompute.reset();
     _commandQueueCopy.reset();
     _swapChain = nullptr;
-    _depthStencilBuffer.reset();
     _descriptorAllocators.clear();
     for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
@@ -114,11 +113,7 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 
     // ------------- RENDER TARGET VIEW ---------------------------
 
-    UpdateRenderTargetViews();
-
-    // ------------- DEPTH-STENCIL ---------------------------
-
-    CreateDepthStencil(newWidth, newHeight);
+    ObtainRTVFromSwapChain();
 }
 
 void ModuleID3D12::PresentAndSwapBuffer()
@@ -323,7 +318,16 @@ bool ModuleID3D12::CreateSwapChain()
     return false;
 }
 
-void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
+std::unique_ptr<Texture> ModuleID3D12::CreateDepthStencil(const std::wstring& name)
+{
+    unsigned width;
+    unsigned height;
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
+
+    return CreateDepthStencil(name, width, height);
+}
+
+std::unique_ptr<Texture> ModuleID3D12::CreateDepthStencil(const std::wstring& name, unsigned width, unsigned height)
 {
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_D32_FLOAT;
@@ -331,22 +335,10 @@ void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
     CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0,
         D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-    _depthStencilBuffer = std::make_unique<Texture>(desc, L"Depth Stencil Buffer", &clearValue);
+    return std::make_unique<Texture>(desc, name, &clearValue);
 }
 
-void ModuleID3D12::UpdateRenderTargetViews()
-{
-    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; ++i)
-    {
-        ComPtr<ID3D12Resource> backBuffer;
-        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-
-        _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
-        _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
-    }
-}
-
-void ModuleID3D12::InitFrameBuffer()
+void ModuleID3D12::ObtainRTVFromSwapChain()
 {
     // ------------- RTV ---------------------------
 
@@ -355,19 +347,10 @@ void ModuleID3D12::InitFrameBuffer()
     {
         ComPtr<ID3D12Resource> backBuffer;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-
+        
         _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
         _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
     }
-
-    // ------------- DEPTH-STENCIL ---------------------------
-
-    unsigned width;
-    unsigned height;
-
-    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
-
-    CreateDepthStencil(width, height);
 }
 
 void ModuleID3D12::InitDescriptorAllocator()

@@ -16,13 +16,15 @@
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/DX12/Resource/Texture.h"
+
 #include "DataModels/Programs/Program.h"
 
 #include "Structs/ViewProjection.h"
 
 #include "DebugDrawPass.h"
 
-ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX))
+ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr), 
+_depthStencilTexture(nullptr)
 {
 }
 
@@ -40,6 +42,8 @@ bool ModuleRender::Init()
     auto commandQueue = d3d12->GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
 
+    CreateTextures();
+
     return true;
 }
 
@@ -53,8 +57,8 @@ UpdateStatus ModuleRender::PreUpdate()
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
     // send the clear command into the list
-    drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
-    drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilBuffer(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
+    drawCommandList->ClearRenderTargetView(_sceneTexture.get(), clearColor, 0);
+    drawCommandList->ClearDepthStencilView(_depthStencilTexture.get(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 
     d3d12->ExecuteCommandList(drawCommandList);
 
@@ -99,8 +103,8 @@ UpdateStatus ModuleRender::Update()
     vp.proj = proj.Transpose();
     drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
 
-    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
-    auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
+    auto rtv = _sceneTexture->GetRenderTargetView().GetCPUDescriptorHandle();
+    auto dsv = _depthStencilTexture->GetDepthStencilView().GetCPUDescriptorHandle();
     drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
 
     model->Draw(drawCommandList);
@@ -118,7 +122,8 @@ UpdateStatus ModuleRender::Update()
 
     // ------------- CLOSE COMMANDLIST ----------------------
 
-    d3d12->ExecuteCommandList(drawCommandList);
+    uint64_t fenceValue = d3d12->ExecuteCommandList(drawCommandList);
+    d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, fenceValue);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
@@ -136,4 +141,39 @@ bool ModuleRender::CleanUp()
     model = nullptr;
 
     return true;
+}
+
+void ModuleRender::ResizeBuffers(unsigned newWidth, unsigned newHeight)
+{
+    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    memcpy(clearValue.Color, clearColor, sizeof(clearColor));
+
+    D3D12_RESOURCE_DESC textureDesc =
+        CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, newWidth, newHeight, 1, 1, 1, 0,
+            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    _sceneTexture = std::make_unique<Texture>(textureDesc, L"Scene Texture", &clearValue);
+
+    _depthStencilTexture = App->GetModule<ModuleID3D12>()->
+        CreateDepthStencil(L"Scene Depth Stencil Texture", newWidth, newHeight);
+}
+
+void ModuleRender::CreateTextures()
+{
+    unsigned width;
+    unsigned height;
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
+
+    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    memcpy(clearValue.Color, clearColor, sizeof(clearColor));
+
+    D3D12_RESOURCE_DESC textureDesc = 
+        CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1, 1, 0,
+            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    _sceneTexture = std::make_unique<Texture>(textureDesc, L"Scene Texture", &clearValue);
+
+    _depthStencilTexture = App->GetModule<ModuleID3D12>()->CreateDepthStencil(L"Scene Depth Stencil Texture", width, height);
 }

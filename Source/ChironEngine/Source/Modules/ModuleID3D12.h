@@ -42,8 +42,11 @@ public:
     inline IDXGISwapChain4* GetSwapChain() const;
     inline UINT GetCurrentBuffer() const;
     inline Texture* GetRenderBuffer() const;
-    inline Texture* GetDepthStencilBuffer() const;
     inline DescriptorAllocator* GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const;
+
+    // ------------- CREATORS ----------------------
+    std::unique_ptr<Texture> CreateDepthStencil(const std::wstring& name);
+    std::unique_ptr<Texture> CreateDepthStencil(const std::wstring& name, unsigned width, unsigned height);
 
 private:
     // ------------- CREATORS ----------------------
@@ -52,15 +55,10 @@ private:
     bool CreateDevice();
     bool CreateCommandQueues();
     bool CreateSwapChain();
-    void CreateDepthStencil(unsigned width, unsigned height);
-
-    // ------------- UPDATES ----------------------
-
-    void UpdateRenderTargetViews();
 
     // ------------- INITS ---------------------------
 
-    void InitFrameBuffer();
+    void ObtainRTVFromSwapChain();
     void InitDescriptorAllocator();
 
     void PrintMessages();
@@ -102,15 +100,12 @@ private:
     // The texture result of drawing in the swapChain.
     std::unique_ptr<Texture> _renderBuffers[NUM_FRAMES_IN_FLIGHT];
 
-    // Depth Stencil buffer.
-    std::unique_ptr<Texture> _depthStencilBuffer;
-
     std::vector<std::unique_ptr<DescriptorAllocator>> _descriptorAllocators;
 };
 
 inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
-    CHIRON_TODO("Reduce calls, saving the comptr where its used mostly");
+    CHIRON_TODO("Reduce calls, saving the comptr where its mostly used");
 #if DEBUG
     HRESULT reason = _device->GetDeviceRemovedReason();
 
@@ -152,11 +147,6 @@ inline UINT ModuleID3D12::GetCurrentBuffer() const
 inline Texture* ModuleID3D12::GetRenderBuffer() const
 {
     return _renderBuffers[_currentBuffer].get();
-}
-
-inline Texture* ModuleID3D12::GetDepthStencilBuffer() const
-{
-    return _depthStencilBuffer.get();
 }
 
 inline DescriptorAllocator* ModuleID3D12::GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const

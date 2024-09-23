@@ -85,6 +85,16 @@ UpdateStatus ModuleEditor::PreUpdate()
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+
+    auto d3d12 = App->GetModule<ModuleID3D12>();
+
+    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
+
+    // send the clear command into the list
+    drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
+    d3d12->ExecuteCommandList(drawCommandList);
+
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
@@ -92,11 +102,9 @@ UpdateStatus ModuleEditor::Update()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
-    auto dsv = d3d12->GetDepthStencilBuffer()->GetDepthStencilView().GetCPUDescriptorHandle();
-    drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
 
     ImGuiWindowFlags dockSpaceWindowFlags = 0;
     dockSpaceWindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
@@ -139,8 +147,14 @@ UpdateStatus ModuleEditor::Update()
     ImGui::End();
 
     _mainMenu->Draw();
-    ImGui::ShowDemoWindow();
-    ImGui::ShowMetricsWindow();
+
+    //ImGui::ShowDemoWindow();
+    //ImGui::ShowMetricsWindow();
+
+    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
+    drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
 
     for (std::unique_ptr<Window>& window : _windows)
     {
@@ -148,9 +162,6 @@ UpdateStatus ModuleEditor::Update()
         bool canDraw = true;
         window->Draw(canDraw, drawCommandList);
     }
-    
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-
     ImGui::Render();
     
     ID3D12DescriptorHeap* descriptorHeaps[] = {
@@ -169,7 +180,6 @@ UpdateStatus ModuleEditor::Update()
 
 UpdateStatus ModuleEditor::PostUpdate()
 {
-    ImGui::Render();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
