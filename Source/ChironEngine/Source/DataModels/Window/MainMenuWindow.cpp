@@ -1,16 +1,16 @@
 #include "Pch.h"
 #include "MainMenuWindow.h"
 
-#include "ImGui/imgui.h"
 
 const std::string MainMenuWindow::repositoryLink = "https://github.com/PaablooCH/ChironDX";
 bool MainMenuWindow::defaultEnabled = true;
+#include <ImGui/imgui.h>
 
 MainMenuWindow::MainMenuWindow() : Window("Main Menu"), _showAbout(false)
 {
 }
 
-void MainMenuWindow::Draw(bool& enabled, const std::shared_ptr<CommandList>& commandList)
+void MainMenuWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 {
     if (ImGui::BeginMainMenuBar())
     {

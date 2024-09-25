@@ -1,14 +1,14 @@
 #pragma once
 #include "DataModels/Window/Window.h"
 
-#include "ImGui/imgui.h"
+#include <ImGui/imgui.h>
 
 class EditorWindow : public Window
 {
 public:
     virtual ~EditorWindow();
 
-    void Draw(bool& enabled, const std::shared_ptr<CommandList>& commandList) override;
+    void Draw(const std::shared_ptr<CommandList>& commandList) override;
 
 protected:
     EditorWindow(const std::string& name);

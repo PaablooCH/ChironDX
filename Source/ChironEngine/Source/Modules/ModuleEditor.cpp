@@ -158,9 +158,7 @@ UpdateStatus ModuleEditor::Update()
 
     for (std::unique_ptr<Window>& window : _windows)
     {
-        CHIRON_TODO("Change this");
-        bool canDraw = true;
-        window->Draw(canDraw, drawCommandList);
+        window->Draw(drawCommandList);
     }
     ImGui::Render();
     

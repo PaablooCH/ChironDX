@@ -11,11 +11,11 @@ EditorWindow::~EditorWindow()
 {
 }
 
-void EditorWindow::Draw(bool& enabled, const std::shared_ptr<CommandList>& commandList)
+void EditorWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 {
-    if (enabled)
+    if (_enabled)
     {
-        if (ImGui::Begin(_name.c_str(), &enabled, _flags))
+        if (ImGui::Begin(_name.c_str(), &_enabled, _flags))
         {
             DrawWindowContent(commandList);
             _focused = ImGui::IsWindowFocused() && ImGui::IsWindowHovered();
@@ -24,7 +24,7 @@ void EditorWindow::Draw(bool& enabled, const std::shared_ptr<CommandList>& comma
     }
     // The call to ImGui::Begin can change the value of io_enabled
     // so using "else" will cause the window to remain focused for an extra frame
-    if (!enabled)
+    if (!_enabled)
     {
         _focused = false;
     }

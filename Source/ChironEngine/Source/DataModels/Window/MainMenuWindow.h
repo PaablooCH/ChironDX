@@ -6,9 +6,9 @@ class MainMenuWindow : public Window
 public:
     MainMenuWindow();
 
-    void Draw(bool& enabled = defaultEnabled, const std::shared_ptr<CommandList>& commandList = nullptr) override;
 
     static const std::string repositoryLink;
+    void Draw(const std::shared_ptr<CommandList>& commandList = nullptr) override;
 
 private:
     void DrawHelpMenu();
