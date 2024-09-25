@@ -14,12 +14,12 @@ Camera::Camera(Vector3 position, Vector3 front, Vector3 up, float fov, float nea
     unsigned height;
 
     App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
-    float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    _aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
     _forward.Normalize();
     _up.Normalize();
-    _view = Matrix::CreateLookAt(_position, _forward, _up);
-    _proj = Matrix::CreatePerspectiveFieldOfView(_fov, aspectRatio, _nearPlane, _farPlane);
+    _view = Matrix::CreateLookAt(_position, _position + _forward, _up);
+    _proj = Matrix::CreatePerspectiveFieldOfView(_fov, _aspectRatio, _nearPlane, _farPlane);
 }
 
 Camera::~Camera()
@@ -36,8 +36,8 @@ void Camera::Update()
         App->GetModule<ModuleWindow>()->UnlimitedCursor();
         Move();
         FreeLook();
+        _view = Matrix::CreateLookAt(_position, _position + _forward, _up);
     }
-    _view = Matrix::CreateLookAt(_position, _position + _forward, _up);
 }
 
 void Camera::Move()

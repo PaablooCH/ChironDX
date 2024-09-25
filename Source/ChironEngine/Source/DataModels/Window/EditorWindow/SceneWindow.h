@@ -9,5 +9,11 @@ public:
 
 private:
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList) override;
+
+    void ManageResize();
+
+private:
+    float _currentWidth;
+    float _currentHeight;
 };
 
