@@ -5,7 +5,7 @@
 
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
-#include "ImGui/imgui.h"
+#include <ImGui/imgui.h>
 
 BOOL                            CreateApplication(HINSTANCE hInstance);
 ATOM                            CreateWindowClass(HINSTANCE hInstance);
@@ -121,6 +121,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         return true;
     }
+    static bool s_in_sizemove = false;
     switch (message)
     {
     case WM_ACTIVATE:
@@ -155,6 +156,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         ::PostQuitMessage(0);
         break;
     case WM_SIZE:
+        if (!s_in_sizemove && wParam != SIZE_MINIMIZED)
+        {
+            App->GetModule<ModuleWindow>()->Resize();
+        }
+        break;
+    case WM_ENTERSIZEMOVE:
+        s_in_sizemove = true;
+        break;
+    case WM_EXITSIZEMOVE:
+        s_in_sizemove = false;
         App->GetModule<ModuleWindow>()->Resize();
         break;
     case WM_SYSKEYDOWN:
