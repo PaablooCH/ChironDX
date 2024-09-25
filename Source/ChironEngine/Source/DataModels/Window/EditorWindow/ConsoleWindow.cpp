@@ -20,12 +20,12 @@ ConsoleWindow::ConsoleWindow() : EditorWindow("Console")
     _severityFilters[LogSeverity::ERROR_LOG] = true;
     _severityFilters[LogSeverity::FATAL_LOG] = true;
 
-    _severityColors[LogSeverity::INFO_LOG] = ImVec4(0.f, 1.f, 0.f, 1.f);		// green
-    _severityColors[LogSeverity::TRACE_LOG] = ImVec4(0.f, 1.f, 1.f, 1.f);	    // cyan
+    _severityColors[LogSeverity::INFO_LOG] = ImVec4(1.f, 1.f, 1.f, 1.f);        // white
+    _severityColors[LogSeverity::TRACE_LOG] = ImVec4(0.f, 1.f, 1.f, 1.f);       // cyan
     _severityColors[LogSeverity::DEBUG_LOG] = ImVec4(0.22f, 1.f, 0.08f, 1.f);   // lime
-    _severityColors[LogSeverity::WARNING_LOG] = ImVec4(1.f, 1.f, 0.f, 1.f);	    // yellow
-    _severityColors[LogSeverity::ERROR_LOG] = ImVec4(1.f, 0.f, 0.f, 1.f);	    // red
-    _severityColors[LogSeverity::FATAL_LOG] = ImVec4(1.f, 0.f, 1.f, 1.f);	    // purple
+    _severityColors[LogSeverity::WARNING_LOG] = ImVec4(1.f, 1.f, 0.f, 1.f);     // yellow
+    _severityColors[LogSeverity::ERROR_LOG] = ImVec4(1.f, 0.f, 0.f, 1.f);       // red
+    _severityColors[LogSeverity::FATAL_LOG] = ImVec4(1.f, 0.f, 1.f, 1.f);       // purple
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -45,6 +45,7 @@ void ConsoleWindow::DrawOptionsMenu()
 {
     if (ImGui::BeginMenuBar())
     {
+        CHIRON_TODO("don't use a menu(?)");
         if (ImGui::BeginMenu("Filters"))
         {
             for (auto& filter : _severityFilters)
