@@ -213,6 +213,7 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp">
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\AboutWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -384,5 +385,6 @@
     <ClInclude Include="Source\DataModels\Window\EditorWindow\SceneWindow.h">
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
   </ItemGroup>
 </Project>
