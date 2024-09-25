@@ -25,6 +25,14 @@ private:
     void ApplyTheme(const ThemeColors& theme);
 
 private:
+    enum class WindowsType
+    {
+        SCENE,
+        CONSOLE,
+        ABOUT,
+        SIZE
+    };
+
     std::vector<std::unique_ptr<Window>> _windows;
     std::unique_ptr<MainMenuWindow> _mainMenu;
 

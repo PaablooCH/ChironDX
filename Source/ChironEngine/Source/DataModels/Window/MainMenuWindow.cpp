@@ -1,12 +1,12 @@
 #include "Pch.h"
 #include "MainMenuWindow.h"
 
+#include "AboutWindow.h"
 
 const std::string MainMenuWindow::repositoryLink = "https://github.com/PaablooCH/ChironDX";
-bool MainMenuWindow::defaultEnabled = true;
 #include <ImGui/imgui.h>
 
-MainMenuWindow::MainMenuWindow() : Window("Main Menu"), _showAbout(false)
+MainMenuWindow::MainMenuWindow(AboutWindow* aboutWindow) : Window("Main Menu"), _aboutWindow(aboutWindow)
 {
 }
 
@@ -23,12 +23,12 @@ void MainMenuWindow::DrawHelpMenu()
 {
     if (ImGui::BeginMenu("Help"))
     {
-        ImGui::MenuItem("About ChironDX", NULL, &_showAbout);
+        bool& showAbout = _aboutWindow->GetEnabled();
+        ImGui::MenuItem("About", NULL, &showAbout);
         if (ImGui::MenuItem("GitHub Link"))
         {
             ShellExecuteA(NULL, "open", repositoryLink.c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
         ImGui::EndMenu();
     }
-    //about->Draw(_showAbout);
 }

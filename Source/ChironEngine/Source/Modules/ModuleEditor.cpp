@@ -6,9 +6,10 @@
 #include "ModuleID3D12.h"
 #include "ModuleWindow.h"
 
+#include "DataModels/Window/AboutWindow.h"
+#include "DataModels/Window/MainMenuWindow.h"
 #include "DataModels/Window/EditorWindow/ConsoleWindow.h"
 #include "DataModels/Window/EditorWindow/SceneWindow.h"
-#include "DataModels/Window/MainMenuWindow.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
@@ -20,11 +21,6 @@
 #include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_dx12.h"
 #include "ImGui/imgui_impl_win32.h"
-
-#include "ModuleRender.h"
-#include "DataModels/Assets/ModelAsset.h"
-#include "DataModels/Assets/MaterialAsset.h"
-#include "DataModels/Assets/TextureAsset.h"
 
 ModuleEditor::ModuleEditor()
 {
@@ -55,9 +51,11 @@ bool ModuleEditor::Init()
         _srvDescHeap->GetDescriptorAllocatorPage()->GetDescriptorHeap().Get(),
         _srvDescHeap->GetCPUDescriptorHandle(), _srvDescHeap->GetGPUDescriptorHandle());
 
-    _mainMenu = std::make_unique<MainMenuWindow>();
-    _windows.push_back(std::make_unique<SceneWindow>());
-    _windows.push_back(std::make_unique<ConsoleWindow>());
+    _windows.resize(static_cast<int>(WindowsType::SIZE));
+    _windows[static_cast<int>(WindowsType::ABOUT)] = std::make_unique<AboutWindow>();
+    _windows[static_cast<int>(WindowsType::SCENE)] = std::make_unique<SceneWindow>();
+    _windows[static_cast<int>(WindowsType::CONSOLE)] = std::make_unique<ConsoleWindow>();
+    _mainMenu = std::make_unique<MainMenuWindow>(reinterpret_cast<AboutWindow*>(_windows[static_cast<int>(WindowsType::ABOUT)].get()));
 
     SetStyles();
 
@@ -73,6 +71,8 @@ bool ModuleEditor::Start()
 
 bool ModuleEditor::CleanUp()
 {
+    _mainMenu.reset();
+    _windows.clear();
     _srvDescHeap.reset();
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
@@ -135,7 +135,6 @@ UpdateStatus ModuleEditor::Update()
         ImGui::DockBuilderDockWindow("File Browser", dockIdDown);
         ImGui::DockBuilderDockWindow("State Machine Editor", dockIdDown);
         ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
-        ImGui::DockBuilderDockWindow("About", dockIdRight);
         ImGui::DockBuilderDockWindow("Navigation", dockIdRight);
         ImGui::DockBuilderDockWindow("Resources", dockIdRight);
         ImGui::DockBuilderDockWindow("Inspector", dockIdRight);
