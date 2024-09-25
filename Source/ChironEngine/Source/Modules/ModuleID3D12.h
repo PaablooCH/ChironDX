@@ -23,7 +23,7 @@ public:
     // ------------- WINDOW FUNC ----------------------
 
     void ToggleVSync();
-    void ResizeBuffers(unsigned newWidth, unsigned newHeight);
+    void ResizeBuffers();
     void PresentAndSwapBuffer();
 
     // ------------- SYNCHRONIZATION ----------------------

@@ -91,7 +91,7 @@ void ModuleID3D12::ToggleVSync()
     _vSync = !_vSync;
 }
 
-void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
+void ModuleID3D12::ResizeBuffers()
 {
     Flush();
 
@@ -101,13 +101,12 @@ void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
     {
         // Any references to the back buffers must be released before the swap chain can be resized.
         _renderBuffers[i].reset();
-        _bufferFenceValues[i] = 0;
+        _renderBuffers[i] = nullptr;
     }
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
     Chiron::Utils::ThrowIfFailed(_swapChain->GetDesc(&swapChainDesc)); // Get the current descr to apply it to the newer.
-    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(NUM_FRAMES_IN_FLIGHT, newWidth, newHeight,
-        swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
+    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(0, 0, 0, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
 
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
@@ -290,8 +289,8 @@ bool ModuleID3D12::CreateSwapChain()
     {
         // Create swapchain
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.Width = width;
-        swapChainDesc.Height = height;
+        swapChainDesc.Width = 0;
+        swapChainDesc.Height = 0;
         swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
@@ -300,7 +299,8 @@ bool ModuleID3D12::CreateSwapChain()
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = _tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | 
+            (_tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
 
         ComPtr<IDXGISwapChain1> newSwapchain1;
         Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd,
@@ -308,8 +308,7 @@ bool ModuleID3D12::CreateSwapChain()
 
         Chiron::Utils::ThrowIfFailed(newSwapchain1.As(&_swapChain));
 
-        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
-        // will be handled manually.
+        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen will be handled manually.
         Chiron::Utils::ThrowIfFailed(_factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER));
 
         return true;
@@ -345,7 +344,7 @@ void ModuleID3D12::ObtainRTVFromSwapChain()
     // Create a RTV for each frame.
     for (UINT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
-        ComPtr<ID3D12Resource> backBuffer;
+        ComPtr<ID3D12Resource> backBuffer = nullptr;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
         
         _renderBuffers[i] = std::make_unique<Texture>(backBuffer);

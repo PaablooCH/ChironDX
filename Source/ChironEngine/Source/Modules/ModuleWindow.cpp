@@ -89,9 +89,9 @@ void ModuleWindow::Resize(unsigned width, unsigned height)
         _width = std::max(1u, width);
         _height = std::max(1u, height);
 
-        // Flush the GPU queue to make sure the swap chain's back buffers
-        // are not being referenced by an in-flight command list.
-        App->GetModule<ModuleID3D12>()->ResizeBuffers(_width, _height);
+        // Flush the GPU queue to make sure the swap chain's back buffers are not being referenced by an in-flight 
+        // command list.
+        App->GetModule<ModuleID3D12>()->ResizeBuffers();
         App->GetModule<ModuleRender>()->ResizeBuffers(_width, _height);
     }
 }
