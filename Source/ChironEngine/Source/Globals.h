@@ -4,3 +4,5 @@
 #define WND_NAME L"ChironDX Engine"
 
 #define NUM_FRAMES_IN_FLIGHT 2U
+
+#define REPOSITORY_URL "https://github.com/PaablooCH/ChironDX"
