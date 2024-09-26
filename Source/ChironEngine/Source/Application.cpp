@@ -12,7 +12,7 @@
 
 #include "DataModels/Timer/Timer.h"
 
-Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0)
+Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0), _maxFrameRate(120)
 {
     _modules.resize(static_cast<int>(ModuleType::LAST));
     _modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
@@ -101,7 +101,17 @@ UpdateStatus Application::Update()
 
     float endFrame = _timer->Read();
 
-    _deltaTime = (endFrame - beginFrame) / 1000.f;
+    float ms = endFrame - beginFrame;
+
+    if (ms < 1000.0f / _maxFrameRate)
+    {
+        auto sleepTime = static_cast<int>(1000.0f / _maxFrameRate - ms);
+
+        if (sleepTime > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+        }
+    }
+    _deltaTime = ms / 1000.f;
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

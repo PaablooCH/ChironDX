@@ -45,6 +45,8 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\EditorWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\EngineStatisticsWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\Window.cpp" />
     <ClCompile Include="Source\DataModels\Window\MainMenuWindow.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
@@ -72,6 +74,8 @@
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\EditorWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\SceneWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\EngineStatisticsWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.h" />
     <ClInclude Include="Source\DataModels\Window\Window.h" />
     <ClInclude Include="Source\DataModels\Window\MainMenuWindow.h" />
     <ClInclude Include="Source\Modules\ModuleEditor.h" />

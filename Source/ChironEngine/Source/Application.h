@@ -23,8 +23,8 @@ public:
     M* GetModule();
 
     inline const uint64_t GetFrameCount() const;
-    inline const float GetFPS() const;
     inline const float GetDeltaTime() const;
+    inline int& GetMaxFrameRate();
 
 private:
     std::vector<std::unique_ptr<Module>> _modules;
@@ -32,6 +32,8 @@ private:
     std::unique_ptr<Timer> _timer;
 
     uint64_t _frameCount;
+
+    int _maxFrameRate;
 
     float _deltaTime;
 };
@@ -48,14 +50,14 @@ inline const uint64_t Application::GetFrameCount() const
     return _frameCount;
 }
 
-inline const float Application::GetFPS() const
-{
-    return 1 / _deltaTime;
-}
-
 inline const float Application::GetDeltaTime() const
 {
     return _deltaTime;
+}
+
+inline int& Application::GetMaxFrameRate()
+{
+    return _maxFrameRate;
 }
 
 extern std::unique_ptr<Application> App;

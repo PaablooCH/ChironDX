@@ -30,6 +30,7 @@ private:
         SCENE,
         CONSOLE,
         ABOUT,
+        CONFIGURATION,
         SIZE
     };
 

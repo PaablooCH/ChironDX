@@ -43,6 +43,7 @@ public:
     inline UINT GetCurrentBuffer() const;
     inline Texture* GetRenderBuffer() const;
     inline DescriptorAllocator* GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const;
+    inline bool& GetVsync();
 
     // ------------- CREATORS ----------------------
     std::unique_ptr<Texture> CreateDepthStencil(const std::wstring& name);
@@ -152,4 +153,9 @@ inline Texture* ModuleID3D12::GetRenderBuffer() const
 inline DescriptorAllocator* ModuleID3D12::GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const
 {
     return _descriptorAllocators[type].get();
+}
+
+inline bool& ModuleID3D12::GetVsync()
+{
+    return _vSync;
 }

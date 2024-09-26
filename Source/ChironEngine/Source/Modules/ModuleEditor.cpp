@@ -8,6 +8,7 @@
 
 #include "DataModels/Window/AboutWindow.h"
 #include "DataModels/Window/MainMenuWindow.h"
+#include "DataModels/Window/EditorWindow/ConfigurationWindow.h"
 #include "DataModels/Window/EditorWindow/ConsoleWindow.h"
 #include "DataModels/Window/EditorWindow/SceneWindow.h"
 
@@ -55,6 +56,7 @@ bool ModuleEditor::Init()
     _windows[static_cast<int>(WindowsType::ABOUT)] = std::make_unique<AboutWindow>();
     _windows[static_cast<int>(WindowsType::SCENE)] = std::make_unique<SceneWindow>();
     _windows[static_cast<int>(WindowsType::CONSOLE)] = std::make_unique<ConsoleWindow>();
+    _windows[static_cast<int>(WindowsType::CONFIGURATION)] = std::make_unique<ConfigurationWindow>();
     _mainMenu = std::make_unique<MainMenuWindow>(reinterpret_cast<AboutWindow*>(_windows[static_cast<int>(WindowsType::ABOUT)].get()));
 
     SetStyles();
@@ -134,7 +136,7 @@ UpdateStatus ModuleEditor::Update()
         ImGui::DockBuilderDockWindow("Console", dockIdDown);
         //ImGui::DockBuilderDockWindow("File Browser", dockIdDown);
         //ImGui::DockBuilderDockWindow("State Machine Editor", dockIdDown);
-        //ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
+        ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
         //ImGui::DockBuilderDockWindow("Navigation", dockIdRight);
         //ImGui::DockBuilderDockWindow("Resources", dockIdRight);
         //ImGui::DockBuilderDockWindow("Inspector", dockIdRight);
