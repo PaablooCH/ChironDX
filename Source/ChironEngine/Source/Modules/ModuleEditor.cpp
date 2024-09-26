@@ -82,10 +82,6 @@ bool ModuleEditor::CleanUp()
 
 UpdateStatus ModuleEditor::PreUpdate()
 {
-    ImGui_ImplDX12_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -95,6 +91,10 @@ UpdateStatus ModuleEditor::PreUpdate()
     drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
     d3d12->ExecuteCommandList(drawCommandList);
 
+    ImGui_ImplDX12_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
@@ -102,9 +102,9 @@ UpdateStatus ModuleEditor::Update()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->WorkPos);
-    ImGui::SetNextWindowSize(viewport->WorkSize);
+    const ImGuiViewport* imGuiViewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(imGuiViewport->WorkPos);
+    ImGui::SetNextWindowSize(imGuiViewport->WorkSize);
 
     ImGuiWindowFlags dockSpaceWindowFlags = 0;
     dockSpaceWindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
@@ -132,14 +132,14 @@ UpdateStatus ModuleEditor::Update()
         ImGuiID dockIdDown = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.32f, nullptr, &dockSpaceId);
         ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.22f, nullptr, &dockSpaceId);
         ImGui::DockBuilderDockWindow("Console", dockIdDown);
-        ImGui::DockBuilderDockWindow("File Browser", dockIdDown);
-        ImGui::DockBuilderDockWindow("State Machine Editor", dockIdDown);
-        ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
-        ImGui::DockBuilderDockWindow("Navigation", dockIdRight);
-        ImGui::DockBuilderDockWindow("Resources", dockIdRight);
-        ImGui::DockBuilderDockWindow("Inspector", dockIdRight);
-        ImGui::DockBuilderDockWindow("Editor Control", dockIdUp);
-        ImGui::DockBuilderDockWindow("Hierarchy", dockIdLeft);
+        //ImGui::DockBuilderDockWindow("File Browser", dockIdDown);
+        //ImGui::DockBuilderDockWindow("State Machine Editor", dockIdDown);
+        //ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Navigation", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Resources", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Inspector", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Editor Control", dockIdUp);
+        //ImGui::DockBuilderDockWindow("Hierarchy", dockIdLeft);
         ImGui::DockBuilderDockWindow("Scene", dockSpaceId);
         ImGui::DockBuilderFinish(dockSpaceId);
     }
@@ -147,13 +147,10 @@ UpdateStatus ModuleEditor::Update()
 
     _mainMenu->Draw();
 
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
-    drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
 
     for (std::unique_ptr<Window>& window : _windows)
     {
@@ -161,6 +158,9 @@ UpdateStatus ModuleEditor::Update()
     }
     ImGui::Render();
     
+    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
+    drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
     ID3D12DescriptorHeap* descriptorHeaps[] = {
         _srvDescHeap->GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
     };

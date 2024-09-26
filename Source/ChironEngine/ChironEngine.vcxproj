@@ -41,6 +41,7 @@
     <ClCompile Include="Source\DataModels\Programs\DefaultProgram.cpp" />
     <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp" />
     <ClCompile Include="Source\DataModels\Window\AboutWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\EditorWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp" />
@@ -67,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\EditorWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\SceneWindow.h" />
