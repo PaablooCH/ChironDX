@@ -15,5 +15,4 @@ void SubWindow::Draw(const std::shared_ptr<CommandList>& commandList)
     {
         DrawWindowContent(commandList);
     }
-    ImGui::Separator();
 }
