@@ -1,11 +1,11 @@
 #include "Pch.h"
 #include "ConfigurationWindow.h"
 
-#include "SubWindows/EngineStatisticsWindow.h"
+#include "SubWindows/EngineStatisticsSubWindow.h"
 
 ConfigurationWindow::ConfigurationWindow() : EditorWindow("Configuration")
 {
-    _subWindows.push_back(std::make_unique<EngineStatisticsWindow>());
+    _subWindows.push_back(std::make_unique<EngineStatisticsSubWindow>());
 }
 
 ConfigurationWindow::~ConfigurationWindow()
@@ -14,8 +14,12 @@ ConfigurationWindow::~ConfigurationWindow()
 
 void ConfigurationWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
-    for (auto& window : _subWindows)
+    for (int i = 0; i < _subWindows.size(); i++)
     {
-        window->Draw(commandList);
+        _subWindows[i]->Draw(commandList);
+        if (i < _subWindows.size() - 1)
+        {
+            ImGui::Separator();
+        }
     }
 }

@@ -76,6 +76,9 @@
     <Filter Include="Source\DataModels\Windows\EditorWindow\SubWindows">
       <UniqueIdentifier>{1e64429b-617b-4c7b-852b-c8b9896c8976}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Windows\EditorWindow\SubWindows\Configuration">
+      <UniqueIdentifier>{8fbe8fea-7fb5-489c-8ca1-256f5b04ba9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -222,11 +225,11 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.cpp">
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\EngineStatisticsWindow.cpp">
-      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.cpp">
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\EngineStatisticsSubWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -405,11 +408,11 @@
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h">
       <Filter>Source\DataModels\Windows\EditorWindow</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\EngineStatisticsWindow.h">
-      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.h">
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\EngineStatisticsSubWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

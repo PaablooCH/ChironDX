@@ -1,11 +1,11 @@
 #pragma once
 #include "SubWindow.h"
 
-class EngineStatisticsWindow : public SubWindow
+class EngineStatisticsSubWindow : public SubWindow
 {
 public:
-    EngineStatisticsWindow();
-    ~EngineStatisticsWindow() override;
+    EngineStatisticsSubWindow();
+    ~EngineStatisticsSubWindow() override;
 
 private:
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList = nullptr) override;
