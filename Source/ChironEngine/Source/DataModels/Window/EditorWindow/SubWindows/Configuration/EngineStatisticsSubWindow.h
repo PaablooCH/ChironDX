@@ -1,5 +1,5 @@
 #pragma once
-#include "SubWindow.h"
+#include "../SubWindow.h"
 
 class EngineStatisticsSubWindow : public SubWindow
 {

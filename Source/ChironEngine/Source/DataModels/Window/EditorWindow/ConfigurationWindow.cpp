@@ -1,8 +1,8 @@
 #include "Pch.h"
 #include "ConfigurationWindow.h"
 
-#include "SubWindows/EngineStatisticsSubWindow.h"
-#include "SubWindows/CameraSubWindow.h"
+#include "SubWindows/Configuration/CameraSubWindow.h"
+#include "SubWindows/Configuration/EngineStatisticsSubWindow.h"
 
 ConfigurationWindow::ConfigurationWindow() : EditorWindow("Configuration")
 {
