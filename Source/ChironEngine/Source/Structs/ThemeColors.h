@@ -2,8 +2,7 @@
 
 #include "ImGui/imgui.h"
 
-struct ThemeColors
-{
+struct ThemeColors {
     ImVec4 Text;
     ImVec4 TextDisabled;
     ImVec4 WindowBg;
@@ -37,11 +36,13 @@ struct ThemeColors
     ImVec4 ResizeGrip;
     ImVec4 ResizeGripHovered;
     ImVec4 ResizeGripActive;
-    ImVec4 Tab;
     ImVec4 TabHovered;
-    ImVec4 TabActive;
-    ImVec4 TabUnfocused;
-    ImVec4 TabUnfocusedActive;
+    ImVec4 Tab;
+    ImVec4 TabSelected;
+    ImVec4 TabSelectedOverline;
+    ImVec4 TabDimmed;
+    ImVec4 TabDimmedSelected;
+    ImVec4 TabDimmedSelectedOverline;
     ImVec4 DockingPreview;
     ImVec4 DockingEmptyBg;
     ImVec4 PlotLines;
@@ -53,6 +54,7 @@ struct ThemeColors
     ImVec4 TableBorderLight;
     ImVec4 TableRowBg;
     ImVec4 TableRowBgAlt;
+    ImVec4 TextLink;
     ImVec4 TextSelectedBg;
     ImVec4 DragDropTarget;
     ImVec4 NavHighlight;

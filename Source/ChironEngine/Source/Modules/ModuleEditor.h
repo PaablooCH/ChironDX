@@ -39,7 +39,7 @@ private:
 
     ThemeColors _colorfullStyle;
     ThemeColors _minimalistStyle;
-    ThemeColors _darkCyanStyle;
+    ThemeColors _darkGreenStyle;
 
     std::unique_ptr<DescriptorAllocation> _srvDescHeap;
 };

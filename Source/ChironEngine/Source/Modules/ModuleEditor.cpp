@@ -66,8 +66,8 @@ bool ModuleEditor::Init()
 
 bool ModuleEditor::Start()
 {
-    ApplyTheme(_darkCyanStyle);
-  
+    ApplyTheme(_darkGreenStyle);
+
     return true;
 }
 
@@ -159,7 +159,7 @@ UpdateStatus ModuleEditor::Update()
         window->Draw(drawCommandList);
     }
     ImGui::Render();
-    
+
     drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
     drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
@@ -186,166 +186,187 @@ void ModuleEditor::SetStyles()
 {
     // ------------- COLORFULL STYLE ----------------------
 
-    _colorfullStyle.Text = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);  // Color del texto
-    _colorfullStyle.TextDisabled = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);  // Texto deshabilitado
-    _colorfullStyle.WindowBg = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);  // Fondo de ventana
-    _colorfullStyle.ChildBg = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);  // Fondo de contenedor
-    _colorfullStyle.PopupBg = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);  // Fondo de popup
-    _colorfullStyle.Border = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);  // Color del borde
-    _colorfullStyle.FrameBg = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);  // Fondo de los frames
-    _colorfullStyle.FrameBgHovered = ImVec4(0.12f, 0.20f, 0.28f, 1.00f);  // Frame al pasar el mouse
-    _colorfullStyle.FrameBgActive = ImVec4(0.09f, 0.12f, 0.14f, 1.00f);  // Frame activo
-    _colorfullStyle.TitleBg = ImVec4(0.09f, 0.12f, 0.14f, 0.65f);  // Título de la ventana
-    _colorfullStyle.TitleBgActive = ImVec4(0.10f, 0.14f, 0.18f, 1.00f);  // Título activo
-    _colorfullStyle.MenuBarBg = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);  // Fondo de la barra de menú
-    _colorfullStyle.ScrollbarBg = ImVec4(0.02f, 0.02f, 0.02f, 0.39f);  // Fondo del scrollbar
-    _colorfullStyle.ScrollbarGrab = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);  // Scrollbar
-    _colorfullStyle.ScrollbarGrabHovered = ImVec4(0.18f, 0.22f, 0.25f, 1.00f);  // Scrollbar al pasar el mouse
-    _colorfullStyle.ScrollbarGrabActive = ImVec4(0.15f, 0.19f, 0.21f, 1.00f);  // Scrollbar activo
-    _colorfullStyle.CheckMark = ImVec4(0.00f, 0.80f, 0.80f, 1.00f);  // Checkmark
-    _colorfullStyle.SliderGrab = ImVec4(0.00f, 0.64f, 0.92f, 1.00f);  // Deslizador
-    _colorfullStyle.SliderGrabActive = ImVec4(0.00f, 0.84f, 1.00f, 1.00f);  // Deslizador activo
-    _colorfullStyle.Button = ImVec4(0.20f, 0.52f, 0.67f, 1.00f);  // Botón
-    _colorfullStyle.ButtonHovered = ImVec4(0.25f, 0.62f, 0.82f, 1.00f);  // Botón al pasar el mouse
-    _colorfullStyle.ButtonActive = ImVec4(0.12f, 0.35f, 0.58f, 1.00f);  // Botón activo
-    _colorfullStyle.Header = ImVec4(0.15f, 0.30f, 0.60f, 1.00f);  // Header
-    _colorfullStyle.HeaderHovered = ImVec4(0.20f, 0.40f, 0.72f, 1.00f);  // Header al pasar el mouse
-    _colorfullStyle.HeaderActive = ImVec4(0.22f, 0.45f, 0.85f, 1.00f);  // Header activo
-    _colorfullStyle.ResizeGrip = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);  // Resize grip
-    _colorfullStyle.ResizeGripHovered = ImVec4(0.12f, 0.48f, 0.88f, 1.00f);  // Resize grip al pasar el mouse
-    _colorfullStyle.ResizeGripActive = ImVec4(0.08f, 0.35f, 0.70f, 1.00f);  // Resize grip activo
+    _colorfullStyle.Text = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
+    _colorfullStyle.TextDisabled = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
+    _colorfullStyle.WindowBg = ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+    _colorfullStyle.ChildBg = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
+    _colorfullStyle.PopupBg = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+    _colorfullStyle.Border = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+    _colorfullStyle.FrameBg = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+    _colorfullStyle.FrameBgHovered = ImVec4(0.12f, 0.20f, 0.28f, 1.00f);
+    _colorfullStyle.FrameBgActive = ImVec4(0.09f, 0.12f, 0.14f, 1.00f);
+    _colorfullStyle.TitleBg = ImVec4(0.09f, 0.12f, 0.14f, 0.65f);
+    _colorfullStyle.TitleBgActive = ImVec4(0.10f, 0.14f, 0.18f, 1.00f);
+    _colorfullStyle.MenuBarBg = ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
+    _colorfullStyle.ScrollbarBg = ImVec4(0.02f, 0.02f, 0.02f, 0.39f);
+    _colorfullStyle.ScrollbarGrab = ImVec4(0.20f, 0.25f, 0.29f, 1.00f);
+    _colorfullStyle.ScrollbarGrabHovered = ImVec4(0.18f, 0.22f, 0.25f, 1.00f);
+    _colorfullStyle.ScrollbarGrabActive = ImVec4(0.15f, 0.19f, 0.21f, 1.00f);
+    _colorfullStyle.CheckMark = ImVec4(0.00f, 0.80f, 0.80f, 1.00f);
+    _colorfullStyle.SliderGrab = ImVec4(0.00f, 0.64f, 0.92f, 1.00f);
+    _colorfullStyle.SliderGrabActive = ImVec4(0.00f, 0.84f, 1.00f, 1.00f);
+    _colorfullStyle.Button = ImVec4(0.20f, 0.52f, 0.67f, 1.00f);
+    _colorfullStyle.ButtonHovered = ImVec4(0.25f, 0.62f, 0.82f, 1.00f);
+    _colorfullStyle.ButtonActive = ImVec4(0.12f, 0.35f, 0.58f, 1.00f);
+    _colorfullStyle.Header = ImVec4(0.15f, 0.30f, 0.60f, 1.00f);
+    _colorfullStyle.HeaderHovered = ImVec4(0.20f, 0.40f, 0.72f, 1.00f);
+    _colorfullStyle.HeaderActive = ImVec4(0.22f, 0.45f, 0.85f, 1.00f);
+    _colorfullStyle.ResizeGrip = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+    _colorfullStyle.ResizeGripHovered = ImVec4(0.12f, 0.48f, 0.88f, 1.00f);
+    _colorfullStyle.ResizeGripActive = ImVec4(0.08f, 0.35f, 0.70f, 1.00f);
 
     // ------------- MINIMALIST STYLE ----------------------
 
-    _minimalistStyle.Text = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);  // Texto blanco/gris claro
-    _minimalistStyle.TextDisabled = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);  // Texto deshabilitado en gris
-    _minimalistStyle.WindowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);  // Fondo de ventana negro
-    _minimalistStyle.ChildBg = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);  // Fondo de contenedor ligeramente más claro
-    _minimalistStyle.PopupBg = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);  // Fondo de popup muy oscuro
-    _minimalistStyle.Border = ImVec4(0.40f, 0.40f, 0.40f, 0.50f);  // Borde en gris tenue
-    _minimalistStyle.FrameBg = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);  // Fondo de los frames gris oscuro
-    _minimalistStyle.FrameBgHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);  // Frame al pasar el mouse gris más claro
-    _minimalistStyle.FrameBgActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);  // Frame activo
-    _minimalistStyle.TitleBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);  // Fondo del título
-    _minimalistStyle.TitleBgActive = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);  // Título activo más claro
-    _minimalistStyle.MenuBarBg = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);  // Fondo de la barra de menú
-    _minimalistStyle.ScrollbarBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);  // Fondo del scrollbar negro
-    _minimalistStyle.ScrollbarGrab = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);  // Scrollbar gris oscuro
-    _minimalistStyle.ScrollbarGrabHovered = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);  // Scrollbar al pasar el mouse
-    _minimalistStyle.ScrollbarGrabActive = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);  // Scrollbar activo
-    _minimalistStyle.CheckMark = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);  // Checkmark blanco/gris claro
-    _minimalistStyle.SliderGrab = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);  // Deslizador gris medio
-    _minimalistStyle.SliderGrabActive = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);  // Deslizador activo
-    _minimalistStyle.Button = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);  // Botón gris oscuro
-    _minimalistStyle.ButtonHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);  // Botón al pasar el mouse gris más claro
-    _minimalistStyle.ButtonActive = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);  // Botón activo gris
-    _minimalistStyle.Header = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);  // Header gris
-    _minimalistStyle.HeaderHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);  // Header al pasar el mouse gris claro
-    _minimalistStyle.HeaderActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);  // Header activo
-    _minimalistStyle.ResizeGrip = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);  // Resize grip gris
-    _minimalistStyle.ResizeGripHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);  // Resize grip al pasar el mouse
-    _minimalistStyle.ResizeGripActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);  // Resize grip activo
+    _minimalistStyle.Text = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+    _minimalistStyle.TextDisabled = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    _minimalistStyle.WindowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    _minimalistStyle.ChildBg = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+    _minimalistStyle.PopupBg = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
+    _minimalistStyle.Border = ImVec4(0.40f, 0.40f, 0.40f, 0.50f);
+    _minimalistStyle.FrameBg = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    _minimalistStyle.FrameBgHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    _minimalistStyle.FrameBgActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    _minimalistStyle.TitleBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    _minimalistStyle.TitleBgActive = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    _minimalistStyle.MenuBarBg = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+    _minimalistStyle.ScrollbarBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    _minimalistStyle.ScrollbarGrab = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    _minimalistStyle.ScrollbarGrabHovered = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    _minimalistStyle.ScrollbarGrabActive = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+    _minimalistStyle.CheckMark = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
+    _minimalistStyle.SliderGrab = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+    _minimalistStyle.SliderGrabActive = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    _minimalistStyle.Button = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    _minimalistStyle.ButtonHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    _minimalistStyle.ButtonActive = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+    _minimalistStyle.Header = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    _minimalistStyle.HeaderHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    _minimalistStyle.HeaderActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
+    _minimalistStyle.ResizeGrip = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+    _minimalistStyle.ResizeGripHovered = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);
+    _minimalistStyle.ResizeGripActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
 
-    // ------------- DARK CYAN STYLE ----------------------
-
-    _darkCyanStyle.WindowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    _darkCyanStyle.ChildBg = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-    _darkCyanStyle.PopupBg = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-    _darkCyanStyle.Border = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.BorderShadow = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    _darkCyanStyle.FrameBg = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-    _darkCyanStyle.FrameBgHovered = ImVec4(0.25f, 0.50f, 0.50f, 0.70f);
-    _darkCyanStyle.FrameBgActive = ImVec4(0.25f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.TitleBg = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
-    _darkCyanStyle.TitleBgActive = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.TitleBgCollapsed = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-    _darkCyanStyle.ScrollbarBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    _darkCyanStyle.ScrollbarGrab = ImVec4(0.20f, 0.50f, 0.50f, 0.60f);
-    _darkCyanStyle.ScrollbarGrabHovered = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    _darkCyanStyle.ScrollbarGrabActive = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.CheckMark = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.SliderGrab = ImVec4(0.20f, 0.50f, 0.50f, 0.60f);
-    _darkCyanStyle.SliderGrabActive = ImVec4(0.20f, 0.50f, 0.50f, 0.90f);
-    _darkCyanStyle.Button = ImVec4(0.20f, 0.50f, 0.50f, 0.40f);
-    _darkCyanStyle.ButtonHovered = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.ButtonActive = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.Header = ImVec4(0.20f, 0.50f, 0.50f, 0.40f);
-    _darkCyanStyle.HeaderHovered = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    _darkCyanStyle.HeaderActive = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.Tab = ImVec4(0.20f, 0.50f, 0.50f, 0.60f);
-    _darkCyanStyle.TabHovered = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    _darkCyanStyle.TabActive = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.TabUnfocused = ImVec4(0.10f, 0.30f, 0.30f, 0.60f);
-    _darkCyanStyle.TabUnfocusedActive = ImVec4(0.15f, 0.35f, 0.35f, 1.00f);
-    _darkCyanStyle.Separator = ImVec4(0.20f, 0.50f, 0.50f, 0.40f);
-    _darkCyanStyle.SeparatorHovered = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    _darkCyanStyle.SeparatorActive = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.PlotLines = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.PlotLinesHovered = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.Text = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-    _darkCyanStyle.TextDisabled = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-    _darkCyanStyle.TextSelectedBg = ImVec4(0.20f, 0.50f, 0.50f, 0.35f);
-    _darkCyanStyle.ModalWindowDimBg = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+    // ------------- DARK GREEN STYLE ----------------------
+    
+    _darkGreenStyle.Text = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+    _darkGreenStyle.TextDisabled = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    _darkGreenStyle.WindowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    _darkGreenStyle.ChildBg = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+    _darkGreenStyle.PopupBg = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+    _darkGreenStyle.Border = ImVec4(0.19f, 0.20f, 0.20f, 1.00f);
+    _darkGreenStyle.BorderShadow = ImVec4(0.25f, 0.25f, 0.25f, 0.00f);
+    _darkGreenStyle.FrameBg = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    _darkGreenStyle.FrameBgHovered = ImVec4(0.17f, 0.17f, 0.17f, 0.70f);
+    _darkGreenStyle.FrameBgActive = ImVec4(0.17f, 0.17f, 0.17f, 0.70f);
+    _darkGreenStyle.TitleBg = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
+    _darkGreenStyle.TitleBgActive = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
+    _darkGreenStyle.TitleBgCollapsed = ImVec4(0.09f, 0.09f, 0.09f, 1.00f);
+    _darkGreenStyle.MenuBarBg = ImVec4(0.17f, 0.17f, 0.17f, 0.70f);
+    _darkGreenStyle.ScrollbarBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+    _darkGreenStyle.ScrollbarGrab = ImVec4(0.25f, 0.25f, 0.25f, 0.60f);
+    _darkGreenStyle.ScrollbarGrabHovered = ImVec4(0.34f, 0.34f, 0.34f, 0.60f);
+    _darkGreenStyle.ScrollbarGrabActive = ImVec4(0.41f, 0.41f, 0.41f, 0.60f);
+    _darkGreenStyle.CheckMark = ImVec4(0.24f, 0.71f, 0.50f, 1.00f);
+    _darkGreenStyle.SliderGrab = ImVec4(0.24f, 0.71f, 0.50f, 1.00f);
+    _darkGreenStyle.SliderGrabActive = ImVec4(0.24f, 0.84f, 0.50f, 1.00f);
+    _darkGreenStyle.Button = ImVec4(0.17f, 0.27f, 0.22f, 1.00f);
+    _darkGreenStyle.ButtonHovered = ImVec4(0.27f, 0.48f, 0.38f, 1.00f);
+    _darkGreenStyle.ButtonActive = ImVec4(0.36f, 0.65f, 0.52f, 1.00f);
+    _darkGreenStyle.Header = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.HeaderHovered = ImVec4(0.24f, 0.71f, 0.50f, 1.00f);
+    _darkGreenStyle.HeaderActive = ImVec4(0.24f, 0.84f, 0.50f, 1.00f);
+    _darkGreenStyle.Separator = ImVec4(0.34f, 0.34f, 0.34f, 0.60f);
+    _darkGreenStyle.SeparatorHovered = ImVec4(0.34f, 0.34f, 0.34f, 0.60f);
+    _darkGreenStyle.SeparatorActive = ImVec4(0.41f, 0.41f, 0.41f, 0.60f);
+    _darkGreenStyle.ResizeGrip = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.ResizeGripHovered = ImVec4(0.24f, 0.71f, 0.50f, 1.00f);
+    _darkGreenStyle.ResizeGripActive = ImVec4(0.24f, 0.84f, 0.50f, 1.00f);
+    _darkGreenStyle.TabHovered = ImVec4(0.24f, 0.82f, 0.50f, 1.00f);
+    _darkGreenStyle.Tab = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.TabSelected = ImVec4(0.23f, 0.73f, 0.45f, 1.00f);
+    _darkGreenStyle.TabSelectedOverline = ImVec4(0.25f, 0.25f, 0.25f, 0.60f);
+    _darkGreenStyle.TabDimmed = ImVec4(0.17f, 0.27f, 0.22f, 1.00f);
+    _darkGreenStyle.TabDimmedSelected = ImVec4(0.23f, 0.73f, 0.45f, 1.00f);
+    _darkGreenStyle.TabDimmedSelectedOverline = ImVec4(0.25f, 0.25f, 0.25f, 0.60f);
+    _darkGreenStyle.DockingPreview = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.DockingEmptyBg = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    _darkGreenStyle.PlotLines = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.PlotLinesHovered = ImVec4(0.23f, 0.73f, 0.45f, 1.00f);
+    _darkGreenStyle.PlotHistogram = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.PlotHistogramHovered = ImVec4(0.23f, 0.73f, 0.45f, 1.00f);
+    _darkGreenStyle.TableHeaderBg = ImVec4(0.16f, 0.43f, 0.31f, 1.00f);
+    _darkGreenStyle.TableBorderStrong = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+    _darkGreenStyle.TableBorderLight = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+    _darkGreenStyle.TableRowBg = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    _darkGreenStyle.TableRowBgAlt = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+    _darkGreenStyle.TextLink = ImVec4(0.31f, 1.00f, 0.62f, 1.00f);
+    _darkGreenStyle.TextSelectedBg = ImVec4(0.23f, 0.73f, 0.45f, 1.00f);
+    _darkGreenStyle.DragDropTarget = ImVec4(0.23f, 0.73f, 0.45f, 1.00f);
+    _darkGreenStyle.NavHighlight = ImVec4(0.31f, 1.00f, 0.62f, 1.00f);
+    _darkGreenStyle.NavWindowingHighlight = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+    _darkGreenStyle.NavWindowingDimBg = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+    _darkGreenStyle.ModalWindowDimBg = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
 void ModuleEditor::ApplyTheme(const ThemeColors& theme)
 {
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImVec4* colors = style.Colors;
-
-    // Fondo principal en negro
-    colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-    colors[ImGuiCol_PopupBg] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-
-    // Bordes y detalles secundarios en cian
-    colors[ImGuiCol_Border] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-
-    // Botones y barras
-    colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.25f, 0.50f, 0.50f, 0.70f);
-    colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.50f, 0.50f, 1.00f);
-
-    // Títulos
-    colors[ImGuiCol_TitleBg] = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
-    colors[ImGuiCol_TitleBgActive] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-
-    // Barras de scroll y checkboxes
-    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.20f, 0.50f, 0.50f, 0.60f);
-    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_CheckMark] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-
-    // Sliders y botones
-    colors[ImGuiCol_SliderGrab] = ImVec4(0.20f, 0.50f, 0.50f, 0.60f);
-    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.20f, 0.50f, 0.50f, 0.90f);
-    colors[ImGuiCol_Button] = ImVec4(0.20f, 0.50f, 0.50f, 0.40f);
-    colors[ImGuiCol_ButtonHovered] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_ButtonActive] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-
-    // Headers y tabs
-    colors[ImGuiCol_Header] = ImVec4(0.20f, 0.50f, 0.50f, 0.40f);
-    colors[ImGuiCol_HeaderHovered] = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    colors[ImGuiCol_HeaderActive] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_Tab] = ImVec4(0.20f, 0.50f, 0.50f, 0.60f);
-    colors[ImGuiCol_TabHovered] = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_TabUnfocused] = ImVec4(0.10f, 0.30f, 0.30f, 0.60f);
-    colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.15f, 0.35f, 0.35f, 1.00f);
-
-    // Separadores y gráficos
-    colors[ImGuiCol_Separator] = ImVec4(0.20f, 0.50f, 0.50f, 0.40f);
-    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.20f, 0.50f, 0.50f, 0.80f);
-    colors[ImGuiCol_SeparatorActive] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_PlotLines] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.20f, 0.50f, 0.50f, 1.00f);
-
-    // Otros
-    colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
-    colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_TextSelectedBg] = ImVec4(0.20f, 0.50f, 0.50f, 0.35f);
-    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_Text] = theme.Text;
+    colors[ImGuiCol_TextDisabled] = theme.TextDisabled;
+    colors[ImGuiCol_WindowBg] = theme.WindowBg;
+    colors[ImGuiCol_ChildBg] = theme.ChildBg;
+    colors[ImGuiCol_PopupBg] = theme.PopupBg;
+    colors[ImGuiCol_Border] = theme.Border;
+    colors[ImGuiCol_BorderShadow] = theme.BorderShadow;
+    colors[ImGuiCol_FrameBg] = theme.FrameBg;
+    colors[ImGuiCol_FrameBgHovered] = theme.FrameBgHovered;
+    colors[ImGuiCol_FrameBgActive] = theme.FrameBgActive;
+    colors[ImGuiCol_TitleBg] = theme.TitleBg;
+    colors[ImGuiCol_TitleBgActive] = theme.TitleBgActive;
+    colors[ImGuiCol_TitleBgCollapsed] = theme.TitleBgCollapsed;
+    colors[ImGuiCol_MenuBarBg] = theme.MenuBarBg;
+    colors[ImGuiCol_ScrollbarBg] = theme.ScrollbarBg;
+    colors[ImGuiCol_ScrollbarGrab] = theme.ScrollbarGrab;
+    colors[ImGuiCol_ScrollbarGrabHovered] = theme.ScrollbarGrabHovered;
+    colors[ImGuiCol_ScrollbarGrabActive] = theme.ScrollbarGrabActive;
+    colors[ImGuiCol_CheckMark] = theme.CheckMark;
+    colors[ImGuiCol_SliderGrab] = theme.SliderGrab;
+    colors[ImGuiCol_SliderGrabActive] = theme.SliderGrabActive;
+    colors[ImGuiCol_Button] = theme.Button;
+    colors[ImGuiCol_ButtonHovered] = theme.ButtonHovered;
+    colors[ImGuiCol_ButtonActive] = theme.ButtonActive;
+    colors[ImGuiCol_Header] = theme.Header;
+    colors[ImGuiCol_HeaderHovered] = theme.HeaderHovered;
+    colors[ImGuiCol_HeaderActive] = theme.HeaderActive;
+    colors[ImGuiCol_Separator] = theme.Separator;
+    colors[ImGuiCol_SeparatorHovered] = theme.SeparatorHovered;
+    colors[ImGuiCol_SeparatorActive] = theme.SeparatorActive;
+    colors[ImGuiCol_ResizeGrip] = theme.ResizeGrip;
+    colors[ImGuiCol_ResizeGripHovered] = theme.ResizeGripHovered;
+    colors[ImGuiCol_ResizeGripActive] = theme.ResizeGripActive;
+    colors[ImGuiCol_TabHovered] = theme.TabHovered;
+    colors[ImGuiCol_Tab] = theme.Tab;
+    colors[ImGuiCol_TabSelected] = theme.TabSelected;
+    colors[ImGuiCol_TabSelectedOverline] = theme.TabSelectedOverline;
+    colors[ImGuiCol_TabDimmed] = theme.TabDimmed;
+    colors[ImGuiCol_TabDimmedSelected] = theme.TabDimmedSelected;
+    colors[ImGuiCol_TabDimmedSelectedOverline] = theme.TabDimmedSelectedOverline;
+    colors[ImGuiCol_DockingPreview] = theme.DockingPreview;
+    colors[ImGuiCol_DockingEmptyBg] = theme.DockingEmptyBg;
+    colors[ImGuiCol_PlotLines] = theme.PlotLines;
+    colors[ImGuiCol_PlotLinesHovered] = theme.PlotLinesHovered;
+    colors[ImGuiCol_PlotHistogram] = theme.PlotHistogram;
+    colors[ImGuiCol_PlotHistogramHovered] = theme.PlotHistogramHovered;
+    colors[ImGuiCol_TableHeaderBg] = theme.TableHeaderBg;
+    colors[ImGuiCol_TableBorderStrong] = theme.TableBorderStrong;
+    colors[ImGuiCol_TableBorderLight] = theme.TableBorderLight;
+    colors[ImGuiCol_TableRowBg] = theme.TableRowBg;
+    colors[ImGuiCol_TableRowBgAlt] = theme.TableRowBgAlt;
+    colors[ImGuiCol_TextLink] = theme.TextLink;
+    colors[ImGuiCol_TextSelectedBg] = theme.TextSelectedBg;
+    colors[ImGuiCol_DragDropTarget] = theme.DragDropTarget;
+    colors[ImGuiCol_NavHighlight] = theme.NavHighlight;
+    colors[ImGuiCol_NavWindowingHighlight] = theme.NavWindowingHighlight;
+    colors[ImGuiCol_NavWindowingDimBg] = theme.NavWindowingDimBg;
+    colors[ImGuiCol_ModalWindowDimBg] = theme.ModalWindowDimBg;
 }
