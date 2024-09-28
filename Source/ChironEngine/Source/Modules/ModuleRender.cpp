@@ -132,6 +132,8 @@ UpdateStatus ModuleRender::PostUpdate()
 
 bool ModuleRender::CleanUp()
 {
+    _sceneTexture.reset();
+    _depthStencilTexture.reset();
     _debugDraw.reset();
     model.reset();
     model = nullptr;
