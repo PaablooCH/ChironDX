@@ -234,6 +234,9 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.cpp">
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -418,6 +421,9 @@
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.h">
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
