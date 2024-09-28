@@ -5,9 +5,9 @@
 
 #include "Modules/ModuleID3D12.h"
 
-DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap, 
+DescriptorAllocatorPage::DescriptorAllocatorPage(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap,
     const std::wstring& name) :
-    _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE()), 
+    _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap), _baseGPUDescriptor(CD3DX12_GPU_DESCRIPTOR_HANDLE()),
     _name(name)
 {
     auto device = App->GetModule<ModuleID3D12>()->GetDevice();

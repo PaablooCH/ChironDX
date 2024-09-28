@@ -32,9 +32,9 @@ void EngineStatisticsSubWindow::DrawWindowContent(const std::shared_ptr<CommandL
     ImGui::PushItemWidth(sliderWidth);
     ImGui::SliderInt("##maxfps", &maxFrameRate, 1, 120, "%d", ImGuiSliderFlags_AlwaysClamp);
     ImGui::PopItemWidth();
-    
+
     auto deltaTime = App->GetDeltaTime();
-    
+
     float fps = 1.f / deltaTime;
     _fpsValues[_fpsIt] = std::max(fps, 0.0001f);
     char currentFramerate[25]{};
@@ -46,7 +46,7 @@ void EngineStatisticsSubWindow::DrawWindowContent(const std::shared_ptr<CommandL
     char currentTime[25]{};
     sprintf_s(currentTime, 25, "Latency %.1f", _timeValues[_timeIt]);
     ImGui::PlotLines("##latency", _timeValues.data(), static_cast<int>(_timeValues.size()), 0, currentTime, 0.f, 40.0f, ImVec2(availableX, 100));
-    
+
     if (_fpsIt < maxFps - 1)
     {
         _fpsIt++;

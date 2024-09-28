@@ -23,7 +23,7 @@
 
 #include "DebugDrawPass.h"
 
-ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr), 
+ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr),
 _depthStencilTexture(nullptr)
 {
 }
@@ -166,7 +166,7 @@ void ModuleRender::CreateTextures()
     clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     memcpy(clearValue.Color, clearColor, sizeof(clearColor));
 
-    D3D12_RESOURCE_DESC textureDesc = 
+    D3D12_RESOURCE_DESC textureDesc =
         CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1, 1, 0,
             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
     _sceneTexture = std::make_unique<Texture>(textureDesc, L"Scene Texture", &clearValue);

@@ -12,4 +12,3 @@ public:
 private:
     bool _first;
 };
-

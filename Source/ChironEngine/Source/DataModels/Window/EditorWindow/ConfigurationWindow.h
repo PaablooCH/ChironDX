@@ -13,4 +13,3 @@ private:
 private:
     std::vector<std::unique_ptr<Window>> _subWindows;
 };
-

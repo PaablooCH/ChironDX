@@ -16,4 +16,3 @@ private:
     float _currentWidth;
     float _currentHeight;
 };
-

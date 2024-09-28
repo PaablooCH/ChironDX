@@ -82,7 +82,7 @@ void DescriptorAllocator::ReleaseStaleDescriptors(uint64_t frameNumber)
 
 std::shared_ptr<DescriptorAllocatorPage> DescriptorAllocator::CreateAllocatorPage()
 {
-    auto newPage = std::make_shared<DescriptorAllocatorPage>(_heapType, _numDescriptorsPerHeap, 
+    auto newPage = std::make_shared<DescriptorAllocatorPage>(_heapType, _numDescriptorsPerHeap,
         _name + L" " + std::to_wstring(_heapPool.size()));
 
     _heapPool.emplace_back(newPage);

@@ -299,7 +299,7 @@ bool ModuleID3D12::CreateSwapChain()
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | 
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT |
             (_tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
 
         ComPtr<IDXGISwapChain1> newSwapchain1;
@@ -346,7 +346,7 @@ void ModuleID3D12::ObtainRTVFromSwapChain()
     {
         ComPtr<ID3D12Resource> backBuffer = nullptr;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-        
+
         _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
         _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
     }

@@ -170,20 +170,20 @@ void ConsoleWindow::DrawConsole()
         // Reverse to take the last N elements, then reverse again to maintain line order
                 std::views::reverse | std::views::take(linesToDraw) | std::views::reverse;
 
-    // Define the position from which text will start to wrap, which will be the end of the console window
-    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + ImGui::GetContentRegionAvail().x);
+            // Define the position from which text will start to wrap, which will be the end of the console window
+            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + ImGui::GetContentRegionAvail().x);
 
-    for (const Chiron::Log::LogLine& logLine : linesFiltered)
-    {
-        ImGui::TextColored(_severityColors[logLine.severity], logLine.ToSimpleString().c_str());
-        // Add spacing between each line
-        ImGui::Dummy(ImVec2(0.0f, 0.5f));
-    }
+            for (const Chiron::Log::LogLine& logLine : linesFiltered)
+            {
+                ImGui::TextColored(_severityColors[logLine.severity], logLine.ToSimpleString().c_str());
+                // Add spacing between each line
+                ImGui::Dummy(ImVec2(0.0f, 0.5f));
+            }
 
-    ImGui::PopTextWrapPos();
+            ImGui::PopTextWrapPos();
 
-    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-    {
-        ImGui::SetScrollHereY(1.0f);
-    }
+            if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            {
+                ImGui::SetScrollHereY(1.0f);
+            }
 }

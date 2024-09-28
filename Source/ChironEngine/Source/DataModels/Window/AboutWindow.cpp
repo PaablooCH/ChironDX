@@ -29,7 +29,7 @@ void AboutWindow::Draw(const std::shared_ptr<CommandList>& commandList)
             ImGui::SetNextWindowPos(windowPos);
             ImGui::SetNextWindowSize(windowSize);
         }
-        
+
         if (ImGui::Begin(_name.c_str(), &_enabled, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoNav))
         {
             ImGui::Text("CHIRON ENGINE v.0.1");

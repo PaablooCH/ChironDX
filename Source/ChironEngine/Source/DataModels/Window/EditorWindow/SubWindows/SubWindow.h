@@ -18,4 +18,3 @@ protected:
 protected:
     ImGuiTreeNodeFlags _flags;
 };
-

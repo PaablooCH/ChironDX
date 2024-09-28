@@ -73,7 +73,7 @@ inline const Quaternion& Camera::GetRotation() const
 {
     return _rotation;
 }
- 
+
 inline const Matrix& Camera::GetViewMatrix() const
 {
     return _view;
