@@ -62,10 +62,8 @@ void Texture::Resize(uint32_t width, uint32_t height, uint32_t depthOrArraySize)
         textureDesc.Height = height > 1U ? height : 1U;
         textureDesc.DepthOrArraySize = depthOrArraySize > 1U ? depthOrArraySize : 1U;
 
-        auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
         CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-        Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureDesc,
+        Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &textureDesc,
             D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&_resource)));
 
         _resource->SetName(_name.c_str());
@@ -81,7 +79,6 @@ void Texture::CreateViews()
     if (_resource)
     {
         auto id3d12 = App->GetModule<ModuleID3D12>();
-        auto device = id3d12->GetDevice();
 
         auto resourceDesc = _resource->GetDesc();
 
@@ -90,21 +87,21 @@ void Texture::CreateViews()
             auto descriptorAllocator = id3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
             _renderTargetView = descriptorAllocator->Allocate();
             D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = CreateRTVDesc(resourceDesc);
-            device->CreateRenderTargetView(_resource.Get(), &rtvDesc, _renderTargetView.GetCPUDescriptorHandle());
+            _device->CreateRenderTargetView(_resource.Get(), &rtvDesc, _renderTargetView.GetCPUDescriptorHandle());
         }
         if ((resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) != 0 && CompatibleWithDSV())
         {
             auto descriptorAllocator = id3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
             _depthStencilView = descriptorAllocator->Allocate();
             D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = CreateDSVDesc(resourceDesc);
-            device->CreateDepthStencilView(_resource.Get(), &dsvDesc, _depthStencilView.GetCPUDescriptorHandle());
+            _device->CreateDepthStencilView(_resource.Get(), &dsvDesc, _depthStencilView.GetCPUDescriptorHandle());
         }
         if ((resourceDesc.Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE) == 0 && CompatibleWithSRV())
         {
             auto descriptorAllocator = id3d12->GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
             _shaderResourceView = descriptorAllocator->Allocate();
             D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = CreateSRVDesc(resourceDesc);
-            device->CreateShaderResourceView(_resource.Get(), &srvDesc, _shaderResourceView.GetCPUDescriptorHandle());
+            _device->CreateShaderResourceView(_resource.Get(), &srvDesc, _shaderResourceView.GetCPUDescriptorHandle());
         }
         if ((resourceDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) != 0 && CompatibleWithUAV()
             && resourceDesc.DepthOrArraySize == 1)
@@ -114,7 +111,7 @@ void Texture::CreateViews()
             for (int i = 0; i < resourceDesc.MipLevels; i++)
             {
                 auto uavDesc = CreateUAVDesc(resourceDesc, i);
-                device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _unorderedAccessView.GetCPUDescriptorHandle());
+                _device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _unorderedAccessView.GetCPUDescriptorHandle());
             }
         }
     }

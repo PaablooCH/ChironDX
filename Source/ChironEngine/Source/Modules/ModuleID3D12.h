@@ -112,7 +112,6 @@ inline IDXGIAdapter4* ModuleID3D12::GetAdapter() const
 
 inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
-    CHIRON_TODO("Reduce calls, saving the comptr where its mostly used");
 #if DEBUG
     HRESULT reason = _device->GetDeviceRemovedReason();
 
