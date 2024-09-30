@@ -7,6 +7,8 @@
 #include "Modules/ModuleWindow.h"
 #include <ImGui/imgui.h>
 
+#include "Modules/ModuleRender.h"
+
 BOOL                            CreateApplication(HINSTANCE hInstance);
 ATOM                            CreateWindowClass(HINSTANCE hInstance);
 LRESULT CALLBACK                WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -204,6 +206,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
         break;
+    case WM_DROPFILES: {
+        HDROP hDrop = (HDROP)wParam;
+        char filePath[MAX_PATH];
+
+        UINT fileCount = DragQueryFileA(hDrop, 0xFFFFFFFF, NULL, 0);
+
+        for (UINT i = 0; i < fileCount; ++i) {
+            DragQueryFileA(hDrop, i, filePath, MAX_PATH);
+            std::string droppedFilePathString(filePath);
+            std::replace(droppedFilePathString.begin(), droppedFilePathString.end(), '\\', '/');
+            CHIRON_TODO("Load Model into a future scene");
+            App->GetModule<ModuleRender>()->LoadNewModel(droppedFilePathString);
+        }
+
+        DragFinish(hDrop);
+        break;
+    }
     case WM_KEYUP:
     case WM_SYSKEYUP:
         DirectX::Keyboard::ProcessMessage(message, wParam, lParam);

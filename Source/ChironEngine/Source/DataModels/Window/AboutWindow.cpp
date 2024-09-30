@@ -32,7 +32,7 @@ void AboutWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 
         if (ImGui::Begin(_name.c_str(), &_enabled, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoNav))
         {
-            ImGui::Text("CHIRON ENGINE v.0.1");
+            ImGui::Text("CHIRON ENGINE v0.1");
             ImGui::Text("3D Game engine made with C++ & DirectX12, created and developed by");
             ImGui::SameLine();
             ImGui::TextLinkOpenURL("Pablo CH", REPOSITORY_URL);
