@@ -5,14 +5,14 @@
 
 namespace
 {
-    int maxFps = 50;
-    int maxTime = 50;
+    int maxFpsCount = 50;
+    int maxTimeCount = 50;
 }
 
 EngineStatisticsSubWindow::EngineStatisticsSubWindow() : SubWindow("Engine"), _fpsIt(0), _timeIt(0)
 {
-    _fpsValues.resize(maxFps);
-    _timeValues.resize(maxTime);
+    _fpsValues.resize(maxFpsCount);
+    _timeValues.resize(maxTimeCount);
 }
 
 EngineStatisticsSubWindow::~EngineStatisticsSubWindow()
@@ -47,7 +47,7 @@ void EngineStatisticsSubWindow::DrawWindowContent(const std::shared_ptr<CommandL
     sprintf_s(currentTime, 25, "Latency %.1f", _timeValues[_timeIt]);
     ImGui::PlotLines("##latency", _timeValues.data(), static_cast<int>(_timeValues.size()), 0, currentTime, 0.f, 40.0f, ImVec2(availableX, 100));
 
-    if (_fpsIt < maxFps - 1)
+    if (_fpsIt < maxFpsCount - 1)
     {
         _fpsIt++;
     }
@@ -56,7 +56,7 @@ void EngineStatisticsSubWindow::DrawWindowContent(const std::shared_ptr<CommandL
         _fpsValues.erase(_fpsValues.begin());
         _fpsValues.push_back(0);
     }
-    if (_timeIt < maxTime - 1)
+    if (_timeIt < maxTimeCount - 1)
     {
         _timeIt++;
     }

@@ -1,8 +1,6 @@
 #include "Pch.h"
 #include "ConsoleWindow.h"
 
-#include "DataModels/DX12/CommandList/CommandList.h"
-
 namespace
 {
     const std::vector<size_t> consoleLineLengths{ 10U, 25U, 50U, 100U };

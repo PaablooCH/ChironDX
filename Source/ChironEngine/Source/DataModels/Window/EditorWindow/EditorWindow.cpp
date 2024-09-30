@@ -1,8 +1,6 @@
 #include "Pch.h"
 #include "EditorWindow.h"
 
-#include "DataModels/DX12/CommandList/CommandList.h"
-
 EditorWindow::EditorWindow(const std::string& name) : Window(name), _flags(ImGuiWindowFlags_None), _focused(false)
 {
 }
