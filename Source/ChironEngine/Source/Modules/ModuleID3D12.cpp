@@ -28,33 +28,14 @@ bool ModuleID3D12::Init()
     if (ok)
     {
         InitDescriptorAllocator();
-        InitFrameBuffer();
+        ObtainRTVFromSwapChain();
         _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
     }
+#ifdef DEBUG
+    PrintMessages();
+#endif // DEBUG
 
     return ok;
-}
-
-UpdateStatus ModuleID3D12::PreUpdate()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleID3D12::Update()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleID3D12::PostUpdate()
-{
-    UINT syncInterval = _vSync ? 1 : 0;
-    UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
-    Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
-
-    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
-    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
-
-    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool ModuleID3D12::CleanUp()
@@ -63,9 +44,8 @@ bool ModuleID3D12::CleanUp()
     _commandQueueCompute.reset();
     _commandQueueCopy.reset();
     _swapChain = nullptr;
-    _depthStencilBuffer.reset();
     _descriptorAllocators.clear();
-    for (int i = 0; i < backBufferCount; i++)
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
         _renderBuffers[i].reset();
     }
@@ -75,6 +55,15 @@ bool ModuleID3D12::CleanUp()
 #endif // DEBUG
 
     return true;
+}
+
+UpdateStatus ModuleID3D12::PostUpdate()
+{
+#ifdef DEBUG
+    PrintMessages();
+#endif // DEBUG
+
+    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 uint64_t ModuleID3D12::ExecuteCommandList(std::shared_ptr<CommandList>& commandList)
@@ -102,33 +91,38 @@ void ModuleID3D12::ToggleVSync()
     _vSync = !_vSync;
 }
 
-void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
+void ModuleID3D12::ResizeBuffers()
 {
     Flush();
 
     // ------------- SWAP-CHAIN ---------------------------
 
-    for (int i = 0; i < backBufferCount; ++i)
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; ++i)
     {
         // Any references to the back buffers must be released before the swap chain can be resized.
         _renderBuffers[i].reset();
-        _bufferFenceValues[i] = 0;
+        _renderBuffers[i] = nullptr;
     }
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
     Chiron::Utils::ThrowIfFailed(_swapChain->GetDesc(&swapChainDesc)); // Get the current descr to apply it to the newer.
-    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(backBufferCount, newWidth, newHeight,
-        swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
+    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(0, 0, 0, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
 
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
     // ------------- RENDER TARGET VIEW ---------------------------
 
-    UpdateRenderTargetViews();
+    ObtainRTVFromSwapChain();
+}
 
-    // ------------- DEPTH-STENCIL ---------------------------
+void ModuleID3D12::PresentAndSwapBuffer()
+{
+    UINT syncInterval = _vSync ? 1 : 0;
+    UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
 
-    CreateDepthStencil(newWidth, newHeight);
+    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
+    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
 }
 
 void ModuleID3D12::Flush()
@@ -259,6 +253,7 @@ bool ModuleID3D12::CreateDevice()
 #ifdef DEBUG
         // Get debug device
         ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_debugDevice)));
+        ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_infoQueue)));
 #endif
     }
 
@@ -286,7 +281,7 @@ bool ModuleID3D12::CreateSwapChain()
     if (_swapChain != nullptr)
     {
         // Create Render Target Attachments from swapchain
-        _swapChain->ResizeBuffers(backBufferCount, width, height,
+        _swapChain->ResizeBuffers(NUM_FRAMES_IN_FLIGHT, width, height,
             DXGI_FORMAT_R8G8B8A8_UNORM, 0);
         return true;
     }
@@ -294,17 +289,18 @@ bool ModuleID3D12::CreateSwapChain()
     {
         // Create swapchain
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.Width = width;
-        swapChainDesc.Height = height;
+        swapChainDesc.Width = 0;
+        swapChainDesc.Height = 0;
         swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = backBufferCount;
+        swapChainDesc.BufferCount = NUM_FRAMES_IN_FLIGHT;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = _tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT |
+            (_tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
 
         ComPtr<IDXGISwapChain1> newSwapchain1;
         Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd,
@@ -312,8 +308,7 @@ bool ModuleID3D12::CreateSwapChain()
 
         Chiron::Utils::ThrowIfFailed(newSwapchain1.As(&_swapChain));
 
-        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
-        // will be handled manually.
+        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen will be handled manually.
         Chiron::Utils::ThrowIfFailed(_factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER));
 
         return true;
@@ -322,7 +317,16 @@ bool ModuleID3D12::CreateSwapChain()
     return false;
 }
 
-void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
+std::unique_ptr<Texture> ModuleID3D12::CreateDepthStencil(const std::wstring& name)
+{
+    unsigned width;
+    unsigned height;
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
+
+    return CreateDepthStencil(name, width, height);
+}
+
+std::unique_ptr<Texture> ModuleID3D12::CreateDepthStencil(const std::wstring& name, unsigned width, unsigned height)
 {
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_D32_FLOAT;
@@ -330,43 +334,22 @@ void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
     CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0,
         D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-    _depthStencilBuffer = std::make_unique<Texture>(desc, L"Depth Stencil Buffer", &clearValue);
+    return std::make_unique<Texture>(desc, name, &clearValue);
 }
 
-void ModuleID3D12::UpdateRenderTargetViews()
-{
-    for (int i = 0; i < backBufferCount; ++i)
-    {
-        ComPtr<ID3D12Resource> backBuffer;
-        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-
-        _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
-        _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
-    }
-}
-
-void ModuleID3D12::InitFrameBuffer()
+void ModuleID3D12::ObtainRTVFromSwapChain()
 {
     // ------------- RTV ---------------------------
 
     // Create a RTV for each frame.
-    for (UINT i = 0; i < backBufferCount; i++)
+    for (UINT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
-        ComPtr<ID3D12Resource> backBuffer;
+        ComPtr<ID3D12Resource> backBuffer = nullptr;
         Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
 
         _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
         _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
     }
-
-    // ------------- DEPTH-STENCIL ---------------------------
-
-    unsigned width;
-    unsigned height;
-
-    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
-
-    CreateDepthStencil(width, height);
 }
 
 void ModuleID3D12::InitDescriptorAllocator()
@@ -377,4 +360,48 @@ void ModuleID3D12::InitDescriptorAllocator()
     {
         _descriptorAllocators.push_back(std::make_unique<DescriptorAllocator>(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i)));
     }
+}
+
+void ModuleID3D12::PrintMessages()
+{
+#ifdef DEBUG
+    static std::set<std::string> shownMessages;
+    const UINT64 numMessages = _infoQueue->GetNumStoredMessages();
+    for (UINT64 i = 0; i < numMessages; ++i)
+    {
+        SIZE_T messageLength = 0;
+        // Get Message Lenght
+        _infoQueue->GetMessage(i, nullptr, &messageLength);
+
+        std::vector<char> messageData(messageLength);
+        D3D12_MESSAGE* message = reinterpret_cast<D3D12_MESSAGE*>(messageData.data());
+
+        // Get Message
+        _infoQueue->GetMessage(i, message, &messageLength);
+
+        if (shownMessages.insert(message->pDescription).second)
+        {
+            switch (message->Severity)
+            {
+            case D3D12_MESSAGE_SEVERITY_CORRUPTION:
+                LOG_FATAL("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_ERROR:
+                LOG_ERROR("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_WARNING:
+                LOG_WARNING("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_INFO:
+                LOG_INFO("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_MESSAGE:
+                LOG_TRACE("{}", message->pDescription);
+                break;
+            }
+        }
+    }
+
+    _infoQueue->ClearStoredMessages();
+#endif // DEBUG
 }

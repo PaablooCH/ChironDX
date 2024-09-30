@@ -18,10 +18,21 @@ public:
 
     // ------------- GETTERS ----------------------
 
-    inline const Vector3& GetPosition();
-    inline const Quaternion& GetRotation();
-    inline const Matrix& GetViewMatrix();
-    inline const Matrix& GetProjMatrix();
+    inline const Vector3& GetPosition() const;
+    inline const Quaternion& GetRotation() const;
+    inline const Matrix& GetViewMatrix() const;
+    inline const Matrix& GetProjMatrix() const;
+    inline float GetFOV() const;
+    inline float GetAspectRatio() const;
+    inline float GetNearPlane() const;
+    inline float GetFarPlane() const;
+
+    // ------------- SETTERS ----------------------
+
+    inline void SetFOV(float fov);
+    inline void SetAspectRatio(float aspectRatio);
+    inline void SetNearPlane(float nearPlane);
+    inline void SetFarPlane(float farPlane);
 
 private:
     void Move();
@@ -31,6 +42,8 @@ private:
 
     inline float RunSpeed();
     inline float WalkSpeed();
+
+    inline void RecalculateProjectMatrix();
 
 private:
     Vector3 _position;
@@ -43,6 +56,7 @@ private:
     float _rotationSpeed;
 
     float _fov;
+    float _aspectRatio;
     float _nearPlane;
     float _farPlane;
 
@@ -50,24 +64,68 @@ private:
     Matrix _proj;
 };
 
-inline const Vector3& Camera::GetPosition()
+inline const Vector3& Camera::GetPosition() const
 {
     return _position;
 }
 
-inline const Quaternion& Camera::GetRotation()
+inline const Quaternion& Camera::GetRotation() const
 {
     return _rotation;
 }
 
-inline const Matrix& Camera::GetViewMatrix()
+inline const Matrix& Camera::GetViewMatrix() const
 {
     return _view;
 }
 
-inline const Matrix& Camera::GetProjMatrix()
+inline const Matrix& Camera::GetProjMatrix() const
 {
     return _proj;
+}
+
+inline float Camera::GetFOV() const
+{
+    return _fov;
+}
+
+inline float Camera::GetAspectRatio() const
+{
+    return _aspectRatio;
+}
+
+inline float Camera::GetNearPlane() const
+{
+    return _nearPlane;
+}
+
+inline float Camera::GetFarPlane() const
+{
+    return _farPlane;
+}
+
+inline void Camera::SetFOV(float fov)
+{
+    _fov = fov;
+    RecalculateProjectMatrix();
+}
+
+inline void Camera::SetAspectRatio(float aspectRatio)
+{
+    _aspectRatio = aspectRatio;
+    RecalculateProjectMatrix();
+}
+
+inline void Camera::SetNearPlane(float nearPlane)
+{
+    _nearPlane = nearPlane;
+    RecalculateProjectMatrix();
+}
+
+inline void Camera::SetFarPlane(float farPlane)
+{
+    _farPlane = farPlane;
+    RecalculateProjectMatrix();
 }
 
 inline float Camera::RunSpeed()
@@ -80,4 +138,9 @@ inline float Camera::WalkSpeed()
 {
     _acceleration = 1.f;
     return _moveSpeed * _acceleration;
+}
+
+inline void Camera::RecalculateProjectMatrix()
+{
+    _proj = Matrix::CreatePerspectiveFieldOfView(_fov, _aspectRatio, _nearPlane, _farPlane);
 }

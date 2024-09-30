@@ -15,11 +15,11 @@ namespace Chiron
         // Helper utility converts D3D API failures into exceptions.
         static void ThrowIfFailed(HRESULT hr, const std::string& message = "") noexcept(false);
 
+        static inline void OpenLink(const std::string& url);
+
         // ------------- PARSE ----------------------
 
         static inline float RadToDeg(float radians);
-
-        // ------------- PARSE ----------------------
 
         static std::string WStringToString(const std::wstring& wstr);
 
@@ -93,6 +93,11 @@ namespace Chiron
     private:
         static std::string GetErrorMessage(HRESULT hr);
     };
+
+    inline void Chiron::Utils::OpenLink(const std::string& url)
+    {
+        ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
+    }
 
     inline float Chiron::Utils::RadToDeg(float radians)
     {

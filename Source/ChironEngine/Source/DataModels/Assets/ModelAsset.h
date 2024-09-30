@@ -13,20 +13,20 @@ public:
     ModelAsset();
     ~ModelAsset() override;
 
-    void Draw(std::shared_ptr<CommandList> commandList);
-
-    // ------------- GETTERS ----------------------
-
-    inline std::wstring GetName() const override;
-
-    // ------------- GETTERS ----------------------
+    void Draw(const std::shared_ptr<CommandList>& commandList);
 
     inline void AddMaterial(std::shared_ptr<MaterialAsset>& material);
     inline void AddMesh(std::shared_ptr<MeshAsset>& mesh);
 
+    // ------------- GETTERS ----------------------
+
+    inline std::wstring GetName() const override;
+    inline const std::vector<std::shared_ptr<MaterialAsset>>& GetMaterials() const;
+    inline const std::vector<std::shared_ptr<MeshAsset>>& GetMeshes() const;
+
 private:
-    std::vector<std::shared_ptr<MaterialAsset>> _material;
-    std::vector<std::shared_ptr<MeshAsset>> _mesh;
+    std::vector<std::shared_ptr<MaterialAsset>> _materials;
+    std::vector<std::shared_ptr<MeshAsset>> _meshes;
 
     bool _isTopLeft;
 };
@@ -37,12 +37,22 @@ inline std::wstring ModelAsset::GetName() const
     return L"";
 }
 
+inline const std::vector<std::shared_ptr<MaterialAsset>>& ModelAsset::GetMaterials() const
+{
+    return _materials;
+}
+
+inline const std::vector<std::shared_ptr<MeshAsset>>& ModelAsset::GetMeshes() const
+{
+    return _meshes;
+}
+
 inline void ModelAsset::AddMaterial(std::shared_ptr<MaterialAsset>& material)
 {
-    _material.push_back(material);
+    _materials.push_back(material);
 }
 
 inline void ModelAsset::AddMesh(std::shared_ptr<MeshAsset>& mesh)
 {
-    _mesh.push_back(mesh);
+    _meshes.push_back(mesh);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "Resource.h"
 
-#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocation.h"
 
 class Texture : public Resource
 {

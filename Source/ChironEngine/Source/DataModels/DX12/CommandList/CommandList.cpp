@@ -99,9 +99,6 @@ void CommandList::Close()
 {
     FlushResourceBarriers();
     _commandList->Close();
-    ResourceStateTracker::Lock();
-    _resourceStateTracker->CommitFinalResourceStates();
-    ResourceStateTracker::Unlock();
 }
 
 bool CommandList::Close(const CommandList* pendingCommandList)
@@ -229,7 +226,7 @@ void CommandList::SetGraphicsRoot32BitConstants(uint32_t rootParameterIndex, uin
     _commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, numConstants, constants, destOffsetIn32BitValues);
 }
 
-void CommandList::SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[])
+void CommandList::SetDescriptorHeaps(UINT numHeaps, ID3D12DescriptorHeap* descriptorHeaps[]) const
 {
     _commandList->SetDescriptorHeaps(numHeaps, descriptorHeaps);
 }

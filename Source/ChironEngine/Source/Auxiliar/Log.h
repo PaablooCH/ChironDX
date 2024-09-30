@@ -22,6 +22,8 @@ enum class LogSeverity
 #define LOG_FATAL(format, ...)		CHIRON_LOG(format, LogSeverity::FATAL_LOG, __VA_ARGS__)
 #define CHIRON_LOG(format, severity, ...) logContext->LogMessage(__FILE__, __LINE__, severity, format, __VA_ARGS__)
 
+class ConsoleWindow;
+
 namespace Chiron
 {
     class Log
@@ -36,17 +38,20 @@ namespace Chiron
         void Write(const char file[], int line, LogSeverity severity, std::string&& formattedLine);
 
     private:
+        friend class ConsoleWindow;
+
         struct LogLine
         {
-        public:
-            std::string ToString(bool addBreak) const;
-
-        public:
             // Info of each line
             LogSeverity severity;
             std::string file;
             uint16_t line;
             std::string message;
+
+            std::string ToDetailedString(bool addBreak = true) const;
+            std::string ToSimpleString(bool addBreak = true) const;
+        private:
+            std::string ToString(bool detailed, bool addBreak) const;
         };
 
         std::vector<LogLine> _logLines;

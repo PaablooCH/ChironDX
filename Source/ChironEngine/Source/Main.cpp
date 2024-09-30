@@ -5,10 +5,13 @@
 
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
+#include <ImGui/imgui.h>
 
-BOOL                CreateApplication(HINSTANCE hInstance);
-ATOM                CreateWindowClass(HINSTANCE hInstance);
-LRESULT CALLBACK    WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL                            CreateApplication(HINSTANCE hInstance);
+ATOM                            CreateWindowClass(HINSTANCE hInstance);
+LRESULT CALLBACK                WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT   ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+INT                             CleanUp();
 
 std::unique_ptr<Application> App;
 
@@ -25,13 +28,38 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
         return EXIT_FAILURE;
     }
 
-    MSG msg;
+    MSG msg{};
 
-    // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    bool running = true;
+    while (running)
     {
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
+        // Main message loop:
+        while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
+        {
+            ::TranslateMessage(&msg);
+            ::DispatchMessage(&msg);
+            if (msg.message == WM_QUIT)
+            {
+                running = false;
+            }
+        }
+        if (!running)
+        {
+            break;
+        }
+
+        UpdateStatus updateReturn = App->Update();
+
+        if (updateReturn == UpdateStatus::UPDATE_ERROR)
+        {
+            LOG_ERROR("Application Update exits with error -----");
+            CleanUp();
+        }
+
+        if (updateReturn == UpdateStatus::UPDATE_STOP)
+        {
+            CleanUp();
+        }
     }
 
     UnregisterClass(WND_CLASS_NAME, hInstance);
@@ -115,6 +143,11 @@ ATOM CreateWindowClass(HINSTANCE hIstance)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+    {
+        return true;
+    }
+    static bool s_in_sizemove = false;
     switch (message)
     {
     case WM_ACTIVATE:
@@ -137,18 +170,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         DirectX::Mouse::ProcessMessage(message, wParam, lParam);
         break;
     case WM_COMMAND:
-    case WM_PAINT:
-        App->Update();
-        break;
     case WM_DESTROY:
-        LOG_INFO("Application CleanUp --------------");
-        if (!App->CleanUp())
-        {
-            LOG_ERROR("Application CleanUp exits with error -----");
-        }
-        ::PostQuitMessage(0);
+        CleanUp();
         break;
     case WM_SIZE:
+        if (!s_in_sizemove && wParam != SIZE_MINIMIZED)
+        {
+            App->GetModule<ModuleWindow>()->Resize();
+        }
+        break;
+    case WM_ENTERSIZEMOVE:
+        s_in_sizemove = true;
+        break;
+    case WM_EXITSIZEMOVE:
+        s_in_sizemove = false;
         App->GetModule<ModuleWindow>()->Resize();
         break;
     case WM_SYSKEYDOWN:
@@ -161,12 +196,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             App->GetModule<ModuleID3D12>()->ToggleVSync();
             break;
         case VK_ESCAPE:
-            LOG_INFO("Application CleanUp --------------");
-            if (!App->CleanUp())
-            {
-                LOG_ERROR("Application CleanUp exits with error -----");
-            }
-            ::PostQuitMessage(0);
+            CleanUp();
             break;
         case VK_F11:
             App->GetModule<ModuleWindow>()->ToggleFullScreen();
@@ -181,5 +211,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     default:
         return DefWindowProcW(hWnd, message, wParam, lParam);
     }
+    return 0;
+}
+
+INT CleanUp()
+{
+    LOG_INFO("Application CleanUp --------------");
+    if (!App->CleanUp())
+    {
+        LOG_ERROR("Application CleanUp exits with error -----");
+    }
+    ::PostQuitMessage(0);
     return 0;
 }

@@ -6,6 +6,7 @@
 #include "Modules/ModuleID3D12.h"
 
 #include "DataModels/DX12/ResourceStateTracker/ResourceStateTracker.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 
 Texture::Texture() : Resource()
 {

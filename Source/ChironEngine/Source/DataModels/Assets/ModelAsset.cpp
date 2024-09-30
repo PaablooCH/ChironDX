@@ -28,12 +28,12 @@ ModelAsset::~ModelAsset()
 {
 }
 
-void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
+void ModelAsset::Draw(const std::shared_ptr<CommandList>& commandList)
 {
-    for (int i = 0; i < _mesh.size(); i++)
+    for (int i = 0; i < _meshes.size(); i++)
     {
-        commandList->SetVertexBuffers(0, 1, &_mesh[i]->GetVertexBuffer()->GetVertexBufferView());
-        commandList->SetIndexBuffer(&_mesh[i]->GetIndexBuffer()->GetIndexBufferView());
+        commandList->SetVertexBuffers(0, 1, &_meshes[i]->GetVertexBuffer()->GetVertexBufferView());
+        commandList->SetIndexBuffer(&_meshes[i]->GetIndexBuffer()->GetIndexBufferView());
 
         Matrix model = Matrix::Identity;
 
@@ -43,7 +43,7 @@ void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
 
         commandList->SetGraphicsRoot32BitConstants(1, sizeof(ModelAttributes) / 4, &modelAttributes);
 
-        auto texture = _material[i]->GetDiffuse();
+        auto texture = _materials[i]->GetDiffuse();
         // set the descriptor heap
         ID3D12DescriptorHeap* descriptorHeaps[] = {
             texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
@@ -51,6 +51,6 @@ void ModelAsset::Draw(std::shared_ptr<CommandList> commandList)
         commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
         commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
 
-        commandList->DrawIndexed(static_cast<UINT>(_mesh[i]->GetIndexBuffer()->GetNumIndices()));
+        commandList->DrawIndexed(static_cast<UINT>(_meshes[i]->GetIndexBuffer()->GetNumIndices()));
     }
 }

@@ -1,9 +1,9 @@
 #pragma once
 #include "Module.h"
 
-class CommandList;
-class ModelAsset;
 class DebugDrawPass;
+class ModelAsset;
+class Texture;
 
 class ModuleRender : public Module
 {
@@ -17,14 +17,26 @@ public:
     UpdateStatus PostUpdate() override;
     bool CleanUp() override;
 
-private:
-    // Indicate to the driver how a resource should be used in upcoming commands.
-    // Is used once its loaded into a Queue
-    std::shared_ptr<CommandList> _drawCommandList;
+    void ResizeBuffers(unsigned newWidth, unsigned newHeight);
 
-    std::unique_ptr<DebugDrawPass> _debugDraw;
+    // ------------- GETTERS ----------------------
+
+    inline const Texture* GetSceneTexture() const;
 
     std::shared_ptr<ModelAsset> model;
+private:
+    void CreateTextures();
+
+private:
+    std::unique_ptr<DebugDrawPass> _debugDraw;
+
+    std::unique_ptr<Texture> _sceneTexture;
+    std::unique_ptr<Texture> _depthStencilTexture;
 
     D3D12_RECT _scissor;
 };
+
+inline const Texture* ModuleRender::GetSceneTexture() const
+{
+    return _sceneTexture.get();
+}

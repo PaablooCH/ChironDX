@@ -40,8 +40,20 @@
     <ClCompile Include="Source\DataModels\Programs\Program.cpp" />
     <ClCompile Include="Source\DataModels\Programs\DefaultProgram.cpp" />
     <ClCompile Include="Source\DataModels\DX12\UploadBuffer\UploadBuffer.cpp" />
+    <ClCompile Include="Source\DataModels\Window\AboutWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\EditorWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\EngineStatisticsSubWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\Window.cpp" />
+    <ClCompile Include="Source\DataModels\Window\MainMenuWindow.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
+    <ClCompile Include="Source\Modules\ModuleEditor.cpp" />
     <ClCompile Include="Source\Modules\ModuleFileSystem.cpp" />
     <ClCompile Include="Source\Modules\ModuleID3D12.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
@@ -59,6 +71,18 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\EditorWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SceneWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\EngineStatisticsSubWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\Window.h" />
+    <ClInclude Include="Source\DataModels\Window\MainMenuWindow.h" />
+    <ClInclude Include="Source\Modules\ModuleEditor.h" />
     <ClInclude Include="Source\Structs\ModelAttributes.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h" />
     <ClInclude Include="Source\Structs\ViewProjection.h" />
@@ -110,6 +134,7 @@
     <ClInclude Include="Source\Modules\ModuleWindow.h" />
     <ClInclude Include="Source\Pch.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\VertexBuffer.h" />
+    <ClInclude Include="Source\Structs\ThemeColors.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -158,11 +183,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;DEBUG;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ImTextureID=ImU64;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;DEBUG;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ExternalDependencies;$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTex\;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ExternalDependencies;$(SolutionDir)ChironEngine\Source;$(SolutionDir)DirectXTex\;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -188,11 +213,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;ENGINE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ImTextureID=ImU64;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;ENGINE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;NOMINMAX</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)ChironEngine\Source;$(SolutionDir)ExternalDependencies\SDL\include;$(SolutionDir)ExternalDependencies\ImGui;$(SolutionDir)DirectXTex\;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ExternalDependencies;$(SolutionDir)ChironEngine\Source;$(SolutionDir)DirectXTex\;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
     </ClCompile>

@@ -5,6 +5,8 @@
 
 #include "Modules/ModuleID3D12.h"
 
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+
 ConstantBuffer::ConstantBuffer(const D3D12_RESOURCE_DESC& resourceDesc, size_t sizeInBytes, const std::wstring& name) :
     Resource(resourceDesc, name), _sizeInBytes(sizeInBytes)
 {
@@ -25,7 +27,7 @@ void ConstantBuffer::CreateView()
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
     cbvDesc.BufferLocation = _resource->GetGPUVirtualAddress();
-    cbvDesc.SizeInBytes = Chiron::Utils::AlignUp(_sizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+    cbvDesc.SizeInBytes = static_cast<UINT>(Chiron::Utils::AlignUp(_sizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT));
 
     // Crear la CBV
     device->CreateConstantBufferView(&cbvDesc, _constantBufferView.GetCPUDescriptorHandle());

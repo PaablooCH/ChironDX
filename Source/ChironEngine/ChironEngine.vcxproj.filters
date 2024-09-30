@@ -67,6 +67,18 @@
     <Filter Include="Source\Structs">
       <UniqueIdentifier>{006e16d5-f067-45fa-bc51-b3dda36f8458}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Windows">
+      <UniqueIdentifier>{4f68c722-593d-40f2-a316-a6406874559c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Windows\EditorWindow">
+      <UniqueIdentifier>{3c6ca3fe-d03d-4e88-9dee-090da4325e2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Windows\EditorWindow\SubWindows">
+      <UniqueIdentifier>{1e64429b-617b-4c7b-852b-c8b9896c8976}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\Windows\EditorWindow\SubWindows\Configuration">
+      <UniqueIdentifier>{8fbe8fea-7fb5-489c-8ca1-256f5b04ba9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -188,6 +200,42 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\Resource\ConstantBuffer.cpp">
       <Filter>Source\DataModels\DX12\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleEditor.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\Window.cpp">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\MainMenuWindow.cpp">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\EditorWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\AboutWindow.cpp">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\EngineStatisticsSubWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -338,6 +386,45 @@
     </ClInclude>
     <ClInclude Include="Source\Structs\ModelAttributes.h">
       <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleEditor.h">
+      <Filter>Source\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\Window.h">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\MainMenuWindow.h">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\EditorWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\ThemeColors.h">
+      <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SceneWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\AboutWindow.h">
+      <Filter>Source\DataModels\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\SubWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\EngineStatisticsSubWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

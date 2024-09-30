@@ -2,6 +2,7 @@
 
 class ModuleCamera;
 class ModuleFileSystem;
+class ModuleEditor;
 class ModuleID3D12;
 class ModuleInput;
 class ModuleProgram;
@@ -18,6 +19,7 @@ enum class ModuleType
     INPUT,
     CAMERA,
     RENDER,
+    EDITOR,
     LAST,
 };
 
@@ -66,4 +68,10 @@ template<>
 struct ModuleToEnum<ModuleRender>
 {
     const static ModuleType value = ModuleType::RENDER;
+};
+
+template<>
+struct ModuleToEnum<ModuleEditor>
+{
+    const static ModuleType value = ModuleType::EDITOR;
 };

@@ -6,6 +6,21 @@
 DescriptorAllocator::DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptorsPerHeap) :
     _heapType(type), _numDescriptorsPerHeap(numDescriptorsPerHeap)
 {
+    switch (_heapType)
+    {
+    case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
+        _name = L"Descriptor CBV_SRV_UAV";
+        break;
+    case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
+        _name = L"Descriptor Sampler";
+        break;
+    case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
+        _name = L"Descriptor RTV";
+        break;
+    case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
+        _name = L"Descriptor DSV";
+        break;
+    }
 }
 
 DescriptorAllocator::~DescriptorAllocator()
@@ -67,7 +82,8 @@ void DescriptorAllocator::ReleaseStaleDescriptors(uint64_t frameNumber)
 
 std::shared_ptr<DescriptorAllocatorPage> DescriptorAllocator::CreateAllocatorPage()
 {
-    auto newPage = std::make_shared<DescriptorAllocatorPage>(_heapType, _numDescriptorsPerHeap);
+    auto newPage = std::make_shared<DescriptorAllocatorPage>(_heapType, _numDescriptorsPerHeap,
+        _name + L" " + std::to_wstring(_heapPool.size()));
 
     _heapPool.emplace_back(newPage);
     _availableHeaps.insert(_heapPool.size() - 1);
