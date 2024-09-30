@@ -14,12 +14,12 @@ HardwareSubWindow::HardwareSubWindow() : SubWindow("Hardware")
 
     DXGI_ADAPTER_DESC3 adapterDesc;
     adapter->GetDesc3(&adapterDesc);
-    
+
     _gpuName = Chiron::Utils::WStringToString(adapterDesc.Description);
-    
+
     switch (adapterDesc.VendorId)
     {
-    case 0x10DE: 
+    case 0x10DE:
         _vendorName = "NVIDIA";
         break;
     case 0x1002:
@@ -48,7 +48,7 @@ HardwareSubWindow::HardwareSubWindow() : SubWindow("Hardware")
     MEMORYSTATUSEX memInfo{};
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
     GlobalMemoryStatusEx(&memInfo);
-    
+
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << (memInfo.ullTotalPhys / (1024.f * 1024.f * 1024.f));
     _ram = ss.str() + " GB";
@@ -67,7 +67,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::Text("DirectX Version:");
         ImGui::TableNextColumn();
         ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), "12");
-        
+
         ImGui::TableNextColumn();
         ImGui::Text("DXGI Version:");
         ImGui::TableNextColumn();
@@ -95,7 +95,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::Text("RAM:");
         ImGui::TableNextColumn();
         ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), _ram.c_str());
-        
+
         ImGui::TableNextColumn();
         ImGui::TableNextColumn();
 
@@ -128,7 +128,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::Text("Available VRAM:");
         ImGui::TableNextColumn();
         ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), result.c_str());
-        
+
         ImGui::EndTable();
     }
 }

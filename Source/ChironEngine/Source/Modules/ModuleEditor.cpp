@@ -149,7 +149,7 @@ UpdateStatus ModuleEditor::Update()
 
     _mainMenu->Draw();
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -247,7 +247,7 @@ void ModuleEditor::SetStyles()
     _minimalistStyle.ResizeGripActive = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
 
     // ------------- DARK GREEN STYLE ----------------------
-    
+
     _darkGreenStyle.Text = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
     _darkGreenStyle.TextDisabled = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
     _darkGreenStyle.WindowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);

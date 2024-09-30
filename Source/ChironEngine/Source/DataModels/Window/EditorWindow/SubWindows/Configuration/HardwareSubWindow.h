@@ -16,4 +16,3 @@ private:
     std::string _gpuName;
     std::string _ram;
 };
-
