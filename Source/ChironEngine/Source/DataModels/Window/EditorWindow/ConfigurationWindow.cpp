@@ -3,11 +3,13 @@
 
 #include "SubWindows/Configuration/CameraSubWindow.h"
 #include "SubWindows/Configuration/EngineStatisticsSubWindow.h"
+#include "SubWindows/Configuration/HardwareSubWindow.h"
 
 ConfigurationWindow::ConfigurationWindow() : EditorWindow("Configuration")
 {
     _subWindows.push_back(std::make_unique<EngineStatisticsSubWindow>());
     _subWindows.push_back(std::make_unique<CameraSubWindow>());
+    _subWindows.push_back(std::make_unique<HardwareSubWindow>());
 }
 
 ConfigurationWindow::~ConfigurationWindow()

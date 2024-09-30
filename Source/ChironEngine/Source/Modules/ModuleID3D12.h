@@ -35,6 +35,7 @@ public:
 
     // ------------- GETTERS ----------------------
 
+    inline IDXGIAdapter4* GetAdapter() const;
     inline ID3D12Device5* GetDevice() const;
     inline CommandQueue* GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
     ID3D12CommandQueue* GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
@@ -103,6 +104,11 @@ private:
 
     std::vector<std::unique_ptr<DescriptorAllocator>> _descriptorAllocators;
 };
+
+inline IDXGIAdapter4* ModuleID3D12::GetAdapter() const
+{
+    return _adapter.Get();
+}
 
 inline ID3D12Device5* ModuleID3D12::GetDevice() const
 {
