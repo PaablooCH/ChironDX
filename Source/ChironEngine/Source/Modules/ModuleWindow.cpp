@@ -156,23 +156,23 @@ void ModuleWindow::UnlimitedCursor() const
     GetClientRect(_hWnd, &windowRect);
     MapWindowPoints(_hWnd, nullptr, reinterpret_cast<POINT*>(&windowRect), 2); // Convert to screen coordinates
 
-    if (cursorPos.x < windowRect.left)
+    if (cursorPos.x <= windowRect.left)
     {
         SetCursorPos(windowRect.right - 1, cursorPos.y); // Move to the right side
         input->CaptureMousePos();
     }
-    else if (cursorPos.x >= windowRect.right)
+    else if (cursorPos.x >= windowRect.right - 1)
     {
         SetCursorPos(windowRect.left + 1, cursorPos.y); // Move to the left side
         input->CaptureMousePos();
     }
 
-    if (cursorPos.y < windowRect.top)
+    if (cursorPos.y <= windowRect.top)
     {
         SetCursorPos(cursorPos.x, windowRect.bottom - 1); // Move to the bottom edge
         input->CaptureMousePos();
     }
-    else if (cursorPos.y >= windowRect.bottom)
+    else if (cursorPos.y >= windowRect.bottom - 1)
     {
         SetCursorPos(cursorPos.x, windowRect.top + 1); // Move to the top edge
         input->CaptureMousePos();
