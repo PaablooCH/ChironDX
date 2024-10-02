@@ -101,4 +101,6 @@ private:
     CD3DX12_CPU_DESCRIPTOR_HANDLE _currentCPUDescriptorHandle;
 
     uint32_t _numFreeHandles;
+
+    ID3D12Device5* _device;
 };

@@ -46,6 +46,8 @@ protected:
     ComPtr<ID3D12PipelineState> _pipelineState;
 
     bool _isGraphic;
+
+    ID3D12Device5* _device;
 };
 
 inline ID3DBlob* Program::GetVertex() const

@@ -157,6 +157,13 @@ void ModuleRender::ResizeBuffers(unsigned newWidth, unsigned newHeight)
         CreateDepthStencil(L"Scene Depth Stencil Texture", newWidth, newHeight);
 }
 
+void ModuleRender::LoadNewModel(std::string modelPath)
+{
+    auto file = App->GetModule<ModuleFileSystem>();
+    model.reset(new ModelAsset());
+    file->Import(modelPath.c_str(), model);
+}
+
 void ModuleRender::CreateTextures()
 {
     unsigned width;

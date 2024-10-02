@@ -18,9 +18,9 @@ Resource::Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& 
         _clearValue = std::make_unique<D3D12_CLEAR_VALUE>(*clearValue);
     }
 
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+    _device = App->GetModule<ModuleID3D12>()->GetDevice();
     CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
+    Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
         D3D12_RESOURCE_STATE_COMMON, _clearValue.get(), IID_PPV_ARGS(&_resource)));
 
     SetName(name);
@@ -30,6 +30,7 @@ Resource::Resource(const D3D12_RESOURCE_DESC& resourceDesc, const std::wstring& 
 
 Resource::Resource(ComPtr<ID3D12Resource> resource) : _resource(resource)
 {
+    _device = App->GetModule<ModuleID3D12>()->GetDevice();
     ResourceStateTracker::AddGlobalResourceState(_resource.Get(), D3D12_RESOURCE_STATE_COMMON);
     CheckFeatureSupport();
 }
@@ -101,9 +102,7 @@ void Resource::SetResource(ComPtr<ID3D12Resource> resource)
 
 void Resource::CheckFeatureSupport()
 {
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
     _featureSupport.Format = _resource->GetDesc().Format;
-    Chiron::Utils::ThrowIfFailed(device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &_featureSupport,
+    Chiron::Utils::ThrowIfFailed(_device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &_featureSupport,
         sizeof(_featureSupport)));
 }

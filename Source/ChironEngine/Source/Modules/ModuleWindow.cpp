@@ -8,7 +8,7 @@
 #include "ModuleRender.h"
 
 ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false),
-_width(0), _height(0)
+_width(0), _height(0), _lastWindowRect()
 {
 }
 
@@ -33,6 +33,9 @@ bool ModuleWindow::Init()
     {
         return false;
     }
+
+    // Drag and drop
+    DragAcceptFiles(_hWnd, TRUE);
 
     return true;
 }

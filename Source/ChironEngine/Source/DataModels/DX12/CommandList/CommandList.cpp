@@ -14,11 +14,11 @@
 
 CommandList::CommandList(D3D12_COMMAND_LIST_TYPE type) : _type(type), _rootSignature(nullptr)
 {
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
+    _device = App->GetModule<ModuleID3D12>()->GetDevice();
 
-    Chiron::Utils::ThrowIfFailed(device->CreateCommandAllocator(_type, IID_PPV_ARGS(&_commandAllocator)));
+    Chiron::Utils::ThrowIfFailed(_device->CreateCommandAllocator(_type, IID_PPV_ARGS(&_commandAllocator)));
 
-    Chiron::Utils::ThrowIfFailed(device->CreateCommandList(0, _type, _commandAllocator.Get(),
+    Chiron::Utils::ThrowIfFailed(_device->CreateCommandList(0, _type, _commandAllocator.Get(),
         nullptr, IID_PPV_ARGS(&_commandList)));
 
     switch (_type)
@@ -164,8 +164,6 @@ void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstS
 
     if (destinationResource)
     {
-        auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
         // Resource must be in the copy-destination state.
         TransitionBarrier(resource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES, true);
 
@@ -175,7 +173,7 @@ void CommandList::UpdateBufferResource(const Resource* resource, uint32_t firstS
         ComPtr<ID3D12Resource> intermediateResource;
         CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         CD3DX12_RESOURCE_DESC buffer = CD3DX12_RESOURCE_DESC::Buffer(requiredSize);
-        Chiron::Utils::ThrowIfFailed(device->CreateCommittedResource(
+        Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(
             &heapProperties, D3D12_HEAP_FLAG_NONE,
             &buffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
             IID_PPV_ARGS(&intermediateResource)));

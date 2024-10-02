@@ -12,8 +12,6 @@ GenerateMipsProgram::GenerateMipsProgram(const std::string& name) : Program(name
     InitRootSignature();
     InitPipelineState();
 
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
     _descriptorAllocation = App->GetModule<ModuleID3D12>()->
         GetDescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->Allocate(4);
     for (uint32_t i = 0; i < 4; ++i)
@@ -24,7 +22,7 @@ GenerateMipsProgram::GenerateMipsProgram(const std::string& name) : Program(name
         uavDesc.Texture2D.MipSlice = i;
         uavDesc.Texture2D.PlaneSlice = 0;
 
-        device->CreateUnorderedAccessView(nullptr, nullptr, &uavDesc, _descriptorAllocation.GetCPUDescriptorHandle(i));
+        _device->CreateUnorderedAccessView(nullptr, nullptr, &uavDesc, _descriptorAllocation.GetCPUDescriptorHandle(i));
     }
 }
 

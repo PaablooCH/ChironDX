@@ -24,6 +24,7 @@ public:
     inline const Texture* GetSceneTexture() const;
 
     std::shared_ptr<ModelAsset> model;
+    void LoadNewModel(std::string modelPath);
 private:
     void CreateTextures();
 

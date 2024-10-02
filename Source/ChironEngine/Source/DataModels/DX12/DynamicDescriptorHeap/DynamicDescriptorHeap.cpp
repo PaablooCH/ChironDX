@@ -14,8 +14,8 @@ DynamicDescriptorHeap::DynamicDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType
     _descriptorTableBitMask(0), _staleDescriptorTableBitMask(0), _currentCPUDescriptorHandle(D3D12_DEFAULT),
     _currentGPUDescriptorHandle(D3D12_DEFAULT), _numFreeHandles(0)
 {
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-    _descriptorHandleIncrementSize = device->GetDescriptorHandleIncrementSize(_descriptorHeapType);
+    _device = App->GetModule<ModuleID3D12>()->GetDevice();
+    _descriptorHandleIncrementSize = _device->GetDescriptorHandleIncrementSize(_descriptorHeapType);
 }
 
 DynamicDescriptorHeap::~DynamicDescriptorHeap()
@@ -67,8 +67,6 @@ void DynamicDescriptorHeap::CommitStagedDescriptors(CommandList& commandList,
 
     if (numDescriptorsToCommit > 0)
     {
-        auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
         auto d3d12GraphicsCommandList = commandList.GetGraphicsCommandList().Get();
         assert(d3d12GraphicsCommandList != nullptr);
 
@@ -103,7 +101,7 @@ void DynamicDescriptorHeap::CommitStagedDescriptors(CommandList& commandList,
             };
 
             // Copy the staged CPU visible descriptors to the GPU visible descriptor heap.
-            device->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
+            _device->CopyDescriptors(1, pDestDescriptorRangeStarts, pDestDescriptorRangeSizes,
                 numSrcDescriptors, pSrcDescriptorHandles, nullptr, _descriptorHeapType);
 
             // Set the descriptors on the command list using the passed-in setter function.
@@ -137,10 +135,8 @@ D3D12_GPU_DESCRIPTOR_HANDLE DynamicDescriptorHeap::CopyDescriptor(CommandList& c
         _staleDescriptorTableBitMask = _descriptorTableBitMask;
     }
 
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
     D3D12_GPU_DESCRIPTOR_HANDLE hGPU = _currentGPUDescriptorHandle;
-    device->CopyDescriptorsSimple(1, _currentCPUDescriptorHandle, cpuDescriptor, _descriptorHeapType);
+    _device->CopyDescriptorsSimple(1, _currentCPUDescriptorHandle, cpuDescriptor, _descriptorHeapType);
 
     _currentCPUDescriptorHandle.Offset(1, _descriptorHandleIncrementSize);
     _currentGPUDescriptorHandle.Offset(1, _descriptorHandleIncrementSize);
@@ -216,15 +212,13 @@ ComPtr<ID3D12DescriptorHeap> DynamicDescriptorHeap::RequestDescriptorHeap()
 
 ComPtr<ID3D12DescriptorHeap> DynamicDescriptorHeap::CreateDescriptorHeap() const
 {
-    auto device = App->GetModule<ModuleID3D12>()->GetDevice();
-
     D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
     descriptorHeapDesc.Type = _descriptorHeapType;
     descriptorHeapDesc.NumDescriptors = _numDescriptorsPerHeap;
     descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
     ComPtr<ID3D12DescriptorHeap> descriptorHeap;
-    Chiron::Utils::ThrowIfFailed(device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap)));
+    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap)));
 
     return descriptorHeap;
 }

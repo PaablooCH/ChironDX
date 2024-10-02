@@ -43,6 +43,8 @@ private:
 protected:
     ComPtr<ID3D12Resource> _resource;
     std::wstring _name;
+
+    ID3D12Device5* _device;
 private:
     D3D12_FEATURE_DATA_FORMAT_SUPPORT _featureSupport;
     std::unique_ptr<D3D12_CLEAR_VALUE> _clearValue;

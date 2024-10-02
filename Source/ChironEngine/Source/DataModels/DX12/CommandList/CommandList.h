@@ -142,6 +142,8 @@ private:
     // Currently bound root signature.
     ID3D12RootSignature* _rootSignature;
 
+    ID3D12Device5* _device;
+
     // Resource created in an upload heap. Useful for drawing of dynamic geometry
     // or for uploading constant buffer data that changes every draw call.
     std::unique_ptr<UploadBuffer> _uploadBuffer;
