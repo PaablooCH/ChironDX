@@ -28,6 +28,6 @@ void ConstantBuffer::CreateView()
     cbvDesc.BufferLocation = _resource->GetGPUVirtualAddress();
     cbvDesc.SizeInBytes = static_cast<UINT>(Chiron::Utils::AlignUp(_sizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT));
 
-    // Crear la CBV
+    // Create CBV
     _device->CreateConstantBufferView(&cbvDesc, _constantBufferView.GetCPUDescriptorHandle());
 }
