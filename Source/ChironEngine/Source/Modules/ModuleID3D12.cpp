@@ -10,6 +10,10 @@
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
 ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false), _supportsRT(false), _bufferFenceValues()
 {
 }
@@ -59,6 +63,9 @@ bool ModuleID3D12::CleanUp()
 
 UpdateStatus ModuleID3D12::PostUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PostUpdateID3D12", Optick::Category::None);
+#endif // DEBUG
 #ifdef DEBUG
     PrintMessages();
 #endif // DEBUG

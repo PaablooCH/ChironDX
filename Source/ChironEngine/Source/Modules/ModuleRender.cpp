@@ -23,6 +23,10 @@
 
 #include "DebugDrawPass.h"
 
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
 ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr),
 _depthStencilTexture(nullptr)
 {
@@ -49,6 +53,9 @@ bool ModuleRender::Init()
 
 UpdateStatus ModuleRender::PreUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PreUpdateRender", Optick::Category::Rendering);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -67,6 +74,9 @@ UpdateStatus ModuleRender::PreUpdate()
 
 UpdateStatus ModuleRender::Update()
 {
+#if OPTICK
+    OPTICK_CATEGORY("UpdateRender", Optick::Category::Rendering);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
     auto programs = App->GetModule<ModuleProgram>();
     auto window = App->GetModule<ModuleWindow>();
@@ -126,7 +136,6 @@ UpdateStatus ModuleRender::Update()
 
 UpdateStatus ModuleRender::PostUpdate()
 {
-    App->GetModule<ModuleID3D12>()->PresentAndSwapBuffer();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 

@@ -21,6 +21,8 @@ public:
     UpdateStatus PostUpdate() override;
 
 private:
+    void StartDock() const;
+
     void SetStyles();
     void ApplyTheme(const ThemeColors& theme);
 
@@ -42,4 +44,6 @@ private:
     ThemeColors _darkGreenStyle;
 
     std::unique_ptr<DescriptorAllocation> _srvDescHeap;
+
+    ImGuiWindowFlags _dockFlags;
 };

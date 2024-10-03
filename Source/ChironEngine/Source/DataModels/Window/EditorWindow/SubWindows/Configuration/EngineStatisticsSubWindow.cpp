@@ -30,7 +30,7 @@ void EngineStatisticsSubWindow::DrawWindowContent(const std::shared_ptr<CommandL
     ImGui::TextUnformatted(label);
     ImGui::SameLine();
     ImGui::PushItemWidth(sliderWidth);
-    ImGui::SliderInt("##maxfps", &maxFrameRate, 1, 120, "%d", ImGuiSliderFlags_AlwaysClamp);
+    ImGui::SliderInt("##maxfps", &maxFrameRate, 1, 250, "%d", ImGuiSliderFlags_AlwaysClamp);
     ImGui::PopItemWidth();
 
     auto deltaTime = App->GetDeltaTime();
@@ -39,7 +39,7 @@ void EngineStatisticsSubWindow::DrawWindowContent(const std::shared_ptr<CommandL
     _fpsValues[_fpsIt] = std::max(fps, 0.0001f);
     char currentFramerate[25]{};
     sprintf_s(currentFramerate, 25, "Framerate %.1f", _fpsValues[_fpsIt]);
-    ImGui::PlotHistogram("##fps", _fpsValues.data(), static_cast<int>(_fpsValues.size()), 0, currentFramerate, 0.f, 160.f, ImVec2(availableX, 160));
+    ImGui::PlotHistogram("##fps", _fpsValues.data(), static_cast<int>(_fpsValues.size()), 0, currentFramerate, 0.f, 260.f, ImVec2(availableX, 160));
 
     float time = deltaTime * 1000.f;
     _timeValues[_timeIt] = std::min(std::max(time, 0.0001f), 1000.f);

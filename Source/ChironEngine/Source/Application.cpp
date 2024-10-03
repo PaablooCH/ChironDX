@@ -12,7 +12,11 @@
 
 #include "DataModels/Timer/Timer.h"
 
-Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0), _maxFrameRate(120)
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
+Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0), _maxFrameRate(200)
 {
     _modules.resize(static_cast<int>(ModuleType::LAST));
     _modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
@@ -109,6 +113,9 @@ UpdateStatus Application::Update()
 
         if (sleepTime > 0) {
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+#if OPTICK
+        OPTICK_CATEGORY("Sleep", Optick::Category::None);
+#endif // DEBUG
         }
     }
     _deltaTime = ms / 1000.f;

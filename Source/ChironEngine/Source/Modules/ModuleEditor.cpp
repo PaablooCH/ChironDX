@@ -18,10 +18,13 @@
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
-#include "ImGui/ImGuizmo.h"
 #include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_dx12.h"
 #include "ImGui/imgui_impl_win32.h"
+
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
 
 ModuleEditor::ModuleEditor()
 {
@@ -68,6 +71,11 @@ bool ModuleEditor::Start()
 {
     ApplyTheme(_darkGreenStyle);
 
+    _dockFlags = 0;
+    _dockFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
+    _dockFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
     return true;
 }
 
@@ -84,6 +92,9 @@ bool ModuleEditor::CleanUp()
 
 UpdateStatus ModuleEditor::PreUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PreUpdateEditor", Optick::Category::UI);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
     auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -102,49 +113,20 @@ UpdateStatus ModuleEditor::PreUpdate()
 
 UpdateStatus ModuleEditor::Update()
 {
+#if OPTICK
+    OPTICK_CATEGORY("UpdateEditor", Optick::Category::UI);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
     const ImGuiViewport* imGuiViewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(imGuiViewport->WorkPos);
     ImGui::SetNextWindowSize(imGuiViewport->WorkSize);
 
-    ImGuiWindowFlags dockSpaceWindowFlags = 0;
-    dockSpaceWindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
-    dockSpaceWindowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PopStyleVar(3);
-    ImGui::Begin("DockSpace", nullptr, dockSpaceWindowFlags);
+    ImGui::Begin("DockSpace", nullptr, _dockFlags);
     ImGuiID dockSpaceId = ImGui::GetID("DockSpace");
     ImGui::DockSpace(dockSpaceId);
+    StartDock();
 
-    static bool firstTime = true;
-    if (firstTime)
-    {
-        firstTime = false;
-
-        ImGui::DockBuilderRemoveNode(dockSpaceId);
-        ImGui::DockBuilderAddNode(dockSpaceId, dockSpaceWindowFlags | ImGuiDockNodeFlags_DockSpace);
-        ImGui::DockBuilderSetNodeSize(dockSpaceId, ImGui::GetMainViewport()->Size);
-
-        ImGuiID dockIdUp = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.06f, nullptr, &dockSpaceId);
-        ImGuiID dockIdRight = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.27f, nullptr, &dockSpaceId);
-        ImGuiID dockIdDown = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.32f, nullptr, &dockSpaceId);
-        ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.22f, nullptr, &dockSpaceId);
-        ImGui::DockBuilderDockWindow("Console", dockIdDown);
-        //ImGui::DockBuilderDockWindow("File Browser", dockIdDown);
-        //ImGui::DockBuilderDockWindow("State Machine Editor", dockIdDown);
-        ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
-        //ImGui::DockBuilderDockWindow("Navigation", dockIdRight);
-        //ImGui::DockBuilderDockWindow("Resources", dockIdRight);
-        //ImGui::DockBuilderDockWindow("Inspector", dockIdRight);
-        //ImGui::DockBuilderDockWindow("Editor Control", dockIdUp);
-        //ImGui::DockBuilderDockWindow("Hierarchy", dockIdLeft);
-        ImGui::DockBuilderDockWindow("Scene", dockSpaceId);
-        ImGui::DockBuilderFinish(dockSpaceId);
-    }
     ImGui::End();
 
     _mainMenu->Draw();
@@ -179,7 +161,41 @@ UpdateStatus ModuleEditor::Update()
 
 UpdateStatus ModuleEditor::PostUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PostUpdateEditor", Optick::Category::UI);
+#endif // DEBUG
+    App->GetModule<ModuleID3D12>()->PresentAndSwapBuffer();
     return UpdateStatus::UPDATE_CONTINUE;
+}
+
+void ModuleEditor::StartDock() const
+{
+    static bool firstTime = true;
+    if (firstTime)
+    {
+        firstTime = false;
+        ImGuiID dockSpaceId = ImGui::GetID("DockSpace");
+
+        ImGui::DockBuilderRemoveNode(dockSpaceId);
+        ImGui::DockBuilderAddNode(dockSpaceId, _dockFlags | ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockSpaceId, ImGui::GetMainViewport()->Size);
+
+        ImGuiID dockIdUp = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.06f, nullptr, &dockSpaceId);
+        ImGuiID dockIdRight = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.27f, nullptr, &dockSpaceId);
+        ImGuiID dockIdDown = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.32f, nullptr, &dockSpaceId);
+        ImGuiID dockIdLeft = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.22f, nullptr, &dockSpaceId);
+        ImGui::DockBuilderDockWindow("Console", dockIdDown);
+        //ImGui::DockBuilderDockWindow("File Browser", dockIdDown);
+        //ImGui::DockBuilderDockWindow("State Machine Editor", dockIdDown);
+        ImGui::DockBuilderDockWindow("Configuration", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Navigation", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Resources", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Inspector", dockIdRight);
+        //ImGui::DockBuilderDockWindow("Editor Control", dockIdUp);
+        //ImGui::DockBuilderDockWindow("Hierarchy", dockIdLeft);
+        ImGui::DockBuilderDockWindow("Scene", dockSpaceId);
+        ImGui::DockBuilderFinish(dockSpaceId);
+    }
 }
 
 void ModuleEditor::SetStyles()

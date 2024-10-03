@@ -3,6 +3,10 @@
 
 #include "DataModels/Camera/Camera.h"
 
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
 ModuleCamera::ModuleCamera()
 {
 }
@@ -24,6 +28,9 @@ UpdateStatus ModuleCamera::PreUpdate()
 
 UpdateStatus ModuleCamera::Update()
 {
+#if OPTICK
+    OPTICK_CATEGORY("UpdateCamera", Optick::Category::Camera);
+#endif // DEBUG
     _camera->Update();
 
     return UpdateStatus::UPDATE_CONTINUE;
