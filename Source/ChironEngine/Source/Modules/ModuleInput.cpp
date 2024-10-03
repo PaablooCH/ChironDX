@@ -1,6 +1,10 @@
 #include "Pch.h"
 #include "ModuleInput.h"
 
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
 ModuleInput::ModuleInput(HWND hwnd) : _mousePos(Vector2::Zero), _captureMousePos(false)
 {
     _keyboard = std::make_unique<DirectX::Keyboard>();
@@ -22,6 +26,9 @@ bool ModuleInput::Init()
 
 UpdateStatus ModuleInput::PreUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PreUpdateInput", Optick::Category::Input);
+#endif // DEBUG
     const auto& mouseState = _mouse->GetState();
     if (mouseState.positionMode == DirectX::Mouse::MODE_ABSOLUTE)
     {
@@ -41,6 +48,9 @@ UpdateStatus ModuleInput::Update()
 
 UpdateStatus ModuleInput::PostUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PostUpdateInput", Optick::Category::Input);
+#endif // DEBUG
     const auto& mouseState = _mouse->GetState();
     _mousePos = Vector2(static_cast<float>(mouseState.x), static_cast<float>(mouseState.y));
 

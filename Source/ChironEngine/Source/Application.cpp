@@ -12,7 +12,11 @@
 
 #include "DataModels/Timer/Timer.h"
 
-Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0), _maxFrameRate(120)
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
+Application::Application(HWND hwnd, HINSTANCE hInstance) : _frameCount(0), _deltaTime(0), _maxFrameRate(200)
 {
     _modules.resize(static_cast<int>(ModuleType::LAST));
     _modules[static_cast<int>(ModuleToEnum<ModuleWindow>::value)] = std::make_unique<ModuleWindow>(hwnd, hInstance);
@@ -68,7 +72,7 @@ bool Application::Start()
 
 UpdateStatus Application::Update()
 {
-    float beginFrame = _timer->Read();
+    auto beginFrame = _timer->Read();
 
     _frameCount++;
 
@@ -99,19 +103,26 @@ UpdateStatus Application::Update()
         }
     }
 
-    float endFrame = _timer->Read();
+    auto endFrame = _timer->Read();
 
-    float ms = endFrame - beginFrame;
+    auto ms = endFrame - beginFrame;
 
-    if (ms < 1000.0f / _maxFrameRate)
+    double maxMs = 1000.0 / _maxFrameRate;
+    if (ms < maxMs)
     {
-        auto sleepTime = static_cast<int>(1000.0f / _maxFrameRate - ms);
-
-        if (sleepTime > 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+#if OPTICK
+        OPTICK_CATEGORY("Sleep", Optick::Category::None);
+#endif // DEBUG
+        std::chrono::duration<double, std::milli> sleepTime(maxMs - ms);
+        auto sleepTimeDuration = std::chrono::duration_cast<std::chrono::milliseconds>(sleepTime);
+        if (sleepTimeDuration.count() > 0.f)
+        {
+            std::this_thread::sleep_for(sleepTimeDuration);
         }
+        endFrame = _timer->Read();
+        ms = endFrame - beginFrame;
     }
-    _deltaTime = ms / 1000.f;
+    _deltaTime = static_cast<float>(ms / 1000);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }

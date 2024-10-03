@@ -18,10 +18,13 @@
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
-#include "ImGui/ImGuizmo.h"
 #include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_dx12.h"
 #include "ImGui/imgui_impl_win32.h"
+
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
 
 ModuleEditor::ModuleEditor()
 {
@@ -68,6 +71,11 @@ bool ModuleEditor::Start()
 {
     ApplyTheme(_darkGreenStyle);
 
+    _dockFlags = 0;
+    _dockFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
+    _dockFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
     return true;
 }
 
@@ -84,14 +92,16 @@ bool ModuleEditor::CleanUp()
 
 UpdateStatus ModuleEditor::PreUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PreUpdateEditor", Optick::Category::UI);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
     // send the clear command into the list
-    drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
-    d3d12->ExecuteCommandList(drawCommandList);
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
 
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -102,31 +112,68 @@ UpdateStatus ModuleEditor::PreUpdate()
 
 UpdateStatus ModuleEditor::Update()
 {
+#if OPTICK
+    OPTICK_CATEGORY("UpdateEditor", Optick::Category::UI);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
     const ImGuiViewport* imGuiViewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(imGuiViewport->WorkPos);
     ImGui::SetNextWindowSize(imGuiViewport->WorkSize);
 
-    ImGuiWindowFlags dockSpaceWindowFlags = 0;
-    dockSpaceWindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
-    dockSpaceWindowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::PopStyleVar(3);
-    ImGui::Begin("DockSpace", nullptr, dockSpaceWindowFlags);
+    ImGui::Begin("DockSpace", nullptr, _dockFlags);
     ImGuiID dockSpaceId = ImGui::GetID("DockSpace");
     ImGui::DockSpace(dockSpaceId);
+    StartDock();
 
+    ImGui::End();
+
+    _mainMenu->Draw();
+
+    //ImGui::ShowDemoWindow();
+    //ImGui::ShowMetricsWindow();
+
+    for (std::unique_ptr<Window>& window : _windows)
+    {
+        window->Draw(_drawCommandList);
+    }
+    ImGui::Render();
+
+    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
+    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
+    ID3D12DescriptorHeap* descriptorHeaps[] = {
+        _srvDescHeap->GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
+    };
+    _drawCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), _drawCommandList->GetGraphicsCommandList().Get());
+
+    _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+
+    uint64_t fenceValue = d3d12->ExecuteCommandList(_drawCommandList);
+    d3d12->SaveCurrentBufferFenceValue(fenceValue);
+
+    return UpdateStatus::UPDATE_CONTINUE;
+}
+
+UpdateStatus ModuleEditor::PostUpdate()
+{
+#if OPTICK
+    OPTICK_CATEGORY("PostUpdateEditor", Optick::Category::UI);
+#endif // DEBUG
+    App->GetModule<ModuleID3D12>()->PresentAndSwapBuffer();
+    return UpdateStatus::UPDATE_CONTINUE;
+}
+
+void ModuleEditor::StartDock() const
+{
     static bool firstTime = true;
     if (firstTime)
     {
         firstTime = false;
+        ImGuiID dockSpaceId = ImGui::GetID("DockSpace");
 
         ImGui::DockBuilderRemoveNode(dockSpaceId);
-        ImGui::DockBuilderAddNode(dockSpaceId, dockSpaceWindowFlags | ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderAddNode(dockSpaceId, _dockFlags | ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockSpaceId, ImGui::GetMainViewport()->Size);
 
         ImGuiID dockIdUp = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.06f, nullptr, &dockSpaceId);
@@ -145,41 +192,6 @@ UpdateStatus ModuleEditor::Update()
         ImGui::DockBuilderDockWindow("Scene", dockSpaceId);
         ImGui::DockBuilderFinish(dockSpaceId);
     }
-    ImGui::End();
-
-    _mainMenu->Draw();
-
-    //ImGui::ShowDemoWindow();
-    //ImGui::ShowMetricsWindow();
-
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-    for (std::unique_ptr<Window>& window : _windows)
-    {
-        window->Draw(drawCommandList);
-    }
-    ImGui::Render();
-
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-    auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
-    drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
-    ID3D12DescriptorHeap* descriptorHeaps[] = {
-        _srvDescHeap->GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
-    };
-    drawCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), drawCommandList->GetGraphicsCommandList().Get());
-
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
-
-    uint64_t fenceValue = d3d12->ExecuteCommandList(drawCommandList);
-    d3d12->SaveCurrentBufferFenceValue(fenceValue);
-
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleEditor::PostUpdate()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 void ModuleEditor::SetStyles()

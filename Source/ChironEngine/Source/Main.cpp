@@ -1,11 +1,16 @@
 #pragma once
 
 #include "Pch.h"
+
 #include "Application.h"
 
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
 #include <ImGui/imgui.h>
+
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
 
 #include "Modules/ModuleRender.h"
 
@@ -35,6 +40,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
     bool running = true;
     while (running)
     {
+#if OPTICK
+        OPTICK_FRAME("MainThread");
+#endif // OPTICK
+
         // Main message loop:
         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
         {

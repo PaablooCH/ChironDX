@@ -23,6 +23,10 @@
 
 #include "DebugDrawPass.h"
 
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
 ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr),
 _depthStencilTexture(nullptr)
 {
@@ -49,36 +53,38 @@ bool ModuleRender::Init()
 
 UpdateStatus ModuleRender::PreUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PreUpdateRender", Optick::Category::Rendering);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
     // send the clear command into the list
-    drawCommandList->ClearRenderTargetView(_sceneTexture.get(), clearColor, 0);
-    drawCommandList->ClearDepthStencilView(_depthStencilTexture.get(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
-
-    d3d12->ExecuteCommandList(drawCommandList);
+    _drawCommandList->ClearRenderTargetView(_sceneTexture.get(), clearColor, 0);
+    _drawCommandList->ClearDepthStencilView(_depthStencilTexture.get(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleRender::Update()
 {
+#if OPTICK
+    OPTICK_CATEGORY("UpdateRender", Optick::Category::Rendering);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
     auto programs = App->GetModule<ModuleProgram>();
     auto window = App->GetModule<ModuleWindow>();
     auto moduleCamera = App->GetModule<ModuleCamera>();
 
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
     Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
 
-    drawCommandList->UseProgram(defaultP);
+    _drawCommandList->UseProgram(defaultP);
 
-    drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     unsigned width;
     unsigned height;
@@ -91,8 +97,8 @@ UpdateStatus ModuleRender::Update()
     viewport.Width = static_cast<float>(width);
     viewport.Height = static_cast<float>(height);
 
-    drawCommandList->SetViewports(1, viewport);
-    drawCommandList->SetScissorRects(1, _scissor);
+    _drawCommandList->SetViewports(1, viewport);
+    _drawCommandList->SetScissorRects(1, _scissor);
 
     auto camera = moduleCamera->GetCamera();
     Matrix view = camera->GetViewMatrix();
@@ -101,42 +107,42 @@ UpdateStatus ModuleRender::Update()
     ViewProjection vp;
     vp.view = view.Transpose();
     vp.proj = proj.Transpose();
-    drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
 
     auto rtv = _sceneTexture->GetRenderTargetView().GetCPUDescriptorHandle();
     auto dsv = _depthStencilTexture->GetDepthStencilView().GetCPUDescriptorHandle();
-    drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
+    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
 
-    model->Draw(drawCommandList);
+    model->Draw(_drawCommandList);
 
     // ------------- DEBUG DRAW ----------------------
 
     dd::xzSquareGrid(-500.0f, 500.0f, 0.0f, 1.0f, dd::colors::LightGray);
     dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.5f, 1000.0f);
 
-    _debugDraw->record(drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
+    _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
 
     // ------------- CLOSE COMMANDLIST ----------------------
 
-    uint64_t fenceValue = d3d12->ExecuteCommandList(drawCommandList);
-    d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, fenceValue);
+    d3d12->ExecuteCommandList(_drawCommandList);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleRender::PostUpdate()
 {
-    App->GetModule<ModuleID3D12>()->PresentAndSwapBuffer();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool ModuleRender::CleanUp()
 {
     _sceneTexture.reset();
+    _drawCommandList.reset();
     _depthStencilTexture.reset();
     _debugDraw.reset();
     model.reset();
     model = nullptr;
+    _drawCommandList = nullptr;
 
     return true;
 }
