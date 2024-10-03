@@ -8,5 +8,5 @@
 #define REPOSITORY_URL "https://github.com/PaablooCH/ChironDX"
 
 #ifdef DEBUG
-    #define OPTICK 1
+    #define OPTICK 0
 #endif // DEBUG
