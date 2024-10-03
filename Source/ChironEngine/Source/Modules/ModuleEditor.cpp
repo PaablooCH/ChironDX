@@ -97,12 +97,11 @@ UpdateStatus ModuleEditor::PreUpdate()
 #endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
 
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
     // send the clear command into the list
-    drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
-    d3d12->ExecuteCommandList(drawCommandList);
+    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderBuffer(), clearColor, 0);
 
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -134,26 +133,23 @@ UpdateStatus ModuleEditor::Update()
     //ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
 
-    auto drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
     for (std::unique_ptr<Window>& window : _windows)
     {
-        window->Draw(drawCommandList);
+        window->Draw(_drawCommandList);
     }
     ImGui::Render();
 
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     auto rtv = d3d12->GetRenderBuffer()->GetRenderTargetView().GetCPUDescriptorHandle();
-    drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
+    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, nullptr);
     ID3D12DescriptorHeap* descriptorHeaps[] = {
         _srvDescHeap->GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
     };
-    drawCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), drawCommandList->GetGraphicsCommandList().Get());
+    _drawCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), _drawCommandList->GetGraphicsCommandList().Get());
 
-    drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+    _drawCommandList->TransitionBarrier(d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 
-    uint64_t fenceValue = d3d12->ExecuteCommandList(drawCommandList);
+    uint64_t fenceValue = d3d12->ExecuteCommandList(_drawCommandList);
     d3d12->SaveCurrentBufferFenceValue(fenceValue);
 
     return UpdateStatus::UPDATE_CONTINUE;

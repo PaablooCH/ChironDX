@@ -1,6 +1,7 @@
 #pragma once
 #include "Module.h"
 
+class CommandList;
 class DebugDrawPass;
 class ModelAsset;
 class Texture;
@@ -33,6 +34,8 @@ private:
 
     std::unique_ptr<Texture> _sceneTexture;
     std::unique_ptr<Texture> _depthStencilTexture;
+
+    std::shared_ptr<CommandList> _drawCommandList;
 
     D3D12_RECT _scissor;
 };

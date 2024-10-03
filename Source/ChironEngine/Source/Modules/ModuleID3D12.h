@@ -41,7 +41,6 @@ public:
     ID3D12CommandQueue* GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const;
     std::shared_ptr<CommandList> GetCommandList(D3D12_COMMAND_LIST_TYPE type) const;
     inline IDXGISwapChain4* GetSwapChain() const;
-    inline UINT GetCurrentBuffer() const;
     inline Texture* GetRenderBuffer() const;
     inline DescriptorAllocator* GetDescriptorAllocator(const D3D12_DESCRIPTOR_HEAP_TYPE& type) const;
     inline bool& GetVsync();
@@ -143,11 +142,6 @@ inline CommandQueue* ModuleID3D12::GetCommandQueue(D3D12_COMMAND_LIST_TYPE type)
 inline IDXGISwapChain4* ModuleID3D12::GetSwapChain() const
 {
     return _swapChain.Get();
-}
-
-inline UINT ModuleID3D12::GetCurrentBuffer() const
-{
-    return _currentBuffer;
 }
 
 inline Texture* ModuleID3D12::GetRenderBuffer() const

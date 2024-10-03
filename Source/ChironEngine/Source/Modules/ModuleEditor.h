@@ -2,6 +2,7 @@
 #include "Module.h"
 #include "Structs/ThemeColors.h"
 
+class CommandList;
 class MainMenuWindow;
 class Window;
 class DescriptorAllocation;
@@ -44,6 +45,8 @@ private:
     ThemeColors _darkGreenStyle;
 
     std::unique_ptr<DescriptorAllocation> _srvDescHeap;
+
+    std::shared_ptr<CommandList> _drawCommandList;
 
     ImGuiWindowFlags _dockFlags;
 };

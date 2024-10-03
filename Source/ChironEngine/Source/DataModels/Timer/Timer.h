@@ -7,8 +7,8 @@ public:
     ~Timer();
 
     void Start();
-    float Read() const;
+    double Read() const;
 
 private:
-    std::chrono::time_point<std::chrono::high_resolution_clock> _startRecord;
+    std::chrono::time_point<std::chrono::steady_clock> _startRecord;
 };
