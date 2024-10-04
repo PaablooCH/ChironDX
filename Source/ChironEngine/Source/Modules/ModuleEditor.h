@@ -21,6 +21,8 @@ public:
     UpdateStatus Update() override;
     UpdateStatus PostUpdate() override;
 
+    inline const std::vector<std::unique_ptr<Window>>& GetWindows() const;
+
 private:
     void StartDock() const;
 
@@ -32,8 +34,8 @@ private:
     {
         SCENE,
         CONSOLE,
-        ABOUT,
         CONFIGURATION,
+        ABOUT,
         SIZE
     };
 
@@ -50,3 +52,8 @@ private:
 
     ImGuiWindowFlags _dockFlags;
 };
+
+inline const std::vector<std::unique_ptr<Window>>& ModuleEditor::GetWindows() const 
+{
+    return _windows;
+}

@@ -26,7 +26,7 @@
     #include "Optick/optick.h"
 #endif // OPTICK
 
-ModuleEditor::ModuleEditor()
+ModuleEditor::ModuleEditor() : _dockFlags(0)
 {
 }
 
@@ -71,7 +71,6 @@ bool ModuleEditor::Start()
 {
     ApplyTheme(_darkGreenStyle);
 
-    _dockFlags = 0;
     _dockFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
     _dockFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
