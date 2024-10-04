@@ -288,6 +288,7 @@ std::shared_ptr<MaterialAsset> ModelImporter::ImportMaterial(const aiMaterial* m
 
 void ModelImporter::CheckPathMaterial(const char* filePath, const aiString& file, std::string& dataBuffer)
 {
+    CHIRON_TODO("Check textures outside the project");
     std::string name = ModuleFileSystem::GetFileName(file.data);
     name += ModuleFileSystem::GetFileExtension(file.data);
 

@@ -22,7 +22,6 @@ void Program::CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatur
 
 void Program::CreateGraphicPipelineState(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc)
 {
-
     Chiron::Utils::ThrowIfFailed(_device->CreateGraphicsPipelineState(psoDesc, IID_PPV_ARGS(&_pipelineState)));
 }
 
