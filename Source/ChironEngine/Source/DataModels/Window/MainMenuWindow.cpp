@@ -1,6 +1,10 @@
 #include "Pch.h"
 #include "MainMenuWindow.h"
 
+#include "Application.h"
+
+#include "Modules/ModuleWindow.h"
+
 #include "AboutWindow.h"
 
 #include <ImGui/imgui.h>
@@ -13,9 +17,27 @@ void MainMenuWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 {
     if (ImGui::BeginMainMenuBar())
     {
+        DrawFileMenu();
+        DrawViewMenu();
         DrawHelpMenu();
     }
     ImGui::EndMainMenuBar();
+}
+
+void MainMenuWindow::DrawFileMenu()
+{
+    if (ImGui::BeginMenu("File"))
+    {
+        if (ImGui::MenuItem("Exit"))
+        {
+            ::PostMessage(App->GetModule<ModuleWindow>()->GetWindowId(), WM_CLOSE, 0, 0);
+        }
+        ImGui::EndMenu();
+    }
+}
+
+void MainMenuWindow::DrawViewMenu()
+{
 }
 
 void MainMenuWindow::DrawHelpMenu()

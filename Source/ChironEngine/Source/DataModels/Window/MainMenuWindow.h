@@ -11,6 +11,8 @@ public:
     void Draw(const std::shared_ptr<CommandList>& commandList = nullptr) override;
 
 private:
+    void DrawFileMenu();
+    void DrawViewMenu();
     void DrawHelpMenu();
 
 private:
