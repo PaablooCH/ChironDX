@@ -117,7 +117,9 @@ UpdateStatus Application::Update()
         auto sleepTimeDuration = std::chrono::duration_cast<std::chrono::milliseconds>(sleepTime);
         if (sleepTimeDuration.count() > 0.f)
         {
+            timeBeginPeriod(1);
             std::this_thread::sleep_for(sleepTimeDuration);
+            timeEndPeriod(1);
         }
         endFrame = _timer->Read();
         ms = endFrame - beginFrame;
