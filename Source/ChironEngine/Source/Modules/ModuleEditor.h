@@ -53,7 +53,7 @@ private:
     ImGuiWindowFlags _dockFlags;
 };
 
-inline const std::vector<std::unique_ptr<Window>>& ModuleEditor::GetWindows() const 
+inline const std::vector<std::unique_ptr<Window>>& ModuleEditor::GetWindows() const
 {
     return _windows;
 }
