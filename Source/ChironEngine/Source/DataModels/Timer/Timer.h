@@ -3,12 +3,12 @@
 class Timer
 {
 public:
-	Timer();
-	~Timer();
+    Timer();
+    ~Timer();
 
-	void Start();
-	float Read() const;
+    void Start();
+    double Read() const;
 
 private:
-	std::chrono::time_point<std::chrono::high_resolution_clock> _startRecord;
+    std::chrono::time_point<std::chrono::steady_clock> _startRecord;
 };

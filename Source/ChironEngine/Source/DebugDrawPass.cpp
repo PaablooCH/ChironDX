@@ -1,6 +1,7 @@
 #include "Pch.h"
 
 #define DEBUG_DRAW_IMPLEMENTATION
+#define DEBUG_DRAW_CXX11_SUPPORTED 1
 
 #include "DebugDrawPass.h"
 
@@ -24,7 +25,7 @@ static const char linePointSource[] = R"(
         float3 color    : COLOR;
     };
 
-    VertexOutput linePointVS(VertexInput input) 
+    VertexOutput linePointVS(VertexInput input)
     {
         VertexOutput output;
         output.position = mul(float4(input.position, 1.0), mvp);
@@ -58,14 +59,14 @@ static const char textSource[] = R"(
         float2 texCoord : TEXCOORD;
         float3 color : COLOR;
     };
-    
-    VertexOutput textVS(VertexInput input) 
+
+    VertexOutput textVS(VertexInput input)
     {
         VertexOutput output;
 
         float x = ((2.0 * (input.position.x - 0.5)) / screenDimensions.x) - 1.0;
-        float y = 2.0*(1.0-((input.position.y-0.5)/screenDimensions.y))-1.0; 
-        
+        float y = 2.0*(1.0-((input.position.y-0.5)/screenDimensions.y))-1.0;
+
         output.position = float4(x, y, 0.0, 1.0);
         output.texCoord = input.texCoord;
         output.color    = input.color;
@@ -79,9 +80,9 @@ static const char textSource[] = R"(
     float4 textPS(VertexOutput input) : SV_TARGET
     {
         float alpha = glyphTexture.Sample(glyphSampler, input.texCoord).r;
-        return float4(1.0, 1.0, 1.0, alpha); 
+        return float4(1.0, 1.0, 1.0, alpha);
     }
-    
+
 )";
 
 using namespace DirectX;
@@ -139,17 +140,17 @@ public:
 
         CD3DX12_ROOT_SIGNATURE_DESC textRootDesc;
         textRootDesc.Init(2, &textRootParams[0], 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-                                                              D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | 
-                                                              D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-                                                              D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS | 
-                                                              D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
         ComPtr<ID3DBlob> rootSignatureBlob;
 
         D3D12SerializeRootSignature(&textRootDesc, D3D_ROOT_SIGNATURE_VERSION_1, &rootSignatureBlob, nullptr);
         device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(), rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&textSignature));
 
         D3D12_INPUT_ELEMENT_DESC inputLayout[] = { {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                                                   {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, 
+                                                   {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
                                                    {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0} };
 
         D3D12_GRAPHICS_PIPELINE_STATE_DESC textPSODesc = {};
@@ -167,13 +168,13 @@ public:
 
         textPSODesc.BlendState.AlphaToCoverageEnable = FALSE;
         textPSODesc.BlendState.IndependentBlendEnable = FALSE;
-        textPSODesc.BlendState.RenderTarget[0] = { TRUE, FALSE, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA, D3D12_BLEND_OP_ADD, 
-                                                   D3D12_BLEND_ZERO, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD, 
+        textPSODesc.BlendState.RenderTarget[0] = { TRUE, FALSE, D3D12_BLEND_SRC_ALPHA, D3D12_BLEND_INV_SRC_ALPHA, D3D12_BLEND_OP_ADD,
+                                                   D3D12_BLEND_ZERO, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
                                                    D3D12_LOGIC_OP_NOOP, D3D12_COLOR_WRITE_ENABLE_ALL };
 
         textPSODesc.DepthStencilState = { FALSE, D3D12_DEPTH_WRITE_MASK_ALL, D3D12_COMPARISON_FUNC_LESS, FALSE,
                                           D3D12_DEFAULT_STENCIL_READ_MASK, D3D12_DEFAULT_STENCIL_WRITE_MASK,
-                                          { D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS }, 
+                                          { D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS },
                                           { D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS } };
 
         textPSODesc.RasterizerState.FrontCounterClockwise = TRUE;
@@ -196,11 +197,11 @@ public:
 
         CD3DX12_ROOT_SIGNATURE_DESC linePointRootDesc;
         linePointRootDesc.Init(1, &linePointRootParams[0], 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-                                                                       D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-                                                                       D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-                                                                       D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-                                                                       D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS |
-                                                                       D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS |
+            D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS);
         ComPtr<ID3DBlob> rootSignatureBlob;
 
         D3D12SerializeRootSignature(&linePointRootDesc, D3D_ROOT_SIGNATURE_VERSION_1, &rootSignatureBlob, nullptr);
@@ -239,14 +240,14 @@ public:
         device->CreateGraphicsPipelineState(&linePSODesc, IID_PPV_ARGS(&linePSO));
         device->CreateGraphicsPipelineState(&linePSODescNoDepth, IID_PPV_ARGS(&linePSONoDepth));
     }
-     
+
     void createBuffer(unsigned bufferSize, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view)
     {
         // TODO : Test two-step loading in the Graphics queue and UMA NUMA
         CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
-        device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,IID_PPV_ARGS(&buffer));
+        device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer));
 
         view.BufferLocation = buffer->GetGPUVirtualAddress();
         view.StrideInBytes = sizeof(dd::DrawVertex);
@@ -264,12 +265,12 @@ public:
         createBuffer(DEBUG_DRAW_VERTEX_BUFFER_SIZE * sizeof(dd::DrawVertex), pointBuffer, pointBufferView);
     }
 
-    void beginDraw() override { }    
+    void beginDraw() override { }
     void endDraw()   override { }
 
-    void recordCommands(const dd::DrawVertex* vertices, int count, ID3D12Resource* vertexBuffer, const D3D12_VERTEX_BUFFER_VIEW& vertexBufferView, 
-                        ID3D12PipelineState* pso, ID3D12RootSignature* signature, void* rootConstants, uint32_t rootConstantsSize,
-                        ID3D12DescriptorHeap* descriptorHeap, D3D_PRIMITIVE_TOPOLOGY topology, size_t& memoryOffset)
+    void recordCommands(const dd::DrawVertex* vertices, int count, ID3D12Resource* vertexBuffer, const D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
+        ID3D12PipelineState* pso, ID3D12RootSignature* signature, void* rootConstants, uint32_t rootConstantsSize,
+        ID3D12DescriptorHeap* descriptorHeap, D3D_PRIMITIVE_TOPOLOGY topology, size_t& memoryOffset)
     {
         size_t freeSpace = DEBUG_DRAW_VERTEX_BUFFER_SIZE - memoryOffset;
         if (freeSpace < count)
@@ -290,10 +291,10 @@ public:
 
             D3D12_VIEWPORT viewport;
             viewport.TopLeftX = viewport.TopLeftY = 0;
-            viewport.MinDepth = 0.0f; 
+            viewport.MinDepth = 0.0f;
             viewport.MaxDepth = 1.0f;
-            viewport.Width    = float(width);
-            viewport.Height   = float(height);
+            viewport.Width = float(width);
+            viewport.Height = float(height);
 
             D3D12_RECT scissor;
             scissor.left = 0;
@@ -307,7 +308,7 @@ public:
             commandList->RSSetScissorRects(1, &scissor);
             commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
             commandList->IASetPrimitiveTopology(topology);
-            
+
             if (descriptorHeap != nullptr)
             {
                 ID3D12DescriptorHeap* descriptorHeaps[] = { descriptorHeap };
@@ -320,7 +321,7 @@ public:
         }
     }
 
-    void drawPointList(const dd::DrawVertex * points, int count, bool depthEnabled) override
+    void drawPointList(const dd::DrawVertex* points, int count, bool depthEnabled) override
     {
         ID3D12PipelineState* pso = depthEnabled ? pointPSO.Get() : pointPSONoDepth.Get();
 
@@ -328,8 +329,7 @@ public:
         recordCommands(points, count, pointBuffer.Get(), pointBufferView, pso, pointLineSignature.Get(), &mvp, sizeof(Matrix) / sizeof(UINT32), nullptr, D3D_PRIMITIVE_TOPOLOGY_POINTLIST, pointOffset);
     }
 
-
-    void drawLineList(const dd::DrawVertex * lines, int count, bool depthEnabled) override
+    void drawLineList(const dd::DrawVertex* lines, int count, bool depthEnabled) override
     {
         ID3D12PipelineState* pso = depthEnabled ? linePSO.Get() : linePSONoDepth.Get();
 
@@ -337,14 +337,14 @@ public:
         recordCommands(lines, count, lineBuffer.Get(), lineBufferView, pso, pointLineSignature.Get(), &mvp, sizeof(Matrix) / sizeof(UINT32), nullptr, D3D_PRIMITIVE_TOPOLOGY_LINELIST, lineOffset);
     }
 
-    void drawGlyphList(const dd::DrawVertex * glyphs, int count, dd::GlyphTextureHandle glyphTex) override
+    void drawGlyphList(const dd::DrawVertex* glyphs, int count, dd::GlyphTextureHandle glyphTex) override
     {
         Vector2 dim = Vector2(float(width), float(height));
 
         recordCommands(glyphs, count, textBuffer.Get(), textBufferView, textPSO.Get(), textSignature.Get(), &dim, sizeof(Vector2) / sizeof(UINT32), textDescriptorHeap.Get(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST, textOffset);
     }
 
-    dd::GlyphTextureHandle createGlyphTexture(int width, int height, const void * pixels) override
+    dd::GlyphTextureHandle createGlyphTexture(int width, int height, const void* pixels) override
     {
         // Create and upload texture
 
@@ -375,14 +375,14 @@ public:
 
         CD3DX12_TEXTURE_COPY_LOCATION dst = CD3DX12_TEXTURE_COPY_LOCATION(glyphTexture.Get());
         CD3DX12_TEXTURE_COPY_LOCATION src = CD3DX12_TEXTURE_COPY_LOCATION(staging.Get(), footPrint);
-        CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(glyphTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, 
-                                                                                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(glyphTexture.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
         commandList->Reset(commandAllocator.Get(), nullptr);
         commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
         commandList->ResourceBarrier(1, &barrier);
         commandList->Close();
-        
+
         ID3D12CommandList* const gfxCommandList = commandList.Get();
         uploadQueue->ExecuteCommandLists(1, &gfxCommandList);
 
@@ -392,9 +392,9 @@ public:
         uploadFence->SetEventOnCompletion(uploadFenceValue, uploadEvent);
         WaitForSingleObject(uploadEvent, INFINITE);
 
-        // Create descriptors 
-        
-        // TODO: Do we need a descriptor heap?, can be provided by the application ? 
+        // Create descriptors
+
+        // TODO: Do we need a descriptor heap?, can be provided by the application ?
         D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
         heapDesc.NumDescriptors = 1;
         heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
@@ -414,7 +414,6 @@ public:
 
         return dd::GlyphTextureHandle(0xFFFFFF);
     }
-
 
 private:
 
@@ -439,17 +438,17 @@ private:
 
     ComPtr<ID3D12Resource>       lineBuffer;
     D3D12_VERTEX_BUFFER_VIEW     lineBufferView;
-    void*                        linePtr    = nullptr;
+    void* linePtr = nullptr;
     size_t                       lineOffset = 0;
 
     ComPtr<ID3D12Resource>       pointBuffer;
     D3D12_VERTEX_BUFFER_VIEW     pointBufferView;
-    void*                        pointPtr    = nullptr;
+    void* pointPtr = nullptr;
     size_t                       pointOffset = 0;
 
     ComPtr<ID3D12Resource>       textBuffer;
     D3D12_VERTEX_BUFFER_VIEW     textBufferView;
-    void*                        textPtr    = nullptr;
+    void* textPtr = nullptr;
     size_t                       textOffset = 0;
 
     ComPtr<ID3D12RootSignature>  pointLineSignature;
@@ -463,13 +462,12 @@ private:
 
     ComPtr<ID3D12DescriptorHeap> textDescriptorHeap;
     ComPtr<ID3D12Resource>       glyphTexture;
-
 }; // class DDRenderInterfaceCoreD3D12
 
 DDRenderInterfaceCoreD3D12* DebugDrawPass::implementation = 0;
 
 DebugDrawPass::DebugDrawPass(ID3D12Device2* device, ID3D12CommandQueue* uploadQueue)
-{    
+{
     implementation = new DDRenderInterfaceCoreD3D12(device, uploadQueue);
     dd::initialize(implementation);
 }
@@ -484,11 +482,11 @@ DebugDrawPass::~DebugDrawPass()
 
 void DebugDrawPass::record(ID3D12GraphicsCommandList* commandList, uint32_t width, uint32_t height, const Matrix& view, const Matrix& proj)
 {
-    implementation->mvpMatrix     = view * proj;
-    implementation->commandList   = commandList;
+    implementation->mvpMatrix = view * proj;
+    implementation->commandList = commandList;
 
-    implementation->width         = width;
-    implementation->height        = height;
+    implementation->width = width;
+    implementation->height = height;
 
     dd::flush();
 }

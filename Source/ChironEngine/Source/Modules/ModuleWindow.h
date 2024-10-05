@@ -9,6 +9,7 @@ public:
     ~ModuleWindow() override;
 
     bool Init() override;
+    bool Start() override;
     UpdateStatus PreUpdate() override;
     UpdateStatus Update() override;
     UpdateStatus PostUpdate() override;
@@ -19,6 +20,10 @@ public:
     void Resize();
     void Resize(unsigned width, unsigned height);
     void ToggleFullScreen();
+
+    // ------------- WINDOW CURSOR ----------------------
+
+    void UnlimitedCursor() const;
 
     // ------------- GETTERS ----------------------
 

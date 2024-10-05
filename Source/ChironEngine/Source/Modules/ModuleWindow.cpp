@@ -4,9 +4,11 @@
 #include "Application.h"
 
 #include "ModuleID3D12.h"
+#include "ModuleInput.h"
+#include "ModuleRender.h"
 
-ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false), 
-_width(0), _height(0)
+ModuleWindow::ModuleWindow(HWND hwnd, HINSTANCE hInstance) : _hWnd(hwnd), _hInstance(hInstance), _fullscreen(false),
+_width(0), _height(0), _lastWindowRect()
 {
 }
 
@@ -32,17 +34,26 @@ bool ModuleWindow::Init()
         return false;
     }
 
-	return true;
+    // Drag and drop
+    DragAcceptFiles(_hWnd, TRUE);
+
+    return true;
+}
+
+bool ModuleWindow::Start()
+{
+    ToggleFullScreen();
+    return true;
 }
 
 UpdateStatus ModuleWindow::PreUpdate()
 {
-	return UpdateStatus::UPDATE_CONTINUE;
+    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleWindow::Update()
 {
-	return UpdateStatus::UPDATE_CONTINUE;
+    return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleWindow::PostUpdate()
@@ -52,7 +63,7 @@ UpdateStatus ModuleWindow::PostUpdate()
 
 bool ModuleWindow::CleanUp()
 {
-	return true;
+    return true;
 }
 
 void ModuleWindow::Resize()
@@ -81,9 +92,10 @@ void ModuleWindow::Resize(unsigned width, unsigned height)
         _width = std::max(1u, width);
         _height = std::max(1u, height);
 
-        // Flush the GPU queue to make sure the swap chain's back buffers
-        // are not being referenced by an in-flight command list.
-        App->GetModule<ModuleID3D12>()->ResizeBuffers(_width, _height);
+        // Flush the GPU queue to make sure the swap chain's back buffers are not being referenced by an in-flight
+        // command list.
+        App->GetModule<ModuleID3D12>()->ResizeBuffers();
+        App->GetModule<ModuleRender>()->ResizeBuffers(_width, _height);
     }
 }
 
@@ -130,5 +142,39 @@ void ModuleWindow::ToggleFullScreen()
             SWP_FRAMECHANGED | SWP_NOACTIVATE);
 
         ::ShowWindow(_hWnd, SW_NORMAL);
+    }
+}
+
+void ModuleWindow::UnlimitedCursor() const
+{
+    auto input = App->GetModule<ModuleInput>();
+    POINT cursorPos;
+    GetCursorPos(&cursorPos);
+
+    // Get the dimensions of the current window
+    RECT windowRect;
+    GetClientRect(_hWnd, &windowRect);
+    MapWindowPoints(_hWnd, nullptr, reinterpret_cast<POINT*>(&windowRect), 2); // Convert to screen coordinates
+
+    if (cursorPos.x <= windowRect.left)
+    {
+        SetCursorPos(windowRect.right - 1, cursorPos.y); // Move to the right side
+        input->CaptureMousePos();
+    }
+    else if (cursorPos.x >= windowRect.right - 1)
+    {
+        SetCursorPos(windowRect.left + 1, cursorPos.y); // Move to the left side
+        input->CaptureMousePos();
+    }
+
+    if (cursorPos.y <= windowRect.top)
+    {
+        SetCursorPos(cursorPos.x, windowRect.bottom - 1); // Move to the bottom edge
+        input->CaptureMousePos();
+    }
+    else if (cursorPos.y >= windowRect.bottom - 1)
+    {
+        SetCursorPos(cursorPos.x, windowRect.top + 1); // Move to the top edge
+        input->CaptureMousePos();
     }
 }

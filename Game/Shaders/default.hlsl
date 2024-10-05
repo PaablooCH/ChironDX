@@ -1,36 +1,64 @@
-cbuffer ModelViewProjection : register(b0)
+// ------------- BUFFERS ----------------------
+
+struct ViewProjection
 {
-    matrix MVP;
+    matrix view;
+    matrix projection;
+};
+ConstantBuffer<ViewProjection> viewProjection : register(b0);
+
+struct ModelAttributes
+{
+    matrix model;
+    int uvCorrector;
+};
+ConstantBuffer<ModelAttributes> modelAttributes : register(b1);
+
+// ------------- VERTEX SHADER ----------------------
+
+struct VS_INPUT
+{
+    float3 position : POSITION;
+    float2 texCoord : TEXCOORD;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 bitangent : BITANGENT;
 };
 
-struct VertexPosColor
+struct VS_OUTPUT
 {
-    float3 Position : POSITION;
-    float4 Color    : COLOR;
+    float4 position : SV_Position;
+    float2 texCoord : TEXCOORD;
 };
 
-struct VertexShaderOutput
+VS_OUTPUT VSmain(VS_INPUT input)
 {
-    float4 Color    : COLOR;
-    float4 Position : SV_Position;
-};
-
-VertexShaderOutput VSmain(VertexPosColor IN)
-{
-    VertexShaderOutput OUT;
-
-    OUT.Position = mul(MVP, float4(IN.Position, 1.0f));
-    OUT.Color = IN.Color;
+    VS_OUTPUT OUT;
+    float4 position = float4(input.position, 1.0f);
+    matrix mvp = mul(modelAttributes.model, mul(viewProjection.view, viewProjection.projection));
+    OUT.position = mul(position, mvp);
+    OUT.texCoord = input.texCoord;
 
     return OUT;
 }
 
-struct PixelShaderInput
+// ------------- PIXEL SHADER ----------------------
+
+Texture2D t1 : register(t0);
+SamplerState s1 : register(s0);
+
+struct PS_INPUT
 {
-    float4 Color : COLOR;
+    float4 position : SV_POSITION;
+    float2 texCoord : TEXCOORD;
 };
 
-float4 PSmain(PixelShaderInput IN) : SV_Target
+float4 PSmain(PS_INPUT input) : SV_Target
 {
-    return IN.Color;
+    float2 coord = input.texCoord;
+    if (modelAttributes.uvCorrector == 1)
+    {
+        coord.y = 1.0f - coord.y;
+    }
+    return t1.Sample(s1, coord);
 }

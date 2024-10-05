@@ -11,12 +11,12 @@ Timer::~Timer()
 
 void Timer::Start()
 {
-	_startRecord = std::chrono::high_resolution_clock::now();
+    _startRecord = std::chrono::steady_clock::now();
 }
 
-float Timer::Read() const
+double Timer::Read() const
 {
-    auto now = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - _startRecord);
-    return static_cast<float>(duration.count());
+    auto now = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::duration<double, std::milli>>(now - _startRecord);
+    return duration.count();
 }

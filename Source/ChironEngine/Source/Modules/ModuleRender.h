@@ -1,13 +1,10 @@
 #pragma once
 #include "Module.h"
 
+class CommandList;
 class DebugDrawPass;
-
-struct Vertex
-{
-    Vector3 position;
-    Vector4 color;
-};
+class ModelAsset;
+class Texture;
 
 class ModuleRender : public Module
 {
@@ -21,18 +18,29 @@ public:
     UpdateStatus PostUpdate() override;
     bool CleanUp() override;
 
+    void ResizeBuffers(unsigned newWidth, unsigned newHeight);
+
+    // ------------- GETTERS ----------------------
+
+    inline const Texture* GetSceneTexture() const;
+
+    std::shared_ptr<ModelAsset> model;
+    void LoadNewModel(std::string modelPath);
 private:
-    
+    void CreateTextures();
+
 private:
-    // Indicate to the driver how a resource should be used in upcoming commands.
-    // Is used once its loaded into a Queue
-    ComPtr<ID3D12GraphicsCommandList> _drawCommandList;
-
-    ComPtr<ID3D12Resource> _vertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
-
-    ComPtr<ID3D12Resource> _indexBuffer;
-    D3D12_INDEX_BUFFER_VIEW _indexBufferView;
-
     std::unique_ptr<DebugDrawPass> _debugDraw;
+
+    std::unique_ptr<Texture> _sceneTexture;
+    std::unique_ptr<Texture> _depthStencilTexture;
+
+    std::shared_ptr<CommandList> _drawCommandList;
+
+    D3D12_RECT _scissor;
 };
+
+inline const Texture* ModuleRender::GetSceneTexture() const
+{
+    return _sceneTexture.get();
+}

@@ -1,63 +1,74 @@
 #include "Pch.h"
 #include "Log.h"
 
-#include <mutex>
-
 namespace
 {
-	std::recursive_mutex writeLock; // block write in multithread
+    std::recursive_mutex writeLock; // block write in multithread
 }
 
 namespace Chiron
 {
-	Log::~Log()
-	{
-		_logLines.clear();
-	}
+    Log::~Log()
+    {
+        _logLines.clear();
+    }
 
-	void Log::Write(const char file[], int line, LogSeverity severity, std::string&& formattedLine)
-	{
-		std::scoped_lock lock(writeLock);
+    void Log::Write(const char file[], int line, LogSeverity severity, std::string&& formattedLine)
+    {
+        std::scoped_lock lock(writeLock);
 
-		LogLine logLine{ severity, file, static_cast<uint16_t>(line), std::move(formattedLine) };
-		_logLines.push_back(logLine);
+        LogLine logLine{ severity, file, static_cast<uint16_t>(line), std::move(formattedLine) };
+        _logLines.push_back(logLine);
 
-		std::string toString = logLine.ToString(true);
-		OutputDebugStringA(toString.c_str());
-	}
+        std::string toString = logLine.ToDetailedString();
+        OutputDebugStringA(toString.c_str());
+    }
 
-	std::string Log::LogLine::ToString(bool addBreak) const
-	{
-		std::string result;
-		switch (severity)
-		{
-		case LogSeverity::TRACE_LOG:
-			result = "[TRACE]\t";
-			break;
-		case LogSeverity::DEBUG_LOG:
-			result = "[DEBUG]\t";
-			break;
-		case LogSeverity::INFO_LOG:
-			result = "[INFO]\t";
-			break;
-		case LogSeverity::WARNING_LOG:
-			result = "[WARNING]\t";
-			break;
-		case LogSeverity::ERROR_LOG:
-			result = "[ERROR]\t";
-			break;
-		case LogSeverity::FATAL_LOG:
-			result = "[FATAL]\t";
-			break;
-		}
+    std::string Log::LogLine::ToDetailedString(bool addBreak) const
+    {
+        return ToString(true, addBreak);
+    }
 
-		result += file + "(" + std::to_string(line) + ") : ";
+    std::string Log::LogLine::ToSimpleString(bool addBreak) const
+    {
+        return ToString(false, addBreak);
+    }
 
-		result += message;
-		if (addBreak)
-		{
-			result += '\n';
-		}
-		return result;
-	}
+    std::string Log::LogLine::ToString(bool detailed, bool addBreak) const
+    {
+        std::string result;
+        switch (severity)
+        {
+        case LogSeverity::TRACE_LOG:
+            result = "[TRACE]\t";
+            break;
+        case LogSeverity::DEBUG_LOG:
+            result = "[DEBUG]\t";
+            break;
+        case LogSeverity::INFO_LOG:
+            result = "[INFO]\t";
+            break;
+        case LogSeverity::WARNING_LOG:
+            result = "[WARNING]\t";
+            break;
+        case LogSeverity::ERROR_LOG:
+            result = "[ERROR]\t";
+            break;
+        case LogSeverity::FATAL_LOG:
+            result = "[FATAL]\t";
+            break;
+        }
+
+        if (detailed)
+        {
+            result += file + "(" + std::to_string(line) + ") : ";
+        }
+
+        result += message;
+        if (addBreak)
+        {
+            result += '\n';
+        }
+        return result;
+    }
 }

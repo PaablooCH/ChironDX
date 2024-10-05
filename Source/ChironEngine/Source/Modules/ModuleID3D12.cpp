@@ -5,9 +5,16 @@
 
 #include "ModuleWindow.h"
 
-#include "DataModels/CommandQueue/CommandQueue.h"
+#include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/CommandQueue/CommandQueue.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+#include "DataModels/DX12/Resource/Texture.h"
 
-ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false)
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
+ModuleID3D12::ModuleID3D12() : _currentBuffer(0), _vSync(true), _tearingSupported(false), _supportsRT(false), _bufferFenceValues()
 {
 }
 
@@ -18,52 +25,67 @@ ModuleID3D12::~ModuleID3D12()
 bool ModuleID3D12::Init()
 {
     bool ok = CreateFactory();
-    ok = ok && CreateAdapter();
     ok = ok && CreateDevice();
-    ok = ok && CreateCommandQueue();
+    ok = ok && CreateCommandQueues();
     ok = ok && CreateSwapChain();
-
-    InitFrameBuffer();
 
     if (ok)
     {
+        InitDescriptorAllocator();
+        ObtainRTVFromSwapChain();
         _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
     }
+#ifdef DEBUG
+    PrintMessages();
+#endif // DEBUG
 
     return ok;
 }
 
-UpdateStatus ModuleID3D12::PreUpdate()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleID3D12::Update()
-{
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
-UpdateStatus ModuleID3D12::PostUpdate()
-{
-    UINT syncInterval = _vSync ? 1 : 0;
-    UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
-    Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
-
-    return UpdateStatus::UPDATE_CONTINUE;
-}
-
 bool ModuleID3D12::CleanUp()
 {
-    Flush();
+    _commandQueueDirect.reset();
+    _commandQueueCompute.reset();
+    _commandQueueCopy.reset();
+    _swapChain = nullptr;
+    _descriptorAllocators.clear();
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
+    {
+        _renderBuffers[i].reset();
+    }
+
+#ifdef DEBUG
+    _debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+#endif // DEBUG
 
     return true;
 }
 
-void ModuleID3D12::SwapCurrentBuffer()
+UpdateStatus ModuleID3D12::PostUpdate()
 {
-    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
+#if OPTICK
+    OPTICK_CATEGORY("PostUpdateID3D12", Optick::Category::None);
+#endif // DEBUG
+#ifdef DEBUG
+    PrintMessages();
+#endif // DEBUG
 
-    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
+    return UpdateStatus::UPDATE_CONTINUE;
+}
+
+uint64_t ModuleID3D12::ExecuteCommandList(std::shared_ptr<CommandList>& commandList)
+{
+    switch (commandList->GetType())
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect->ExecuteCommandList(std::move(commandList));
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute->ExecuteCommandList(std::move(commandList));
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy->ExecuteCommandList(std::move(commandList));
+    default:
+        throw std::invalid_argument("Incorrect queue type.");
+    }
 }
 
 void ModuleID3D12::SaveCurrentBufferFenceValue(const uint64_t& fenceValue)
@@ -76,109 +98,38 @@ void ModuleID3D12::ToggleVSync()
     _vSync = !_vSync;
 }
 
-void ModuleID3D12::ResizeBuffers(unsigned newWidth, unsigned newHeight)
+void ModuleID3D12::ResizeBuffers()
 {
     Flush();
-    
+
     // ------------- SWAP-CHAIN ---------------------------
 
-    for (int i = 0; i < backBufferCount; ++i)
+    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; ++i)
     {
-        // Any references to the back buffers must be released
-        // before the swap chain can be resized.
-        _renderBuffers[i].Reset();
-        _bufferFenceValues[i] = _bufferFenceValues[_currentBuffer];
+        // Any references to the back buffers must be released before the swap chain can be resized.
+        _renderBuffers[i].reset();
+        _renderBuffers[i] = nullptr;
     }
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
     Chiron::Utils::ThrowIfFailed(_swapChain->GetDesc(&swapChainDesc)); // Get the current descr to apply it to the newer.
-    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(backBufferCount, newWidth, newHeight,
-        swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
+    Chiron::Utils::ThrowIfFailed(_swapChain->ResizeBuffers(0, 0, 0, swapChainDesc.BufferDesc.Format, swapChainDesc.Flags));
 
     _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
 
-    UpdateRenderTargetViews();
+    // ------------- RENDER TARGET VIEW ---------------------------
 
-    // ------------- DEPTH-STENCIL ---------------------------
-
-    CreateDepthStencil(newWidth, newHeight);
+    ObtainRTVFromSwapChain();
 }
 
-ComPtr<ID3D12GraphicsCommandList> ModuleID3D12::CreateCommandList(ID3D12CommandAllocator* commandAllocator, 
-    D3D12_COMMAND_LIST_TYPE type, const LPCWSTR& name)
+void ModuleID3D12::PresentAndSwapBuffer()
 {
-    ComPtr<ID3D12GraphicsCommandList> commandList;
+    UINT syncInterval = _vSync ? 1 : 0;
+    UINT presentFlags = _tearingSupported && !_vSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+    Chiron::Utils::ThrowIfFailed(_swapChain->Present(syncInterval, presentFlags));
 
-    Chiron::Utils::ThrowIfFailed(_device->CreateCommandList(
-        0,
-        type,
-        commandAllocator,
-        nullptr,
-        IID_PPV_ARGS(&commandList)));
-    Chiron::Utils::ThrowIfFailed(commandList->Close());
-    Chiron::Utils::ThrowIfFailed(commandList->SetName(name));
-    return commandList;
-}
-
-void ModuleID3D12::CreateTransitionBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource, 
-    D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
-{
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), stateBefore, stateAfter);
-    commandList->ResourceBarrier(1, &barrier);
-}
-
-void ModuleID3D12::CreateAliasingBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, 
-    ComPtr<ID3D12Resource> resourceBefore, ComPtr<ID3D12Resource> resourceAfter)
-{
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Aliasing(resourceBefore.Get(), resourceAfter.Get());
-    commandList->ResourceBarrier(1, &barrier);
-}
-
-void ModuleID3D12::CreateUAVBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, ComPtr<ID3D12Resource> resource)
-{
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(resource.Get());
-    commandList->ResourceBarrier(1, &barrier);
-}
-
-void ModuleID3D12::UpdateBufferResource(ComPtr<ID3D12GraphicsCommandList> commandList, 
-    ID3D12Resource** pDestinationResource, ID3D12Resource** pIntermediateResource, size_t numElements, size_t elementSize,
-    const void* bufferData, D3D12_RESOURCE_FLAGS flags)
-{
-    size_t bufferSize = numElements * elementSize;
-
-    CD3DX12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, flags);
-
-    // Create a committed resource for the GPU resource in a default heap.
-    Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(
-        &heapProperties,
-        D3D12_HEAP_FLAG_NONE, 
-        &resourceDesc,
-        D3D12_RESOURCE_STATE_COMMON, 
-        nullptr,
-        IID_PPV_ARGS(pDestinationResource)));
-
-    if (bufferData)
-    {
-        heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
-
-        // Create a commited resource in upload heap
-        Chiron::Utils::ThrowIfFailed(_device->CreateCommittedResource(
-            &heapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &resourceDesc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(pIntermediateResource)));
-        
-        D3D12_SUBRESOURCE_DATA subresourceData = {};
-        subresourceData.pData = bufferData;
-        subresourceData.RowPitch = bufferSize;
-        subresourceData.SlicePitch = subresourceData.RowPitch;
-        
-        UpdateSubresources(commandList.Get(), *pDestinationResource, *pIntermediateResource, 0, 0, 1, &subresourceData);
-    }
+    _currentBuffer = _swapChain->GetCurrentBackBufferIndex();
+    _commandQueueDirect->WaitForFenceValue(_bufferFenceValues[_currentBuffer]);
 }
 
 void ModuleID3D12::Flush()
@@ -188,21 +139,53 @@ void ModuleID3D12::Flush()
     _commandQueueCopy->Flush();
 }
 
-uint64_t ModuleID3D12::Signal(ComPtr<ID3D12CommandQueue> commandQueue, ComPtr<ID3D12Fence> fence, uint64_t& fenceValue)
+void ModuleID3D12::WaitForFenceValue(D3D12_COMMAND_LIST_TYPE type, uint64_t fenceValue)
 {
-    uint64_t fenceValueForSignal = ++fenceValue;
-    Chiron::Utils::ThrowIfFailed(commandQueue->Signal(fence.Get(), fenceValueForSignal));
-
-    return fenceValueForSignal;
+    switch (type)
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        _commandQueueDirect->WaitForFenceValue(fenceValue);
+        break;
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        _commandQueueCompute->WaitForFenceValue(fenceValue);
+        break;
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        _commandQueueCopy->WaitForFenceValue(fenceValue);
+        break;
+    default:
+        throw std::invalid_argument("Incorrect queue type.");
+    }
 }
 
-void ModuleID3D12::WaitForFenceValue(ComPtr<ID3D12Fence> fence, uint64_t fenceValue, HANDLE fenceEvent, 
-    std::chrono::milliseconds duration)
+ID3D12CommandQueue* ModuleID3D12::GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE type) const
 {
-    if (fence->GetCompletedValue() < fenceValue)
+    switch (type)
     {
-        Chiron::Utils::ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
-        ::WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect->GetCommandQueue();
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute->GetCommandQueue();
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy->GetCommandQueue();
+    default:
+        assert(false && "Incorrect queue type.");
+        break;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<CommandList> ModuleID3D12::GetCommandList(D3D12_COMMAND_LIST_TYPE type) const
+{
+    switch (type)
+    {
+    case D3D12_COMMAND_LIST_TYPE_DIRECT:
+        return _commandQueueDirect->GetCommandList();
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return _commandQueueCompute->GetCommandList();
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return _commandQueueCopy->GetCommandList();
+    default:
+        throw std::invalid_argument("Incorrect queue type.");
     }
 }
 
@@ -211,25 +194,27 @@ bool ModuleID3D12::CreateFactory()
     UINT dxgiFactoryFlags = 0;
 #ifdef DEBUG
     // Create a Debug Controller to track errors
-    ID3D12Debug* dc;
-    Chiron::Utils::ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&dc)));
-    Chiron::Utils::ThrowIfFailed(dc->QueryInterface(IID_PPV_ARGS(&_debugController)));
-    _debugController->EnableDebugLayer();
-    _debugController->SetEnableGPUBasedValidation(true);
+    ComPtr<ID3D12Debug> debugInterface;
+    ComPtr<ID3D12Debug1> debugController;
+    Chiron::Utils::ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)));
+    Chiron::Utils::ThrowIfFailed(debugInterface->QueryInterface(IID_PPV_ARGS(&debugController)));
+    debugController->EnableDebugLayer();
+    debugController->SetEnableGPUBasedValidation(true);
+    //debugController->SetEnableSynchronizedCommandQueueValidation(true);
 
     dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-
-    dc->Release();
-    dc = nullptr;
 #endif
 
     HRESULT result = CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&_factory));
+
     return SUCCEEDED(result);
 }
 
-bool ModuleID3D12::CreateAdapter()
+bool ModuleID3D12::CreateDevice()
 {
     ComPtr<IDXGIAdapter1> adapter1;
+    ComPtr<IDXGIAdapter4> adapter4;
+    ComPtr<ID3D12Device5> device5;
 
     bool ok = false;
     for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != _factory->EnumAdapters1(adapterIndex, &adapter1); ++adapterIndex)
@@ -243,51 +228,50 @@ bool ModuleID3D12::CreateAdapter()
             continue;
         }
 
+        ComPtr<ID3D12Device5> tmpDevice;
+
         // Check if the adapter supports Direct3D 12, and use that for the rest
         // of the application
-        if (SUCCEEDED(D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0,
-            _uuidof(ID3D12Device), nullptr)))
+        if (SUCCEEDED(D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&tmpDevice))))
         {
-            adapter1.As(&_adapter);
-            ok = true;
+            ok = SUCCEEDED(adapter1.As(&adapter4));
+            device5 = tmpDevice;
         }
     }
 
     if (ok)
     {
-        ComPtr<IDXGIFactory5> factory5;
+        BOOL tearing = FALSE;
+        _factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &tearing, sizeof(tearing));
 
-        if (SUCCEEDED(_factory.As(&factory5)))
+        _tearingSupported = tearing == TRUE;
+
+        D3D12_FEATURE_DATA_D3D12_OPTIONS5 features5{};
+        HRESULT hr = device5->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &features5, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS5));
+        if (SUCCEEDED(hr) && features5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED)
         {
-            BOOL tearing = FALSE;
-            factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &tearing, sizeof(tearing));
-
-            _tearingSupported = tearing == TRUE;
+            _supportsRT = true;
         }
+
+        _adapter = adapter4;
+        _device = device5;
+        _device->SetName(L"Device");
+
+#ifdef DEBUG
+        // Get debug device
+        ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_debugDevice)));
+        ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_infoQueue)));
+#endif
     }
 
     return ok;
 }
 
-bool ModuleID3D12::CreateDevice()
+bool ModuleID3D12::CreateCommandQueues()
 {
-    HRESULT result = D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device));
-    _device->SetName(L"Device");
-    bool ok = SUCCEEDED(result);
-
-#ifdef DEBUG
-    // Get debug device
-    ok = ok && SUCCEEDED(_device->QueryInterface(IID_PPV_ARGS(&_debugDevice)));
-#endif
-
-    return ok;
-}
-
-bool ModuleID3D12::CreateCommandQueue()
-{
-    _commandQueueDirect = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT, _device);
-    _commandQueueCompute = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE, _device);
-    _commandQueueCopy = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COPY, _device);
+    _commandQueueDirect = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    _commandQueueCompute = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+    _commandQueueCopy = std::make_unique<CommandQueue>(D3D12_COMMAND_LIST_TYPE_COPY);
 
     return true;
 }
@@ -304,7 +288,7 @@ bool ModuleID3D12::CreateSwapChain()
     if (_swapChain != nullptr)
     {
         // Create Render Target Attachments from swapchain
-        _swapChain->ResizeBuffers(backBufferCount, width, height,
+        _swapChain->ResizeBuffers(NUM_FRAMES_IN_FLIGHT, width, height,
             DXGI_FORMAT_R8G8B8A8_UNORM, 0);
         return true;
     }
@@ -312,114 +296,119 @@ bool ModuleID3D12::CreateSwapChain()
     {
         // Create swapchain
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-        swapChainDesc.Width = width;
-        swapChainDesc.Height = height;
+        swapChainDesc.Width = 0;
+        swapChainDesc.Height = 0;
         swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = backBufferCount;
+        swapChainDesc.BufferCount = NUM_FRAMES_IN_FLIGHT;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        swapChainDesc.Flags = _tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT |
+            (_tearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0);
 
         ComPtr<IDXGISwapChain1> newSwapchain1;
-        Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd, 
+        Chiron::Utils::ThrowIfFailed(_factory->CreateSwapChainForHwnd(_commandQueueDirect->GetCommandQueue(), hwnd,
             &swapChainDesc, nullptr, nullptr, &newSwapchain1));
 
         Chiron::Utils::ThrowIfFailed(newSwapchain1.As(&_swapChain));
 
-        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen
-        // will be handled manually.
+        // Disable the Alt+Enter fullscreen toggle feature. Switching to fullscreen will be handled manually.
         Chiron::Utils::ThrowIfFailed(_factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER));
-        
+
         return true;
     }
 
     return false;
 }
 
-void ModuleID3D12::CreateDepthStencil(unsigned width, unsigned height)
+std::unique_ptr<Texture> ModuleID3D12::CreateDepthStencil(const std::wstring& name)
+{
+    unsigned width;
+    unsigned height;
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
+
+    return CreateDepthStencil(name, width, height);
+}
+
+std::unique_ptr<Texture> ModuleID3D12::CreateDepthStencil(const std::wstring& name, unsigned width, unsigned height)
 {
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-    clearValue.DepthStencil.Depth = 1.0f;
-    clearValue.DepthStencil.Stencil = 0;
-    CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+    clearValue.DepthStencil = { 1.0f, 0 };
+    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0,
+        D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-    Chiron::Utils::ThrowIfFailed(
-        _device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &clearValue, IID_PPV_ARGS(&_depthStencilBuffer)));
-
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-    dsvHeapDesc.NumDescriptors = 1;
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&_dsvHeap)));
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-
-    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
-    depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
-
-    _device->CreateDepthStencilView(_depthStencilBuffer.Get(), &depthStencilDesc, dsvHandle);
-    _depthStencilBuffer->SetName(L"Depth Stencil Buffer");
+    return std::make_unique<Texture>(desc, name, &clearValue);
 }
 
-void ModuleID3D12::UpdateRenderTargetViews()
-{
-    _renderTargetViewDesciptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
-
-    for (int i = 0; i < backBufferCount; ++i)
-    {
-        ComPtr<ID3D12Resource> backBuffer;
-        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-
-        _device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
-
-        _renderBuffers[i] = backBuffer;
-        _renderBuffers[i]->SetName(L"Render Buffer " + i);
-
-        rtvHandle.Offset(_renderTargetViewDesciptorSize);
-    }
-}
-
-void ModuleID3D12::InitFrameBuffer()
+void ModuleID3D12::ObtainRTVFromSwapChain()
 {
     // ------------- RTV ---------------------------
 
-    // Describe and create a render target view (RTV) descriptor heap.
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    rtvHeapDesc.NumDescriptors = backBufferCount;
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    Chiron::Utils::ThrowIfFailed(_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&_renderTargetViewHeap)));
-
-    _renderTargetViewDesciptorSize = _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-    // Create frame resources
-    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
-
     // Create a RTV for each frame.
-    for (UINT n = 0; n < backBufferCount; n++)
+    for (UINT i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
     {
-        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(n, IID_PPV_ARGS(&_renderBuffers[n])));
-        _device->CreateRenderTargetView(_renderBuffers[n].Get(), nullptr, rtvHandle);
-        rtvHandle.Offset(_renderTargetViewDesciptorSize);
+        ComPtr<ID3D12Resource> backBuffer = nullptr;
+        Chiron::Utils::ThrowIfFailed(_swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+
+        _renderBuffers[i] = std::make_unique<Texture>(backBuffer);
+        _renderBuffers[i]->SetName((L"Render Buffer " + std::to_wstring(i)).c_str());
+    }
+}
+
+void ModuleID3D12::InitDescriptorAllocator()
+{
+    _descriptorAllocators.reserve(D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES);
+
+    for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; i++)
+    {
+        _descriptorAllocators.push_back(std::make_unique<DescriptorAllocator>(static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(i)));
+    }
+}
+
+void ModuleID3D12::PrintMessages()
+{
+#ifdef DEBUG
+    static std::set<std::string> shownMessages;
+    const UINT64 numMessages = _infoQueue->GetNumStoredMessages();
+    for (UINT64 i = 0; i < numMessages; ++i)
+    {
+        SIZE_T messageLength = 0;
+        // Get Message Lenght
+        _infoQueue->GetMessage(i, nullptr, &messageLength);
+
+        std::vector<char> messageData(messageLength);
+        D3D12_MESSAGE* message = reinterpret_cast<D3D12_MESSAGE*>(messageData.data());
+
+        // Get Message
+        _infoQueue->GetMessage(i, message, &messageLength);
+
+        if (shownMessages.insert(message->pDescription).second)
+        {
+            switch (message->Severity)
+            {
+            case D3D12_MESSAGE_SEVERITY_CORRUPTION:
+                LOG_FATAL("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_ERROR:
+                LOG_ERROR("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_WARNING:
+                LOG_WARNING("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_INFO:
+                LOG_INFO("{}", message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_MESSAGE:
+                LOG_TRACE("{}", message->pDescription);
+                break;
+            }
+        }
     }
 
-    // ------------- DEPTH-STENCIL ---------------------------
-    
-    unsigned width;
-    unsigned height;
-
-    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
-
-    CreateDepthStencil(width, height);
+    _infoQueue->ClearStoredMessages();
+#endif // DEBUG
 }

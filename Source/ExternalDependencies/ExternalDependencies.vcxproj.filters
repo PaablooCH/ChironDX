@@ -24,16 +24,16 @@
     <ClCompile Include="ImGui\imgui_draw.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="ImGui\imgui_impl_opengl3.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_impl_sdl.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="ImGui\imgui_tables.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_dx12.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,16 +62,13 @@
     <ClInclude Include="ImGui\imgui_color_gradient.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_opengl3.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_opengl3_loader.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_sdl.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_win32.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_dx12.h">
       <Filter>ImGui</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,17 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChironEngine", "ChironEngine\ChironEngine.vcxproj", "{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChironEngineDX", "ChironEngine\ChironEngine.vcxproj", "{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136} = {AFDFF4DC-20E6-4A08-8C1B-88B33F879136}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExternalDependencies", "ExternalDependencies\ExternalDependencies.vcxproj", "{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}"
 	ProjectSection(ProjectDependencies) = postProject
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77} = {371B9FA9-4C90-4AC6-A123-ACED756D6C77}
 		{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0} = {3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK12", "DirectXTK12\DirectXTK_Desktop_2022_Win10.vcxproj", "{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "DirectXTex\DirectXTex_Desktop_2022.vcxproj", "{371B9FA9-4C90-4AC6-A123-ACED756D6C77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +34,7 @@ Global
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.Debug|x86.ActiveCfg = Debug|x64
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.Release|ARM64.ActiveCfg = Release|x64
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.Release|x64.ActiveCfg = Release|x64
+		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.Release|x64.Build.0 = Release|x64
 		{E6020AAE-1B6B-4ABF-AB4B-1980280DAEFE}.Release|x86.ActiveCfg = Release|x64
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Debug|ARM64.ActiveCfg = Debug|x64
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Debug|x64.ActiveCfg = Debug|x64
@@ -38,6 +42,7 @@ Global
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Debug|x86.ActiveCfg = Debug|x64
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Release|ARM64.ActiveCfg = Release|x64
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Release|x64.ActiveCfg = Release|x64
+		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Release|x64.Build.0 = Release|x64
 		{AFDFF4DC-20E6-4A08-8C1B-88B33F879136}.Release|x86.ActiveCfg = Release|x64
 		{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}.Debug|ARM64.ActiveCfg = Debug|ARM64
 		{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}.Debug|ARM64.Build.0 = Debug|ARM64
@@ -51,6 +56,18 @@ Global
 		{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}.Release|x64.Build.0 = Release|x64
 		{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}.Release|x86.ActiveCfg = Release|Win32
 		{3E0E8608-CD9B-4C76-AF33-29CA38F2C9F0}.Release|x86.Build.0 = Release|Win32
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|ARM64.ActiveCfg = Debug|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|ARM64.Build.0 = Debug|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.ActiveCfg = Debug|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.Build.0 = Debug|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x86.ActiveCfg = Debug|Win32
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x86.Build.0 = Debug|Win32
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|ARM64.ActiveCfg = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|ARM64.Build.0 = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.ActiveCfg = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.Build.0 = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x86.ActiveCfg = Release|Win32
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

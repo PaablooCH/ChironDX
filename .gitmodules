@@ -1,0 +1,9 @@
+[submodule "Vendor/ImGui"]
+	path = Vendor/ImGui
+	url = https://github.com/ocornut/imgui.git
+[submodule "Vendor/ImGuizmo"]
+	path = Vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "Vendor/Optick"]
+	path = Vendor/Optick
+	url = https://github.com/bombomby/optick.git

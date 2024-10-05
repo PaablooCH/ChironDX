@@ -17,8 +17,8 @@
     <ClCompile Include="ImGui\imgui_color_gradient.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
     <ClCompile Include="ImGui\imgui_draw.cpp" />
-    <ClCompile Include="ImGui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="ImGui\imgui_impl_sdl.cpp" />
+    <ClCompile Include="ImGui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui_tables.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
   </ItemGroup>
@@ -28,9 +28,8 @@
     <ClInclude Include="ImGui\ImGuizmo.h" />
     <ClInclude Include="ImGui\imgui_bezier.h" />
     <ClInclude Include="ImGui\imgui_color_gradient.h" />
-    <ClInclude Include="ImGui\imgui_impl_opengl3.h" />
-    <ClInclude Include="ImGui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="ImGui\imgui_impl_sdl.h" />
+    <ClInclude Include="ImGui\imgui_impl_dx12.h" />
+    <ClInclude Include="ImGui\imgui_impl_win32.h" />
     <ClInclude Include="ImGui\imgui_internal.h" />
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
@@ -54,7 +53,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -81,11 +80,11 @@
     <ClCompile>
       <WarningLevel>Level1</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ImTextureID=ImU64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\ExternalDependencies\;..\ExternalDependencies\SDL\include;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\ExternalDependencies\;..\ExternalDependencies\assimp;..\ExternalDependencies\ImGui;..\DirectXTK12\Inc</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <SupportJustMyCode>true</SupportJustMyCode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -97,10 +96,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>OptickCore.lib;assimp-vc143-mt.lib;DirectXTex.lib;DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib;winmm.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>.\SDL\lib\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTex\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\;$(SolutionDir)$(ProjectName)\assimp;$(SolutionDir)$(ProjectName)\Optick\libs\Debug</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -110,7 +109,7 @@
       </FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ImTextureID=ImU64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -126,10 +125,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
+      <AdditionalDependencies>OptickCore.lib;assimp-vc143-mt.lib;DirectXTex.lib;DirectXTK12.lib;user32.lib;dxgi.lib;dxguid.lib;d3d12.lib;d3dcompiler.lib;Shell32.lib;winmm.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>.\SDL\lib\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTex\;$(SolutionDir)bin\$(Configuration)-$(Platform)\DirectXTK12\;$(SolutionDir)$(ProjectName)\assimp;$(SolutionDir)$(ProjectName)\Optick\libs\Release</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

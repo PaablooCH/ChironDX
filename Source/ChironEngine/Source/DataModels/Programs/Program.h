@@ -1,61 +1,76 @@
 #pragma once
 
+#include "DataModels/DX12/RootSignature/RootSignature.h"
+
 class Program
 {
 public:
-	Program() = delete;
-	Program(const std::string& name);
-	virtual ~Program();
+    Program() = delete;
+    virtual ~Program();
 
-	// ------------- GETTERS ----------------------
+    // ------------- GETTERS ----------------------
 
-	inline ID3DBlob* GetVertex();
-	inline ID3DBlob* GetPixel();
-	inline ID3D12RootSignature* GetRootSignature();
-	inline ID3D12PipelineState* GetPipelineState();
+    inline ID3DBlob* GetVertex() const;
+    inline ID3DBlob* GetPixel() const;
+    inline RootSignature* GetRootSignature() const;
+    inline ID3D12PipelineState* GetPipelineState() const;
+    inline bool IsGraphic() const;
+
 protected:
+    Program(const std::string& name, bool isGraphic = true);
 
-	// ------------- INITS ----------------------
+    // ------------- INITS ----------------------
 
-	virtual void InitRootSignature() {}
+    virtual void InitRootSignature() = 0;
 
-	virtual void InitPipelineState() {}
+    virtual void InitPipelineState() = 0;
 
-	// ------------- CREATORS ----------------------
+    // ------------- CREATORS ----------------------
 
-	void CreateRootSignature(CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDescription);
-	// In this state shaders must be loaded
-	void CreateGraphicPipelineState(const D3D12_INPUT_ELEMENT_DESC inputElementDescs[], UINT elements);
+    void CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDescription);
+    // In this state shaders must be loaded
+    void CreateGraphicPipelineState(const D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc);
+    void CreateComputePipelineState(const D3D12_COMPUTE_PIPELINE_STATE_DESC* psoDesc);
 
 private:
-	D3D12_FEATURE_DATA_ROOT_SIGNATURE GetRootSignatureVersion();
+    D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion();
 
 protected:
-	std::string _name;
+    std::string _name;
 
-	ComPtr<ID3DBlob> _vertexShader;
-	ComPtr<ID3DBlob> _pixelShader;
-	
-	ComPtr<ID3D12RootSignature> _rootSignature;
-	ComPtr<ID3D12PipelineState> _pipelineState;
+    ComPtr<ID3DBlob> _vertexShader;
+    ComPtr<ID3DBlob> _pixelShader;
+    ComPtr<ID3DBlob> _computeShader;
+
+    std::unique_ptr<RootSignature> _rootSignature;
+    ComPtr<ID3D12PipelineState> _pipelineState;
+
+    bool _isGraphic;
+
+    ID3D12Device5* _device;
 };
 
-inline ID3DBlob* Program::GetVertex()
+inline ID3DBlob* Program::GetVertex() const
 {
-	return _vertexShader.Get();
+    return _vertexShader.Get();
 }
 
-inline ID3DBlob* Program::GetPixel()
+inline ID3DBlob* Program::GetPixel() const
 {
-	return _pixelShader.Get();
+    return _pixelShader.Get();
 }
 
-inline ID3D12RootSignature* Program::GetRootSignature()
+inline RootSignature* Program::GetRootSignature() const
 {
-	return _rootSignature.Get();
+    return _rootSignature.get();
 }
 
-inline ID3D12PipelineState* Program::GetPipelineState()
+inline ID3D12PipelineState* Program::GetPipelineState() const
 {
-	return _pipelineState.Get();
+    return _pipelineState.Get();
+}
+
+inline bool Program::IsGraphic() const
+{
+    return _isGraphic;
 }

@@ -4,14 +4,16 @@
 
 #include <algorithm>
 #include <assert.h>
-#include <d3dx12.h>
+#include <d3d12SDKLayers.h>
 #include <d3dcompiler.h>
-#include <dxgi1_5.h>
+#include <deque>
+#include <dxgi1_6.h>
 #include <functional>
 #include <future>
 #include <list>
 #include <map>
 #include <memory>
+#include <new>
 #include <optional>
 #include <queue>
 #include <random>
@@ -33,12 +35,12 @@
 #include <Mouse.h>
 #include <SimpleMath.h>
 
-#include "Auxiliar/Log.h"
 #include "Auxiliar/ChironTodo.h"
-#include "Auxiliar/Utils.h"
 #include "Auxiliar/Formatter.h"
+#include "Auxiliar/Log.h"
+#include "Auxiliar/Utils.h"
+#include "d3dx12.h"
 #include "Globals.h"
-#include "debug_draw.hpp"
 
 // ------------- NAMESPACES ----------------------
 

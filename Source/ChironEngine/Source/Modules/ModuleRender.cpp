@@ -7,13 +7,28 @@
 #include "ModuleID3D12.h"
 #include "ModuleProgram.h"
 #include "ModuleWindow.h"
+#include "ModuleFileSystem.h"
 
-#include "DataModels/CommandQueue/CommandQueue.h"
+#include "DataModels/Camera/Camera.h"
+
+#include "DataModels/Assets/ModelAsset.h"
+
+#include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/RootSignature/RootSignature.h"
+#include "DataModels/DX12/Resource/Texture.h"
+
 #include "DataModels/Programs/Program.h"
+
+#include "Structs/ViewProjection.h"
 
 #include "DebugDrawPass.h"
 
-ModuleRender::ModuleRender()
+#if OPTICK
+    #include "Optick/optick.h"
+#endif // OPTICK
+
+ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr),
+_depthStencilTexture(nullptr)
 {
 }
 
@@ -24,94 +39,52 @@ ModuleRender::~ModuleRender()
 bool ModuleRender::Init()
 {
     auto d3d12 = App->GetModule<ModuleID3D12>();
+    auto file = App->GetModule<ModuleFileSystem>();
+    model = std::make_shared<ModelAsset>();
+    file->Import("Assets/Models/BakerHouse.fbx", model);
 
-    auto commandQueue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandQueue();
+    auto commandQueue = d3d12->GetID3D12CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     _debugDraw = std::make_unique<DebugDrawPass>(d3d12->GetDevice(), commandQueue);
-    
-    // -------------- VERTEX ---------------------
-    
-    // Define the geometry for a triangle.
-    Vertex triangleVertices[] =
-    {
-        { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
-    
-    const UINT vertexBufferSize = sizeof(triangleVertices);
 
-    CommandQueue* copyCQ = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY);
-    auto commandList = copyCQ->GetCommandList();
-
-    ComPtr<ID3D12Resource> intermediateResource;
-    d3d12->UpdateBufferResource(commandList.Get(), &_vertexBuffer, &intermediateResource, 
-        vertexBufferSize / sizeof(triangleVertices[0]), vertexBufferSize, triangleVertices);
-
-    _vertexBuffer->SetName(L"Triangle Vertex Buffer");
-
-    _vertexBufferView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
-    _vertexBufferView.SizeInBytes = vertexBufferSize;
-    _vertexBufferView.StrideInBytes = sizeof(Vertex);
-
-    // -------------- INDEX ---------------------
-
-    uint32_t indexBufferData[3] = { 0, 1, 2 };
-
-    const UINT indexBufferSize = sizeof(indexBufferData);
-
-    ComPtr<ID3D12Resource> intermediateResource2;
-    d3d12->UpdateBufferResource(commandList.Get(), &_indexBuffer, &intermediateResource2,
-        indexBufferSize / sizeof(indexBufferData[0]), indexBufferSize, indexBufferData);
-
-    _indexBuffer->SetName(L"Triangle Index Buffer");
-
-    _indexBufferView.BufferLocation = _indexBuffer->GetGPUVirtualAddress();
-    _indexBufferView.SizeInBytes = indexBufferSize;
-    _indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-
-    uint64_t initFenceValue = copyCQ->ExecuteCommandList(commandList);
-
-    copyCQ->WaitForFenceValue(initFenceValue);
+    CreateTextures();
 
     return true;
 }
 
 UpdateStatus ModuleRender::PreUpdate()
 {
+#if OPTICK
+    OPTICK_CATEGORY("PreUpdateRender", Optick::Category::Rendering);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
-    
-    _drawCommandList = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->GetCommandList();
-        
-    // Transition the state to render
-    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+    _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Clear Viewport
     FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
 
-    _drawCommandList->ClearRenderTargetView(d3d12->GetRenderTargetDescriptor(), clearColor, 0, nullptr); // send the clear command into the list
-
-    _drawCommandList->ClearDepthStencilView(d3d12->GetDepthStencilDescriptor(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0, 
-        nullptr);
+    // send the clear command into the list
+    _drawCommandList->ClearRenderTargetView(_sceneTexture.get(), clearColor, 0);
+    _drawCommandList->ClearDepthStencilView(_depthStencilTexture.get(), D3D12_CLEAR_FLAG_DEPTH, 1.0, 0, 0);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleRender::Update()
 {
+#if OPTICK
+    OPTICK_CATEGORY("UpdateRender", Optick::Category::Rendering);
+#endif // DEBUG
     auto d3d12 = App->GetModule<ModuleID3D12>();
     auto programs = App->GetModule<ModuleProgram>();
     auto window = App->GetModule<ModuleWindow>();
-    auto camera = App->GetModule<ModuleCamera>();
+    auto moduleCamera = App->GetModule<ModuleCamera>();
 
     Program* defaultP = programs->GetProgram(ProgramType::DEFAULT);
 
-    _drawCommandList->SetPipelineState(defaultP->GetPipelineState());
-    _drawCommandList->SetGraphicsRootSignature(defaultP->GetRootSignature());
+    _drawCommandList->UseProgram(defaultP);
 
-    _drawCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    _drawCommandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
-    _drawCommandList->IASetIndexBuffer(&_indexBufferView);
+    _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     unsigned width;
     unsigned height;
@@ -124,59 +97,94 @@ UpdateStatus ModuleRender::Update()
     viewport.Width = static_cast<float>(width);
     viewport.Height = static_cast<float>(height);
 
-    D3D12_RECT scissor{};
-    scissor.left = 0;
-    scissor.top = 0;
-    scissor.right = width;
-    scissor.bottom = height;
+    _drawCommandList->SetViewports(1, viewport);
+    _drawCommandList->SetScissorRects(1, _scissor);
 
-    _drawCommandList->RSSetViewports(1, &viewport);
-    _drawCommandList->RSSetScissorRects(1, &scissor);
-
-    auto rtv = d3d12->GetRenderTargetDescriptor();
-    auto dsv = d3d12->GetDepthStencilDescriptor();
-    _drawCommandList->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
-
-    Matrix model = Matrix::Identity;
+    auto camera = moduleCamera->GetCamera();
     Matrix view = camera->GetViewMatrix();
     Matrix proj = camera->GetProjMatrix();
 
-    Matrix mvp = model * view;
-    mvp = mvp * proj;
-    _drawCommandList->SetGraphicsRoot32BitConstants(0, sizeof(mvp) / 4, &mvp, 0);
+    ViewProjection vp;
+    vp.view = view.Transpose();
+    vp.proj = proj.Transpose();
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
 
-    uint32_t indexBufferData[3] = { 0, 1, 2 };
-    _drawCommandList->DrawIndexedInstanced(_countof(indexBufferData), 1, 0, 0, 0);
+    auto rtv = _sceneTexture->GetRenderTargetView().GetCPUDescriptorHandle();
+    auto dsv = _depthStencilTexture->GetDepthStencilView().GetCPUDescriptorHandle();
+    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
+
+    model->Draw(_drawCommandList);
 
     // ------------- DEBUG DRAW ----------------------
 
-    dd::xzSquareGrid(-10.0f, 10.0f, 0.0f, 1.0f, dd::colors::LightGray);
-    dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.1f, 1.0f);
+    dd::xzSquareGrid(-500.0f, 500.0f, 0.0f, 1.0f, dd::colors::LightGray);
+    dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.5f, 1000.0f);
 
-    char lTmp[1024];
-    sprintf_s(lTmp, 1023, "FPS: [%d].", static_cast<uint32_t>(App->GetFPS()));
-    dd::screenText(lTmp, Chiron::Utils::ddConvert(Vector3(10.0f, 10.0f, 0.0f)), dd::colors::White, 0.6f);
+    _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
 
-    _debugDraw->record(_drawCommandList.Get(), width, height, view, proj);
+    // ------------- CLOSE COMMANDLIST ----------------------
 
-    d3d12->CreateTransitionBarrier(_drawCommandList, d3d12->GetRenderBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_PRESENT);
-
-    uint64_t fenceValue = d3d12->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT)->ExecuteCommandList(_drawCommandList);
-    d3d12->SaveCurrentBufferFenceValue(fenceValue);
-
-    _drawCommandList = nullptr;
+    d3d12->ExecuteCommandList(_drawCommandList);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 UpdateStatus ModuleRender::PostUpdate()
 {
-    App->GetModule<ModuleID3D12>()->SwapCurrentBuffer();
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
 bool ModuleRender::CleanUp()
 {
+    _sceneTexture.reset();
+    _drawCommandList.reset();
+    _depthStencilTexture.reset();
+    _debugDraw.reset();
+    model.reset();
+    model = nullptr;
+    _drawCommandList = nullptr;
+
     return true;
+}
+
+void ModuleRender::ResizeBuffers(unsigned newWidth, unsigned newHeight)
+{
+    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    memcpy(clearValue.Color, clearColor, sizeof(clearColor));
+
+    D3D12_RESOURCE_DESC textureDesc =
+        CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, newWidth, newHeight, 1, 1, 1, 0,
+            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    _sceneTexture = std::make_unique<Texture>(textureDesc, L"Scene Texture", &clearValue);
+
+    _depthStencilTexture = App->GetModule<ModuleID3D12>()->
+        CreateDepthStencil(L"Scene Depth Stencil Texture", newWidth, newHeight);
+}
+
+void ModuleRender::LoadNewModel(std::string modelPath)
+{
+    auto file = App->GetModule<ModuleFileSystem>();
+    model.reset(new ModelAsset());
+    file->Import(modelPath.c_str(), model);
+}
+
+void ModuleRender::CreateTextures()
+{
+    unsigned width;
+    unsigned height;
+    App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
+
+    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    memcpy(clearValue.Color, clearColor, sizeof(clearColor));
+
+    D3D12_RESOURCE_DESC textureDesc =
+        CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1, 1, 0,
+            D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    _sceneTexture = std::make_unique<Texture>(textureDesc, L"Scene Texture", &clearValue);
+
+    _depthStencilTexture = App->GetModule<ModuleID3D12>()->CreateDepthStencil(L"Scene Depth Stencil Texture", width, height);
 }
