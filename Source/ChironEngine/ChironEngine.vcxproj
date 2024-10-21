@@ -19,6 +19,7 @@
     <ClCompile Include="Source\DataModels\Assets\MeshAsset.cpp" />
     <ClCompile Include="Source\DataModels\Assets\TextureAsset.cpp" />
     <ClCompile Include="Source\DataModels\Camera\Camera.cpp" />
+    <ClCompile Include="Source\DataModels\Component\Component.cpp" />
     <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp" />
@@ -73,6 +74,8 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Enums\ComponentType.h" />
+    <ClInclude Include="Source\DataModels\Component\Component.h" />
     <ClInclude Include="Source\DataModels\Scene\Scene.h" />
     <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h" />

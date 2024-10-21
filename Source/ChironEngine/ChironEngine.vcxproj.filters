@@ -82,6 +82,9 @@
     <Filter Include="Source\DataModels\Scene">
       <UniqueIdentifier>{0de1627e-8018-4f5f-998d-1e4f6d091b46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Components">
+      <UniqueIdentifier>{c44f1b1c-6b31-44fb-aaa9-1bd2a25fcbc0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -243,7 +246,12 @@
     <ClCompile Include="Source\Modules\ModuleScene.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\Scene\Scene.cpp" />
+    <ClCompile Include="Source\DataModels\Scene\Scene.cpp">
+      <Filter>Source\DataModels\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Component\Component.cpp">
+      <Filter>Source\DataModels\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -436,6 +444,14 @@
     <ClInclude Include="Source\Modules\ModuleScene.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\Scene\Scene.h" />
+    <ClInclude Include="Source\DataModels\Scene\Scene.h">
+      <Filter>Source\DataModels\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Component\Component.h">
+      <Filter>Source\DataModels\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Enums\ComponentType.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
