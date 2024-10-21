@@ -59,6 +59,7 @@
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
     <ClCompile Include="Source\Modules\ModuleRender.cpp" />
     <ClCompile Include="Source\Modules\ModuleProgram.cpp" />
+    <ClCompile Include="Source\Modules\ModuleScene.cpp" />
     <ClCompile Include="Source\Modules\ModuleWindow.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -83,6 +84,7 @@
     <ClInclude Include="Source\DataModels\Window\Window.h" />
     <ClInclude Include="Source\DataModels\Window\MainMenuWindow.h" />
     <ClInclude Include="Source\Modules\ModuleEditor.h" />
+    <ClInclude Include="Source\Modules\ModuleScene.h" />
     <ClInclude Include="Source\Structs\ModelAttributes.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h" />
     <ClInclude Include="Source\Structs\ViewProjection.h" />

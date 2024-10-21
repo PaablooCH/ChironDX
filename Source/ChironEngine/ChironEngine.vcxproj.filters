@@ -237,6 +237,9 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.cpp">
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleScene.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -425,6 +428,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\HardwareSubWindow.h">
       <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Configuration</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleScene.h">
+      <Filter>Source\Modules</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
