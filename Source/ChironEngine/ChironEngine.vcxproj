@@ -34,6 +34,7 @@
     <ClCompile Include="Source\DataModels\FileSystem\Importers\TextureImporter.cpp" />
     <ClCompile Include="Source\DataModels\Assets\ModelAsset.cpp" />
     <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp" />
+    <ClCompile Include="Source\DataModels\Scene\Scene.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
     <ClCompile Include="Source\Auxiliar\Utils.cpp" />
     <ClCompile Include="Source\DataModels\DX12\CommandQueue\CommandQueue.cpp" />
@@ -72,6 +73,7 @@
     <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\DataModels\Scene\Scene.h" />
     <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.h" />

@@ -1,6 +1,8 @@
 #pragma once
 #include "Module.h"
 
+class Scene;
+
 class ModuleScene : public Module
 {
 public:
@@ -19,5 +21,6 @@ public:
 private:
 
 private:
+    std::unique_ptr<Scene> _loadedScene;
 };
 

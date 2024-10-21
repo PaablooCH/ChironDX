@@ -79,6 +79,9 @@
     <Filter Include="Source\DataModels\Windows\EditorWindow\SubWindows\Configuration">
       <UniqueIdentifier>{8fbe8fea-7fb5-489c-8ca1-256f5b04ba9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Scene">
+      <UniqueIdentifier>{0de1627e-8018-4f5f-998d-1e4f6d091b46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -240,6 +243,7 @@
     <ClCompile Include="Source\Modules\ModuleScene.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Scene\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -432,5 +436,6 @@
     <ClInclude Include="Source\Modules\ModuleScene.h">
       <Filter>Source\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DataModels\Scene\Scene.h" />
   </ItemGroup>
 </Project>

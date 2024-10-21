@@ -1,7 +1,9 @@
 #include "Pch.h"
 #include "ModuleScene.h"
 
-ModuleScene::ModuleScene()
+#include "DataModels/Scene/Scene.h"
+
+ModuleScene::ModuleScene() : _loadedScene(nullptr)
 {
 }
 
