@@ -85,6 +85,9 @@
     <Filter Include="Source\DataModels\Components">
       <UniqueIdentifier>{c44f1b1c-6b31-44fb-aaa9-1bd2a25fcbc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\Components\Interfaces">
+      <UniqueIdentifier>{79fa2462-a767-497a-92c9-a943548a66d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -458,6 +461,12 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\Components\TransformComponent.h">
       <Filter>Source\DataModels\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Components\Interfaces\Updatable.h">
+      <Filter>Source\DataModels\Components\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Components\Interfaces\Drawable.h">
+      <Filter>Source\DataModels\Components\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

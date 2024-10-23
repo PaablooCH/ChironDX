@@ -75,6 +75,8 @@
     <ClCompile Include="Source\DataModels\Components\TransformComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\DataModels\Components\Interfaces\Drawable.h" />
+    <ClInclude Include="Source\DataModels\Components\Interfaces\Updatable.h" />
     <ClInclude Include="Source\Enums\ComponentType.h" />
     <ClInclude Include="Source\DataModels\Components\Component.h" />
     <ClInclude Include="Source\DataModels\Scene\Scene.h" />
