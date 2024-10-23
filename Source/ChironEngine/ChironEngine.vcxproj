@@ -19,7 +19,7 @@
     <ClCompile Include="Source\DataModels\Assets\MeshAsset.cpp" />
     <ClCompile Include="Source\DataModels\Assets\TextureAsset.cpp" />
     <ClCompile Include="Source\DataModels\Camera\Camera.cpp" />
-    <ClCompile Include="Source\DataModels\Component\Component.cpp" />
+    <ClCompile Include="Source\DataModels\Components\Component.cpp" />
     <ClCompile Include="Source\DataModels\DX12\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocation.cpp" />
     <ClCompile Include="Source\DataModels\DX12\DescriptorAllocator\DescriptorAllocator.cpp" />
@@ -72,10 +72,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\DataModels\DX12\Resource\VertexBuffer.cpp" />
+    <ClCompile Include="Source\DataModels\Components\TransformComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Enums\ComponentType.h" />
-    <ClInclude Include="Source\DataModels\Component\Component.h" />
+    <ClInclude Include="Source\DataModels\Components\Component.h" />
     <ClInclude Include="Source\DataModels\Scene\Scene.h" />
     <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="Source\Pch.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\VertexBuffer.h" />
     <ClInclude Include="Source\Structs\ThemeColors.h" />
+    <ClInclude Include="Source\DataModels\Components\TransformComponent.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

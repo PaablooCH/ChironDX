@@ -249,7 +249,10 @@
     <ClCompile Include="Source\DataModels\Scene\Scene.cpp">
       <Filter>Source\DataModels\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\DataModels\Component\Component.cpp">
+    <ClCompile Include="Source\DataModels\Components\Component.cpp">
+      <Filter>Source\DataModels\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Components\TransformComponent.cpp">
       <Filter>Source\DataModels\Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -447,11 +450,14 @@
     <ClInclude Include="Source\DataModels\Scene\Scene.h">
       <Filter>Source\DataModels\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DataModels\Component\Component.h">
+    <ClInclude Include="Source\DataModels\Components\Component.h">
       <Filter>Source\DataModels\Components</Filter>
     </ClInclude>
     <ClInclude Include="Source\Enums\ComponentType.h">
       <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Components\TransformComponent.h">
+      <Filter>Source\DataModels\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
