@@ -34,6 +34,7 @@
     <ClCompile Include="Source\DataModels\FileSystem\Importers\ModelImporter.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\Importers\TextureImporter.cpp" />
     <ClCompile Include="Source\DataModels\Assets\ModelAsset.cpp" />
+    <ClCompile Include="Source\DataModels\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\DataModels\Programs\GenerateMipsProgram.cpp" />
     <ClCompile Include="Source\DataModels\Scene\Scene.cpp" />
     <ClCompile Include="Source\DataModels\Timer\Timer.cpp" />
@@ -79,6 +80,7 @@
     <ClInclude Include="Source\DataModels\Components\Interfaces\Updatable.h" />
     <ClInclude Include="Source\Enums\ComponentType.h" />
     <ClInclude Include="Source\DataModels\Components\Component.h" />
+    <ClInclude Include="Source\DataModels\GameObject\GameObject.h" />
     <ClInclude Include="Source\DataModels\Scene\Scene.h" />
     <ClInclude Include="Source\DataModels\Window\AboutWindow.h" />
     <ClInclude Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.h" />
@@ -146,6 +148,9 @@
     <ClInclude Include="Source\DataModels\DX12\Resource\VertexBuffer.h" />
     <ClInclude Include="Source\Structs\ThemeColors.h" />
     <ClInclude Include="Source\DataModels\Components\TransformComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\DataModels\GameObject\GameObject.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

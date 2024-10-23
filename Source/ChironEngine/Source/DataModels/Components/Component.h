@@ -18,6 +18,10 @@ public:
     inline bool& IsEnabled();
     bool IsActive();
 
+    // ------------- GETTERS ----------------------
+
+    inline void SetOwner(GameObject* owner);
+
 private:
     ComponentType _type;
 
@@ -38,4 +42,9 @@ inline GameObject* Component::GetOwner()
 inline bool& Component::IsEnabled()
 {
     return _enabled;
+}
+
+inline void Component::SetOwner(GameObject* owner)
+{
+    _owner = owner;
 }

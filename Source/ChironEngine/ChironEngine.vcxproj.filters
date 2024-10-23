@@ -82,6 +82,9 @@
     <Filter Include="Source\DataModels\Scene">
       <UniqueIdentifier>{0de1627e-8018-4f5f-998d-1e4f6d091b46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\GameObject">
+      <UniqueIdentifier>{a80195e7-3afb-445b-8236-9048ad6678df}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source\DataModels\Components">
       <UniqueIdentifier>{c44f1b1c-6b31-44fb-aaa9-1bd2a25fcbc0}</UniqueIdentifier>
     </Filter>
@@ -251,6 +254,9 @@
     </ClCompile>
     <ClCompile Include="Source\DataModels\Scene\Scene.cpp">
       <Filter>Source\DataModels\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\GameObject\GameObject.cpp">
+      <Filter>Source\DataModels\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Source\DataModels\Components\Component.cpp">
       <Filter>Source\DataModels\Components</Filter>
@@ -453,6 +459,9 @@
     <ClInclude Include="Source\DataModels\Scene\Scene.h">
       <Filter>Source\DataModels\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Source\DataModels\GameObject\GameObject.h">
+      <Filter>Source\DataModels\GameObject</Filter>
+    </ClInclude>
     <ClInclude Include="Source\DataModels\Components\Component.h">
       <Filter>Source\DataModels\Components</Filter>
     </ClInclude>
@@ -468,5 +477,10 @@
     <ClInclude Include="Source\DataModels\Components\Interfaces\Drawable.h">
       <Filter>Source\DataModels\Components\Interfaces</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\DataModels\GameObject\GameObject.inl">
+      <Filter>Source\DataModels\GameObject</Filter>
+    </None>
   </ItemGroup>
 </Project>
