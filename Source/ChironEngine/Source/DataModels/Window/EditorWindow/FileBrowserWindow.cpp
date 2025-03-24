@@ -74,7 +74,7 @@ void FileBrowserWindow::DrawFolderTree()
         oss << iconFolder << " " << folder->GetName().c_str() << "###" << folder->GetUID();
         ImGui::PushID(oss.str().c_str());
 
-        ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+        ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow;
         if (folder == _selectedFolder)
         {
             treeFlags |= ImGuiTreeNodeFlags_Selected;
@@ -92,9 +92,14 @@ void FileBrowserWindow::DrawFolderTree()
             treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         }
 
+        if (folder->GetOpen())
+        {
+            ImGui::SetNextItemOpen(true);
+        }
+
         bool nodeOpen = ImGui::TreeNodeEx(oss.str().c_str(), treeFlags);
 
-        if (ImGui::IsItemClicked() && folder != _selectedFolder)
+        if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0) && folder != _selectedFolder)
         {
             SelectFolder(folder);
         }
