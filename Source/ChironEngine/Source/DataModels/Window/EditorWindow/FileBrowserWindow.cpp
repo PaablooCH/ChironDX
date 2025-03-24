@@ -132,14 +132,14 @@ void FileBrowserWindow::DrawFolderTree()
         if (ImGui::BeginDragDropSource())
         {
             UID uid = folder->GetUID();
-            ImGui::SetDragDropPayload("HIERARCHY_FOLDER", &uid, sizeof(uid));
+            ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
             ImGui::Text(folder->GetName().c_str());
             ImGui::EndDragDropSource();
         }
 
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HIERARCHY_FOLDER"))
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
             {
                 UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
                 auto draggedFileSystemEntry = _rootFolder->FindFolder(draggedUIDFileSystemEntry);
@@ -281,6 +281,11 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
         ImGui::TableHeadersRow();
         for (auto& folder : _selectedFolder->GetSubdirectories())
         {
+            // Checking if a folder no longer exists before printing
+            if (!folder)
+            {
+                continue;
+            }
             ImGui::PushID(folder->GetUID());
 
             ImGui::TableNextRow();
@@ -294,6 +299,27 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 {
                     SelectFolder(folder.get());
                 }
+            }
+            if (ImGui::BeginDragDropSource())
+            {
+                UID uid = folder->GetUID();
+                ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                ImGui::Text(folder->GetName().c_str());
+                ImGui::EndDragDropSource();
+            }
+
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
+                {
+                    UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
+                    auto draggedFileSystemEntry = _rootFolder->FindFolder(draggedUIDFileSystemEntry);
+                    if (draggedFileSystemEntry)
+                    {
+                        draggedFileSystemEntry->ChangeParent(folder.get());
+                    }
+                }
+                ImGui::EndDragDropTarget();
             }
 
             // DATE
