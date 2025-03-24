@@ -20,9 +20,12 @@ public:
     static const std::string GetPathWithoutFile(const std::string& path);
     static std::vector<std::string> SplitPath(const std::string& path);
     static bool DeleteDirectory(const char* path);
-    static bool MoveDirectory(const char* sourcePath, const char* destinationPath);
+    static bool MovePath(const char* sourcePath, const char* destinationPath);
     static bool CopyFileC(const char* sourcePath, const char* destPath);
     static std::string TrimPathToDesired(const std::string& fullPath, const std::string& desiredStart);
+    
+    static std::string GetModificationDateString(const std::string& fullPath);
+    static std::string GetFileSize(const std::string& fullPath);
 
     // ------------- PHYSFS METHODS ----------------------
 
@@ -48,4 +51,5 @@ private:
     };
     static void UniqueName(std::string& directoryName);
     static bool OpenFile(const char* filePath, OpenFileMethod method, PHYSFS_File*& result);
+    static std::string FormatFileSize(uintmax_t size);
 };

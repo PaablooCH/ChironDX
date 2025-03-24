@@ -4,6 +4,8 @@
 #include <filesystem>
 #include "PhysFS/physfs.h"
 
+namespace fs = std::filesystem;
+
 ModuleFileSystem::ModuleFileSystem()
 {
 }
@@ -16,7 +18,6 @@ bool ModuleFileSystem::Init()
 {
     PHYSFS_init(nullptr);
     PHYSFS_mount(".", nullptr, 0);
-    //PHYSFS_mount("..", nullptr, 0);
     PHYSFS_setWriteDir(".");
 
     return true;
@@ -101,7 +102,7 @@ const std::string ModuleFileSystem::GetPathWithoutFile(const std::string& path)
 std::vector<std::string> ModuleFileSystem::SplitPath(const std::string& path)
 {
     std::vector<std::string> directories;
-    for (const auto& part : std::filesystem::path(path)) 
+    for (const auto& part : fs::path(path)) 
     {
         directories.push_back(part.string());
     }
@@ -119,10 +120,10 @@ bool ModuleFileSystem::DeleteDirectory(const char* path)
 
     try 
     {
-        std::filesystem::path fullPath = std::filesystem::path(realDir) / path;
-        if (std::filesystem::exists(fullPath)) 
+        fs::path fullPath = fs::path(realDir) / path;
+        if (fs::exists(fullPath)) 
         {
-            std::filesystem::remove_all(fullPath);
+            fs::remove_all(fullPath);
             LOG_INFO("Directory deleted successfully.");
             PHYSFS_mount(".", nullptr, 0);
             return true;
@@ -133,14 +134,14 @@ bool ModuleFileSystem::DeleteDirectory(const char* path)
             return false;
         }
     }
-    catch (const std::filesystem::filesystem_error& e) 
+    catch (const fs::filesystem_error& e) 
     {
         LOG_ERROR("Filesystem error: {}", e.what());
         return false;
     }
 }
 
-bool ModuleFileSystem::MoveDirectory(const char* sourcePath, const char* destinationPath)
+bool ModuleFileSystem::MovePath(const char* sourcePath, const char* destinationPath)
 {
     const char* realSource = PHYSFS_getRealDir(sourcePath);
     if (!realSource) 
@@ -151,36 +152,51 @@ bool ModuleFileSystem::MoveDirectory(const char* sourcePath, const char* destina
 
     try 
     {
-        std::filesystem::path realSourcePath = std::filesystem::path(realSource) / sourcePath;
-        std::filesystem::path realDestinationPath = std::filesystem::path(PHYSFS_getWriteDir()) / destinationPath;
+        fs::path realSourcePath = fs::path(realSource) / sourcePath;
+        fs::path realDestinationPath = fs::path(PHYSFS_getWriteDir()) / destinationPath;
 
-        if (!std::filesystem::exists(realSourcePath)) 
+        if (!fs::exists(realSourcePath)) 
         {
             LOG_ERROR("Error: Source directory does not exist in the filesystem.");
             return false;
         }
 
-        if (std::filesystem::exists(realDestinationPath)) 
+        if (fs::exists(realDestinationPath)) 
         {
             LOG_ERROR("Error: Destination already exists in the filesystem.");
             return false;
         }
 
-        std::filesystem::rename(realSourcePath, realDestinationPath);
-        LOG_INFO("Directory moved successfully from {} to {}", realSourcePath.string(), realDestinationPath.string());
-
-        if (!PHYSFS_mount(realDestinationPath.string().c_str(), nullptr, 1))
+        if (fs::is_directory(realSourcePath))
         {
-            LOG_ERROR("Warning: Unable to mount destination into PhysFS: {}", PHYSFS_getLastError());
+            LOG_INFO("Moving directory...");
+            fs::rename(realSourcePath, realDestinationPath);
+
+            if (!PHYSFS_mount(realDestinationPath.string().c_str(), nullptr, 1))
+            {
+                LOG_ERROR("Warning: Unable to mount destination into PhysFS: {}", PHYSFS_getLastError());
+            }
+
+            if (!PHYSFS_unmount(realSourcePath.string().c_str()))
+            {
+                LOG_WARNING("Unable to unmount old source path: {}", PHYSFS_getLastError());
+            }
         }
-        if (!PHYSFS_unmount(realSourcePath.string().c_str()))
+        else if (fs::is_regular_file(realSourcePath))
         {
-            LOG_WARNING("Unable to unmount old source path: {}", PHYSFS_getLastError());
+            LOG_INFO("Moving file...");
+            fs::rename(realSourcePath, realDestinationPath);
+        }
+        else
+        {
+            LOG_ERROR("Error: Unsupported file type.");
+            return false;
         }
 
+        LOG_INFO("Move successful from {} to {}", realSourcePath.string(), realDestinationPath.string());
         return true;
     }
-    catch (const std::filesystem::filesystem_error& e) 
+    catch (const fs::filesystem_error& e) 
     {
         LOG_ERROR("Filesystem error: {}", e.what());
         return false;
@@ -191,9 +207,9 @@ bool ModuleFileSystem::CopyFileC(const char* sourcePath, const char* destPath)
 {
     try 
     {
-        std::filesystem::path destination = destPath;
-        std::filesystem::path source = sourcePath;
-        std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
+        fs::path destination = destPath;
+        fs::path source = sourcePath;
+        fs::copy(source, destination, fs::copy_options::overwrite_existing);
         LOG_INFO("File copied successfully");
         if (!PHYSFS_mount(destination.parent_path().string().c_str(), nullptr, 1))
         {
@@ -202,16 +218,17 @@ bool ModuleFileSystem::CopyFileC(const char* sourcePath, const char* destPath)
         }
         return true;
     }
-    catch (const std::filesystem::filesystem_error& e) 
+    catch (const fs::filesystem_error& e) 
     {
         LOG_ERROR("Error: {}", e.what());
+        return false;
     }
 }
 
 std::string ModuleFileSystem::TrimPathToDesired(const std::string& fullPath, const std::string& desiredStart)
 {
-    std::filesystem::path path(fullPath);
-    std::filesystem::path result;
+    fs::path path(fullPath);
+    fs::path result;
 
     bool found = false;
     for (const auto& part : path) 
@@ -232,6 +249,37 @@ std::string ModuleFileSystem::TrimPathToDesired(const std::string& fullPath, con
     }
 
     return result.generic_string();
+}
+
+std::string ModuleFileSystem::GetModificationDateString(const std::string& fullPath)
+{
+    auto ftime = fs::last_write_time(fullPath);
+    auto sysTime = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+        ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now()
+    );
+
+    std::time_t modTime = std::chrono::system_clock::to_time_t(sysTime);
+    std::tm* timeInfo = std::localtime(&modTime); // Convert to local time
+
+    std::ostringstream oss;
+    oss << std::setfill('0') << std::setw(2) << timeInfo->tm_mday << "/"  // dd
+        << std::setfill('0') << std::setw(2) << (timeInfo->tm_mon + 1) << "/"  // mm
+        << (timeInfo->tm_year + 1900) << " "  // yyyy
+        << std::setfill('0') << std::setw(2) << timeInfo->tm_hour << ":"  // hh
+        << std::setfill('0') << std::setw(2) << timeInfo->tm_min;  // mm
+
+    return oss.str();
+}
+
+std::string ModuleFileSystem::GetFileSize(const std::string& fullPath)
+{
+    if (fs::exists(fullPath) && fs::is_regular_file(fullPath))
+    {
+        uintmax_t fileSize = fs::file_size(fullPath);
+        return FormatFileSize(fileSize);
+    }
+    LOG_WARNING("File does not exist or is not a regular file.");
+    return "";
 }
 
 bool ModuleFileSystem::SaveFile(const char* filePath, const void* buffer, size_t size, bool append /*= false */)
@@ -421,4 +469,25 @@ bool ModuleFileSystem::OpenFile(const char* filePath, OpenFileMethod method, PHY
         return false;
     }
     return true;
+}
+
+std::string ModuleFileSystem::FormatFileSize(uintmax_t size)
+{
+    const double KB = 1024.0;
+    const double MB = KB * 1024;
+    const double GB = MB * 1024;
+
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2);
+
+    if (size >= GB)
+        oss << (size / GB) << " GB";
+    else if (size >= MB)
+        oss << (size / MB) << " MB";
+    else if (size >= KB)
+        oss << (size / KB) << " KB";
+    else
+        oss << size << " B";
+    
+    return oss.str();
 }
