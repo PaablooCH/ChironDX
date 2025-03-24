@@ -452,5 +452,6 @@ void FileBrowserWindow::GenerateFolders()
 void FileBrowserWindow::SelectFolder(Folder* folder)
 {
     _selectedFolder = folder;
+    _selectedFolder->SetOpened();
     _selectablePaths = ModuleFileSystem::SplitPath(_selectedFolder->GetPath());
 }
