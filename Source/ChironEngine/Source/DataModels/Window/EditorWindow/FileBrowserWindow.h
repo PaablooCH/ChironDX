@@ -27,8 +27,6 @@ private:
     std::unique_ptr<Folder> _rootFolder;
     Folder* _selectedFolder;
 
-    std::shared_ptr<TextureAsset> _folderIcon;
-
     std::vector<std::string> _selectablePaths;
 };
 

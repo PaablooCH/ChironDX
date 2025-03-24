@@ -18,13 +18,9 @@
 FileBrowserWindow::FileBrowserWindow() : EditorWindow(ICON_FA_FOLDER_TREE " File Browser", ImGuiWindowFlags_AlwaysAutoResize),
 _currentPath("Assets")
 {
-    auto futureFolder = App->GetModule<ModuleResources>()->RequestAsset<TextureAsset>("Engine/Icons/Folder_Default.png");
-
     _rootFolder = std::make_unique<Folder>(_currentPath);
     SelectFolder(_rootFolder.get());
     GenerateFolders();
-
-    _folderIcon = futureFolder.get();
 }
 
 FileBrowserWindow::~FileBrowserWindow()
