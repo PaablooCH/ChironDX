@@ -442,6 +442,10 @@ void FileBrowserWindow::GenerateFolders()
                 filesToCheck.emplace(file, folder);
             }
         }
+        else if (ModuleFileSystem::GetFileExtension(path.c_str()) != META_EXT)
+        {
+            new File(ModuleFileSystem::GetFile(path.c_str()), pair.second);
+        }
     }
 }
 
