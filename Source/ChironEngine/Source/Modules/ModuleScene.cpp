@@ -105,7 +105,7 @@ void ModuleScene::LoadScene(const std::string& scenePath, std::function<void(voi
     Chiron::Loader::LoadScene(scenePath, std::move(callback), mantainCurrentScene);
 }
 
-void ModuleScene::ModelToGameObject(std::string& modelPath)
+void ModuleScene::ModelToGameObject(const std::string& modelPath)
 {
     auto modelFuture = App->GetModule<ModuleResources>()->RequestAsset<ModelAsset>(modelPath.c_str());
 

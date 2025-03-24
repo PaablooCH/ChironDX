@@ -263,68 +263,151 @@ void FileBrowserWindow::DrawButtonSubdirectories(int iterator, const std::string
 
 void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& commandList)
 {
-    // Transition Resource
-    commandList->TransitionBarrier(_folderIcon->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    ImGuiTableFlags flags =
+        ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti
+        | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_NoBordersInBody
+        | ImGuiTableFlags_ScrollY;
 
-    float itemWidth = 50.0f;
-    float availableWidth = ImGui::GetContentRegionAvail().x;
-    int itemsPerRow = static_cast<int>(availableWidth / itemWidth);
-    if (itemsPerRow < 1)
+    if (ImGui::BeginTable("FolderFileIconTable", 4, flags))
     {
-        itemsPerRow = 1;
-    }
-
-    if (ImGui::BeginTable("DynamicTable", itemsPerRow, ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_ScrollY))
-    {
+        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
+        ImGui::TableSetupColumn("Date");
+        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupScrollFreeze(0, 1);
+        ImGui::TableHeadersRow();
         for (auto& folder : _selectedFolder->GetSubdirectories())
         {
-            ImGui::TableNextColumn();
-
             ImGui::PushID(folder->GetUID());
 
-            ImVec2 iconSize(48, 48);
-            if (ImGui::Selectable("", false, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_AllowOverlap, iconSize))
+            ImGui::TableNextRow();
+
+            // NAME
+            ImGui::TableNextColumn();
+            std::string label = std::string(ICON_FA_FOLDER) + " " + folder->GetName();
+            if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
             {
-                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                if (ImGui::IsMouseDoubleClicked(0))
                 {
                     SelectFolder(folder.get());
                 }
             }
-            ImVec2 selectableMin = ImGui::GetItemRectMin();
-            ImVec2 selectableMax = ImGui::GetItemRectMax();
-            ImVec2 selectableSize = ImVec2(selectableMax.x - selectableMin.x, selectableMax.y - selectableMin.y);
 
-            ImVec2 imagePos = ImVec2(
-                selectableMin.x + (selectableSize.x - iconSize.x) / 2.0f, // Center horizontally
-                selectableMin.y + (selectableSize.y - iconSize.y) / 2.0f  // Center vertically
-            );
+            // DATE
+            ImGui::TableNextColumn();
+            ImGui::Text(folder->GetDate().c_str());
 
-            ImGui::SetCursorScreenPos(imagePos);
-            ImGui::Image((ImTextureID)(_folderIcon->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr),
-                iconSize);
+            // TYPE
+            ImGui::TableNextColumn();
 
-            // Truncate name
-            std::string name = folder->GetName();
-            float maxWidth = iconSize.x + 5;
-            std::string truncatedLabel = name;
-            const std::string ellipsis = "...";
+            // SIZE
+            ImGui::TableNextColumn();
 
-            float textWidth = ImGui::CalcTextSize(name.c_str()).x;
+            ImGui::PopID();
+        }
 
-            if (textWidth > maxWidth)
+        for (auto& file : _selectedFolder->GetFiles())
+        {
+            ImGui::PushID(file->GetUID());
+
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+
+            // NAME
+            std::string label;
+            switch (file->GetType())
             {
-                while (!truncatedLabel.empty() && ImGui::CalcTextSize((truncatedLabel + ellipsis).c_str()).x > maxWidth)
+            case FileType::MATERIAL:
+                label = std::string(ICON_FA_DROPLET) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginDragDropSource())
                 {
-                    truncatedLabel.pop_back();
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("DRAGDROP_MATERIAL", &uid, sizeof(UID));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
                 }
-                truncatedLabel += ellipsis;
+                break;
+
+            case FileType::MODEL:
+                label = std::string(ICON_FA_PERSON) + " " + file->GetName();
+                if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+                {
+                    if (ImGui::IsMouseDoubleClicked(0))
+                    {
+                        App->GetModule<ModuleScene>()->ModelToGameObject(file->GetPath());
+                    }
+                }
+                break;
+
+            case FileType::SCENE:
+                label = std::string(ICON_FA_BOX_OPEN) + " " + file->GetName();
+                ImGui::Text(label.c_str());
+                if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+                {
+                    if (ImGui::IsMouseDoubleClicked(0))
+                    {
+                        auto start = std::chrono::steady_clock::now();
+                        App->GetModule<ModuleScene>()->LoadScene(file->GetPath(),
+                            [start]()
+                            {
+                                auto end = std::chrono::steady_clock::now();
+                                auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+                                LOG_INFO("Scene Loaded! Took {} seconds", static_cast<int>(duration));
+                            });
+                    }
+                }
+                break;
+
+            case FileType::TEXTURE:
+                label = std::string(ICON_FA_PALETTE) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginItemTooltip())
+                {
+                    commandList->TransitionBarrier(file->GetIcon()->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                    ImGui::Image((ImTextureID)(file->GetIcon()->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr),
+                        ImVec2(64, 64));
+                    ImGui::EndTooltip();
+                }
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("DRAGDROP_TEXTURE", &uid, sizeof(UID));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::MESH:
+                label = std::string(ICON_FA_VECTOR_SQUARE) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("DRAGDROP_MESH", &uid, sizeof(UID));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::UNKNOWN:
+                label = std::string(ICON_FA_QUESTION) + " " + file->GetName();
+                ImGui::Text(label.c_str());;
+                break;
             }
 
-            float textOffsetX = (maxWidth > textWidth) ? (maxWidth - textWidth) * 0.5f : 0.0f;
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
-            ImGui::Text(truncatedLabel.c_str());
+            // DATE
+            ImGui::TableNextColumn();
+            ImGui::Text(file->GetDate().c_str());
 
-            CHIRON_TODO("Display Files");
+            // TYPE
+            ImGui::TableNextColumn();
+            ImGui::Text(file->GetExt().c_str());
+
+            // SIZE
+            ImGui::TableNextColumn();
+            ImGui::Text(file->GetSize().c_str());
+
             ImGui::PopID();
         }
         ImGui::EndTable();

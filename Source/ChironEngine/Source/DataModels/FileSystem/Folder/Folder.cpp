@@ -16,6 +16,7 @@ Folder::Folder(const std::string& path, Folder* parent) : _uid(Chiron::UIDGenera
 _name(ModuleFileSystem::GetFile(path.c_str())), _parent(parent), _opened(false)
 {
     _parent->LinkSubdirectory(this);
+    _date = ModuleFileSystem::GetModificationDateString(_path.c_str());
 }
 
 Folder::~Folder()
@@ -150,7 +151,7 @@ void Folder::SetParent(Folder* parent)
         return;
     }
     std::string newPath = parent->_path + '/' + _name;
-    if (ModuleFileSystem::MoveDirectory(_path.c_str(), newPath.c_str()))
+    if (ModuleFileSystem::MovePath(_path.c_str(), newPath.c_str()))
     {
         std::ignore = _parent->UnlinkSubdirectory(this);
         parent->LinkSubdirectory(this);

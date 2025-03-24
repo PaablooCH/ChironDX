@@ -14,7 +14,7 @@ public:
     Folder* FindFolder(UID uid);
     Folder* FindFolder(const std::vector<std::string>& path, int iterator = 0);
 
-    // ------------- CHILDREN METHODS ----------------------
+    // ------------- SUBDIRECTORIES METHODS ----------------------
 
     void LinkSubdirectory(Folder* subdirectory);
     [[nodiscard]] Folder* UnlinkSubdirectory(Folder* subdirectory);
@@ -30,6 +30,7 @@ public:
 
     inline UID GetUID() const;
     inline const std::string& GetName() const;
+    inline const std::string& GetDate() const;
     inline const std::string& GetPath() const;
     inline bool GetOpen() const;
     inline const std::vector<std::unique_ptr<Folder>>& GetSubdirectories() const;
@@ -46,6 +47,7 @@ public:
 private:
     UID _uid;
     std::string _name;
+    std::string _date;
     std::string _path;
     bool _opened;
 
@@ -62,6 +64,11 @@ inline UID Folder::GetUID() const
 inline const std::string& Folder::GetName() const
 {
     return _name;
+}
+
+inline const std::string& Folder::GetDate() const
+{
+    return _date;
 }
 
 inline const std::string& Folder::GetPath() const
@@ -97,6 +104,10 @@ inline bool Folder::HasSubdirectories() const
 inline void Folder::SetOpened()
 {
     _opened = true;
+    if (_parent)
+    {
+        _parent->SetOpened();
+    }
 }
 
 inline void Folder::SetClosed()
