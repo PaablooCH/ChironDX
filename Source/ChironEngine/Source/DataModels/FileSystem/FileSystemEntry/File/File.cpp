@@ -8,25 +8,24 @@
 
 #include "DataModels/Assets/TextureAsset.h"
 
-#include "DataModels/FileSystem/Folder/Folder.h"
+#include "../Folder/Folder.h"
 
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
 #include "Defines/FileSystemDefine.h"
 
-File::File(const std::string& fileName, Folder* parent) : _uid(Chiron::UIDGenerator::GenerateUID()),
-_name(fileName), _parent(parent)
+File::File(const std::string& fileName, Folder* parent) : FileSystemEntry(fileName, parent)
 {
     _parent->LinkFile(this);
-    CheckType();
     _date = ModuleFileSystem::GetModificationDateString(_path.c_str());
     _size = ModuleFileSystem::GetFileSize(_path);
+    CheckType();
 }
 
 File::~File()
 {
 }
 
-void File::SetParentAndMove(Folder* parent)
+void File::ChangeParent(Folder* parent)
 {
     std::string newPath = parent->GetPath() + '/' + _name;
     if (ModuleFileSystem::MovePath(_path.c_str(), newPath.c_str()))

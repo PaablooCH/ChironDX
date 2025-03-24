@@ -3,17 +3,14 @@
 
 #include "Modules/ModuleFileSystem.h"
 
-#include "File/File.h"
+#include "../File/File.h"
 
-#include "DataModels/FileSystem/UID/UIDGenerator.h"
 
-Folder::Folder(const std::string& path) : _uid(Chiron::UIDGenerator::GenerateUID()), _name(path), _path(path), _parent(nullptr),
-_opened(false)
+Folder::Folder(const std::string& path) : FileSystemEntry(path), _opened(false)
 {
 }
 
-Folder::Folder(const std::string& path, Folder* parent) : _uid(Chiron::UIDGenerator::GenerateUID()), 
-_name(ModuleFileSystem::GetFile(path.c_str())), _parent(parent), _opened(false)
+Folder::Folder(const std::string& path, Folder* parent) : FileSystemEntry(path, parent), _opened(false)
 {
     _parent->LinkSubdirectory(this);
     _date = ModuleFileSystem::GetModificationDateString(_path.c_str());
@@ -23,7 +20,7 @@ Folder::~Folder()
 {
 }
 
-Folder* Folder::FindFolder(UID uid)
+FileSystemEntry* Folder::FindFolder(UID uid)
 {
     std::queue<Folder*> queue;
     queue.push(this);
@@ -34,6 +31,14 @@ Folder* Folder::FindFolder(UID uid)
         if (folder->GetUID() == uid)
         {
             return folder;
+        }
+
+        for (auto& file : folder->GetFiles())
+        {
+            if (file->GetUID() == uid)
+            {
+                return file.get();
+            }
         }
 
         for (auto& subdirectory : folder->GetSubdirectories())
@@ -87,6 +92,7 @@ Folder* Folder::UnlinkSubdirectory(Folder* subdirectory)
             });
 
         auto orphan = childIt->release();
+        orphan->_parent = nullptr;
         _subdirectories.erase(childIt);
 
         return orphan;
@@ -144,7 +150,7 @@ bool Folder::IsFile(File* file)
         });
 }
 
-void Folder::SetParent(Folder* parent)
+void Folder::ChangeParent(Folder* parent)
 {
     if (parent->IsSubdirectory(this))
     {

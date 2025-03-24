@@ -8,8 +8,8 @@
 #include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/TextureAsset.h"
-#include "DataModels/FileSystem/Folder/Folder.h"
-#include "DataModels/FileSystem/Folder/File/File.h"
+#include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
+#include "DataModels/FileSystem/FileSystemEntry/File/File.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
@@ -141,11 +141,11 @@ void FileBrowserWindow::DrawFolderTree()
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("HIERARCHY_FOLDER"))
             {
-                UID draggedUIDFolder = *static_cast<UID*>(payload->Data);
-                auto draggedFolder = _rootFolder->FindFolder(draggedUIDFolder);
-                if (draggedFolder)
+                UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
+                auto draggedFileSystemEntry = _rootFolder->FindFolder(draggedUIDFileSystemEntry);
+                if (draggedFileSystemEntry)
                 {
-                    draggedFolder->SetParent(folder);
+                    draggedFileSystemEntry->ChangeParent(folder);
                     ImGui::EndDragDropTarget();
                     ImGui::PopID();
                     if (nodeOpen)

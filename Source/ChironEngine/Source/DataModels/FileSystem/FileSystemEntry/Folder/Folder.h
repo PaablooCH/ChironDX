@@ -1,17 +1,17 @@
 #pragma once
 
-#include "DataModels/FileSystem/UID/UID.h"
+#include "../FileSystemEntry.h"
 
 class File;
 
-class Folder
+class Folder : public FileSystemEntry
 {
 public:
     Folder(const std::string& path);
     Folder(const std::string& path, Folder* parent);
-    ~Folder();
+    ~Folder() override;
 
-    Folder* FindFolder(UID uid);
+    FileSystemEntry* FindFolder(UID uid);
     Folder* FindFolder(const std::vector<std::string>& path, int iterator = 0);
 
     // ------------- SUBDIRECTORIES METHODS ----------------------
@@ -28,53 +28,24 @@ public:
 
     // ------------- GETTERS ----------------------
 
-    inline UID GetUID() const;
-    inline const std::string& GetName() const;
-    inline const std::string& GetDate() const;
-    inline const std::string& GetPath() const;
     inline bool GetOpen() const;
     inline const std::vector<std::unique_ptr<Folder>>& GetSubdirectories() const;
     inline const std::vector<std::unique_ptr<File>>& GetFiles() const;
-    inline Folder* GetParent() const;
     inline bool HasSubdirectories() const;
 
     // ------------- SETTERS ----------------------
     
-    void SetParent(Folder* parent);
+    inline void SetParent(Folder* parent) override;
+    void ChangeParent(Folder* parent) override;
     inline void SetOpened();
     inline void SetClosed();
 
 private:
-    UID _uid;
-    std::string _name;
-    std::string _date;
-    std::string _path;
     bool _opened;
 
-    Folder* _parent;
     std::vector<std::unique_ptr<Folder>> _subdirectories;
     std::vector<std::unique_ptr<File>> _files;
 };
-
-inline UID Folder::GetUID() const
-{
-    return _uid;
-}
-
-inline const std::string& Folder::GetName() const
-{
-    return _name;
-}
-
-inline const std::string& Folder::GetDate() const
-{
-    return _date;
-}
-
-inline const std::string& Folder::GetPath() const
-{
-    return _path;
-}
 
 inline bool Folder::GetOpen() const
 {
@@ -91,14 +62,14 @@ inline const std::vector<std::unique_ptr<File>>& Folder::GetFiles() const
     return _files;
 }
 
-inline Folder* Folder::GetParent() const
-{
-    return _parent;
-}
-
 inline bool Folder::HasSubdirectories() const
 {
     return !_subdirectories.empty();
+}
+
+inline void Folder::SetParent(Folder* parent)
+{
+    _parent = parent;
 }
 
 inline void Folder::SetOpened()
