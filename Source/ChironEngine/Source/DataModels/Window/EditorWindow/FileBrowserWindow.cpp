@@ -421,8 +421,16 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
 
             case FileType::UNKNOWN:
                 label = std::string(ICON_FA_QUESTION) + " " + file->GetName();
-                ImGui::Text(label.c_str());;
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
                 break;
+            }
+
+            if (ImGui::BeginDragDropSource())
+            {
+                UID uid = file->GetUID();
+                ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                ImGui::Text(file->GetName().c_str());
+                ImGui::EndDragDropSource();
             }
 
             // DATE
