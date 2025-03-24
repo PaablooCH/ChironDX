@@ -4,10 +4,12 @@
 #include "Application.h"
 
 #include "Modules/ModuleFileSystem.h"
+#include "Modules/ModuleScene.h"
 #include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/TextureAsset.h"
 #include "DataModels/FileSystem/Folder/Folder.h"
+#include "DataModels/FileSystem/Folder/File/File.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
