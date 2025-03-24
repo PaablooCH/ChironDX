@@ -2,6 +2,8 @@
 
 #include "DataModels/FileSystem/UID/UID.h"
 
+class File;
+
 class Folder
 {
 public:
@@ -18,6 +20,12 @@ public:
     [[nodiscard]] Folder* UnlinkSubdirectory(Folder* subdirectory);
     bool IsSubdirectory(Folder* subdirectory);
 
+    // ------------- FILES METHODS ----------------------
+
+    void LinkFile(File* file);
+    [[nodiscard]] File* UnlinkFile(File* file);
+    bool IsFile(File* file);
+
     // ------------- GETTERS ----------------------
 
     inline UID GetUID() const;
@@ -25,6 +33,7 @@ public:
     inline const std::string& GetPath() const;
     inline bool GetOpen() const;
     inline const std::vector<std::unique_ptr<Folder>>& GetSubdirectories() const;
+    inline const std::vector<std::unique_ptr<File>>& GetFiles() const;
     inline Folder* GetParent() const;
     inline bool HasSubdirectories() const;
 
@@ -42,6 +51,7 @@ private:
 
     Folder* _parent;
     std::vector<std::unique_ptr<Folder>> _subdirectories;
+    std::vector<std::unique_ptr<File>> _files;
 };
 
 inline UID Folder::GetUID() const
@@ -67,6 +77,11 @@ inline bool Folder::GetOpen() const
 inline const std::vector<std::unique_ptr<Folder>>& Folder::GetSubdirectories() const
 {
     return _subdirectories;
+}
+
+inline const std::vector<std::unique_ptr<File>>& Folder::GetFiles() const
+{
+    return _files;
 }
 
 inline Folder* Folder::GetParent() const

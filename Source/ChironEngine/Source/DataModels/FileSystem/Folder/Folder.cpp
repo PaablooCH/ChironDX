@@ -3,6 +3,8 @@
 
 #include "Modules/ModuleFileSystem.h"
 
+#include "File/File.h"
+
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
 
 Folder::Folder(const std::string& path) : _uid(Chiron::UIDGenerator::GenerateUID()), _name(path), _path(path), _parent(nullptr),
@@ -97,6 +99,47 @@ bool Folder::IsSubdirectory(Folder* subdirectory)
         [subdirectory](std::unique_ptr<Folder>& actualChild)
         {
             return actualChild.get() == subdirectory;
+        });
+}
+
+void Folder::LinkFile(File* file)
+{
+    assert(file);
+
+    if (!IsFile(file))
+    {
+        file->SetParent(this);
+        std::string newPath = _path + '/' + file->GetName();
+        file->SetPath(newPath);
+        _files.push_back(std::unique_ptr<File>(file));
+    }
+}
+
+File* Folder::UnlinkFile(File* file)
+{
+    assert(file);
+    if (IsFile(file))
+    {
+        auto childIt = std::ranges::find_if(_files,
+            [file](std::unique_ptr<File>& actualChild)
+            {
+                return actualChild.get() == file;
+            });
+
+        auto orphan = childIt->release();
+        _files.erase(childIt);
+
+        return orphan;
+    }
+    return nullptr;
+}
+
+bool Folder::IsFile(File* file)
+{
+    return std::ranges::any_of(_files.begin(), _files.end(),
+        [file](std::unique_ptr<File>& actualChild)
+        {
+            return actualChild.get() == file;
         });
 }
 
