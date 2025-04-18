@@ -9,6 +9,8 @@ class FileBrowserWindow : public EditorWindow
 public:
     FileBrowserWindow();
     ~FileBrowserWindow() override;
+
+    void AddNewFiles(HDROP hDrop);
 private:
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList) override;
     void DrawFolderTree();

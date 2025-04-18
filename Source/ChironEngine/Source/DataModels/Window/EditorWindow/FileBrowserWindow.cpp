@@ -29,6 +29,26 @@ FileBrowserWindow::~FileBrowserWindow()
 {
 }
 
+void FileBrowserWindow::AddNewFiles(HDROP hDrop)
+{
+    char filePath[MAX_PATH];
+    UINT fileCount = DragQueryFileA(hDrop, 0xFFFFFFFF, NULL, 0);
+
+    for (UINT i = 0; i < fileCount; ++i) {
+        DragQueryFileA(hDrop, i, filePath, MAX_PATH);
+        std::string droppedFilePathString(filePath);
+        std::replace(droppedFilePathString.begin(), droppedFilePathString.end(), '\\', '/');
+
+        std::string enginePath = _selectedFolder->GetPath() + '/' + ModuleFileSystem::GetFile(droppedFilePathString.c_str());
+        bool exists = ModuleFileSystem::ExistsFile(enginePath.c_str());
+        ModuleFileSystem::CopyFileC(droppedFilePathString.c_str(), enginePath.c_str());
+        if (!exists) 
+        { 
+            new File(ModuleFileSystem::GetFile(droppedFilePathString.c_str()), _selectedFolder); 
+        }
+    }
+}
+
 void FileBrowserWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
     if (ImGui::BeginChild("##FolderTreeChild", ImVec2(300, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders))

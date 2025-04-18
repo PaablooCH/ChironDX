@@ -123,13 +123,6 @@ inline std::future<std::shared_ptr<A>> ModuleResources::RequestAsset(const std::
                     }
                 }
                 // If anything previous works import it again
-                CHIRON_TODO("Delete");
-                /*if (!ModuleFileSystem::ExistsFile(filePath.c_str()))
-                {
-                    std::string newPath = "Assets/" + ModuleFileSystem::GetFile(path.c_str());
-                    ModuleFileSystem::CopyFileC(path.c_str(), newPath.c_str());
-                    filePath = newPath;
-                }*/
                 shared = CreateNewAsset(filePath, type);
                 ImportAsset(shared);
                 promise->set_value(std::dynamic_pointer_cast<A>(shared));

@@ -190,6 +190,11 @@ UpdateStatus ModuleEditor::PostUpdate()
     return UpdateStatus::UPDATE_CONTINUE;
 }
 
+void ModuleEditor::AddNewFiles(HDROP hDrop) const
+{
+    static_cast<FileBrowserWindow*>(_windows[static_cast<int>(WindowsType::FILE_BROWSER)].get())->AddNewFiles(hDrop);
+}
+
 void ModuleEditor::StartDock() const
 {
     ImGuiID dockSpaceId = ImGui::GetID("DockSpace");

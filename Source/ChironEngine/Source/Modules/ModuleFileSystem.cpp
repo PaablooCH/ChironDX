@@ -209,11 +209,16 @@ bool ModuleFileSystem::CopyFileC(const char* sourcePath, const char* destPath)
     {
         fs::path destination = destPath;
         fs::path source = sourcePath;
+        if (!fs::exists(source))
+        {
+            LOG_WARNING("Source file does not exist.");
+            return false;
+        }
         fs::copy(source, destination, fs::copy_options::overwrite_existing);
         LOG_INFO("File copied successfully");
         if (!PHYSFS_mount(destination.parent_path().string().c_str(), nullptr, 1))
         {
-            LOG_ERROR("Warning: Unable to mount destination into PhysFS: {}", PHYSFS_getLastError());
+            LOG_WARNING("Warning: Unable to mount destination into PhysFS: {}", PHYSFS_getLastError());
             return false;
         }
         return true;
