@@ -130,21 +130,25 @@ void FileBrowserWindow::DrawFolderTree()
         {
             if (ImGui::MenuItem("Create Folder"))
             {
-                std::string newPath = folder->GetPath() + "New Folder";
+                std::string newPath = folder->GetPath() + '/' + "New Folder";
                 if (ModuleFileSystem::CreateUniqueDirectory(newPath))
                 {
                     new Folder(newPath, folder);
                 }
             }
-            if (IsDeletable(folder) && DrawDeleteFolderMenu(folder))
+            if (IsDeletable(folder))
             {
-                ImGui::EndPopup();
-                ImGui::PopID();
-                if (nodeOpen)
+                ImGui::Separator();
+                if (DrawDeleteFolderMenu(folder))
                 {
-                    ImGui::TreePop();
+                    ImGui::EndPopup();
+                    ImGui::PopID();
+                    if (nodeOpen)
+                    {
+                        ImGui::TreePop();
+                    }
+                    continue;
                 }
-                continue;
             }
             ImGui::EndPopup();
         }
@@ -205,7 +209,6 @@ void FileBrowserWindow::DrawFolderTree()
 
 bool FileBrowserWindow::DrawDeleteFolderMenu(Folder* folder)
 {
-    ImGui::Separator();
     if (ImGui::MenuItem("Delete Folder"))
     {
         auto parentFolder = folder->GetParent();
@@ -215,6 +218,18 @@ bool FileBrowserWindow::DrawDeleteFolderMenu(Folder* folder)
         }
         ModuleFileSystem::DeleteDirectory(folder->GetPath().c_str());
         delete parentFolder->UnlinkSubdirectory(folder);
+        return true;
+    }
+    return false;
+}
+
+bool FileBrowserWindow::DrawDeleteFileMenu(File* file)
+{
+    if (ImGui::MenuItem("Delete File"))
+    {
+        auto parentFolder = file->GetParent();
+        ModuleFileSystem::DeleteFileC(file->GetPath().c_str());
+        delete parentFolder->UnlinkFile(file);
         return true;
     }
     return false;
@@ -342,6 +357,17 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 ImGui::EndDragDropTarget();
             }
 
+            if (ImGui::BeginPopupContextItem("RightClickFolderInsideFolder", ImGuiPopupFlags_MouseButtonRight))
+            {
+                if (IsDeletable(folder.get()) && DrawDeleteFolderMenu(folder.get()))
+                {
+                    ImGui::EndPopup();
+                    ImGui::PopID();
+                    continue;
+                }
+                ImGui::EndPopup();
+            }
+
             // DATE
             ImGui::TableNextColumn();
             ImGui::Text(folder->GetDate().c_str());
@@ -451,6 +477,17 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
                 ImGui::Text(file->GetName().c_str());
                 ImGui::EndDragDropSource();
+            }
+
+            if (ImGui::BeginPopupContextItem("RightClickFile", ImGuiPopupFlags_MouseButtonRight))
+            {
+                if (DrawDeleteFileMenu(file.get()))
+                {
+                    ImGui::EndPopup();
+                    ImGui::PopID();
+                    continue;
+                }
+                ImGui::EndPopup();
             }
 
             // DATE

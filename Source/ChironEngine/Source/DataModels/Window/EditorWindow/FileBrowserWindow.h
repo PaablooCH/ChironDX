@@ -2,6 +2,7 @@
 #include "EditorWindow.h"
 
 class Folder;
+class File;
 class TextureAsset;
 
 class FileBrowserWindow : public EditorWindow
@@ -15,6 +16,7 @@ private:
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList) override;
     void DrawFolderTree();
     bool DrawDeleteFolderMenu(Folder* folder);
+    bool DrawDeleteFileMenu(File* file);
     void DrawFolderPath();
     void DrawButtonSubdirectories(int i, const std::string& actualSubdirectory);
     void DrawFolderContent(const std::shared_ptr<CommandList>& commandList);
