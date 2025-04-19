@@ -112,6 +112,15 @@
     <Filter Include="Source\ThreadPool">
       <UniqueIdentifier>{387c52a0-9390-4b62-9cab-16fe0968c5e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\DataModels\FileSystem\FileSystemEntry">
+      <UniqueIdentifier>{0124fc8e-3ac2-48c4-a3e9-9a216ad8d7a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\FileSystem\FileSystemEntry\Folder">
+      <UniqueIdentifier>{44a4b348-2ba8-488c-a6e7-abe9da942009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\DataModels\FileSystem\FileSystemEntry\File">
+      <UniqueIdentifier>{de5a9b27-a69a-44b9-972b-884be5f2fc93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp">
@@ -329,6 +338,18 @@
     </ClCompile>
     <ClCompile Include="Source\ThreadPool\ThreadPool.cpp">
       <Filter>Source\ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\FileBrowserWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\Folder\Folder.cpp">
+      <Filter>Source\DataModels\FileSystem\FileSystemEntry\Folder</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\File\File.cpp">
+      <Filter>Source\DataModels\FileSystem\FileSystemEntry\File</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.cpp">
+      <Filter>Source\DataModels\FileSystem\FileSystemEntry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -605,6 +626,18 @@
     </ClInclude>
     <ClInclude Include="Source\ThreadPool\ThreadPool.h">
       <Filter>Source\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\FileBrowserWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\Folder\Folder.h">
+      <Filter>Source\DataModels\FileSystem\FileSystemEntry\Folder</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\File\File.h">
+      <Filter>Source\DataModels\FileSystem\FileSystemEntry\File</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.h">
+      <Filter>Source\DataModels\FileSystem\FileSystemEntry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

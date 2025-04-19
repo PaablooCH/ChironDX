@@ -6,7 +6,7 @@
 
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
-#include "Modules/ModuleScene.h"
+#include "Modules/ModuleEditor.h"
 #include <ImGui/imgui.h>
 
 #ifdef PROFILE
@@ -27,7 +27,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 {
     int mainReturn = EXIT_FAILURE;
 
-    LOG_INFO("Application Creation --------------");
+    LOG_INFO("-------------- Application Creation --------------");
 
     if (CreateApplication(hInstance) == FALSE)
     {
@@ -62,7 +62,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLi
 
         if (updateReturn == UpdateStatus::UPDATE_ERROR)
         {
-            LOG_ERROR("Application Update exits with error -----");
+            LOG_ERROR("-------------- Application Update exits with error --------------");
             CleanUp();
         }
 
@@ -106,19 +106,19 @@ BOOL CreateApplication(HINSTANCE hInstance)
     }
     App = std::make_unique<Application>(hwnd, hInstance);
 
-    LOG_INFO("Application Init --------------");
+    LOG_INFO("-------------- Application Init --------------");
 
     if (!App->Init())
     {
-        LOG_ERROR("Application Init exits with error -----");
+        LOG_ERROR("-------------- Application Init exits with error --------------");
         return FALSE;
     }
 
-    LOG_INFO("Application Start --------------");
+    LOG_INFO("-------------- Application Start --------------");
 
     if (!App->Start())
     {
-        LOG_ERROR("Application Start exits with error -----");
+        LOG_ERROR("-------------- Application Start exits with error --------------");
         return FALSE;
     }
 
@@ -216,17 +216,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DROPFILES: {
         HDROP hDrop = (HDROP)wParam;
-        char filePath[MAX_PATH];
 
-        UINT fileCount = DragQueryFileA(hDrop, 0xFFFFFFFF, NULL, 0);
-
-        for (UINT i = 0; i < fileCount; ++i) {
-            DragQueryFileA(hDrop, i, filePath, MAX_PATH);
-            std::string droppedFilePathString(filePath);
-            std::replace(droppedFilePathString.begin(), droppedFilePathString.end(), '\\', '/');
-            CHIRON_TODO("Next step is clone the file in our system, load models or anything else must do through a browser");
-            App->GetModule<ModuleScene>()->ModelToGameObject(droppedFilePathString);
-        }
+        App->GetModule<ModuleEditor>()->AddNewFiles(hDrop);
 
         DragFinish(hDrop);
         break;
@@ -243,10 +234,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 INT CleanUp()
 {
-    LOG_INFO("Application CleanUp --------------");
+    LOG_INFO("-------------- Application CleanUp --------------");
     if (!App->CleanUp())
     {
-        LOG_ERROR("Application CleanUp exits with error -----");
+        LOG_ERROR("-------------- Application CleanUp exits with error --------------");
     }
     ::PostQuitMessage(0);
     return 0;

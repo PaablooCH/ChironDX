@@ -17,6 +17,9 @@
   <ItemGroup>
     <ClCompile Include="Source\Auxiliar\SceneLoader.cpp" />
     <ClCompile Include="Source\DataModels\Components\MeshRendererComponent.cpp" />
+    <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.cpp" />
+    <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\File\File.cpp" />
+    <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\Folder\Folder.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\Importers\MaterialImporter.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\Importers\MeshImporter.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\Json\Field.cpp" />
@@ -58,6 +61,7 @@
     <ClCompile Include="Source\DataModels\Window\EditorWindow\ConfigurationWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\ConsoleWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\EditorWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\FileBrowserWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\InspectorWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SceneWindow.cpp" />
     <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Configuration\CameraSubWindow.cpp" />
@@ -101,8 +105,12 @@
     <ClInclude Include="Source\Auxiliar\SceneLoader.h" />
     <ClInclude Include="Source\DataModels\Components\Interfaces\Renderable.h" />
     <ClInclude Include="Source\DataModels\Components\MeshRendererComponent.h" />
+    <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.h" />
+    <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\File\File.h" />
+    <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\Folder\Folder.h" />
     <ClInclude Include="Source\DataModels\FileSystem\Importers\MaterialImporter.h" />
     <ClInclude Include="Source\DataModels\FileSystem\Importers\MeshImporter.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\FileBrowserWindow.h" />
     <ClInclude Include="Source\Enums\AssetType.h" />
     <ClInclude Include="Source\Interfaces\Serializable.h" />
     <ClInclude Include="Source\DataModels\FileSystem\Json\Field.h" />

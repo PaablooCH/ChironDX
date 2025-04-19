@@ -22,6 +22,8 @@ public:
     UpdateStatus PostUpdate() override;
 
     inline const std::vector<std::unique_ptr<Window>>& GetWindows() const;
+    
+    void AddNewFiles(HDROP hDrop) const;
 
 private:
     void StartDock() const;
@@ -38,6 +40,7 @@ private:
     {
         CONFIGURATION,
         CONSOLE,
+        FILE_BROWSER,
         HIERARCHY,
         INSPECTOR,
         SCENE,
