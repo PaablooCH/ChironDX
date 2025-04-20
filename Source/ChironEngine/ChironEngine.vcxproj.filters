@@ -351,6 +351,9 @@
     <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.cpp">
       <Filter>Source\DataModels\FileSystem\FileSystemEntry</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleAssets.cpp">
+      <Filter>Source\Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -638,6 +641,9 @@
     </ClInclude>
     <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.h">
       <Filter>Source\DataModels\FileSystem\FileSystemEntry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleAssets.h">
+      <Filter>Source\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Source\Auxiliar\BidirectionalMap.h">
       <Filter>Source\Auxiliar</Filter>
