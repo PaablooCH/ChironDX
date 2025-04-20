@@ -639,6 +639,9 @@
     <ClInclude Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.h">
       <Filter>Source\DataModels\FileSystem\FileSystemEntry</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Auxiliar\BidirectionalMap.h">
+      <Filter>Source\Auxiliar</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\DataModels\GameObject\GameObject.inl">
