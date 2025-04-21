@@ -392,7 +392,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
             std::string label;
             switch (file->GetType())
             {
-            case FileType::MATERIAL:
+            case FileType::Material:
                 label = std::string(ICON_FA_DROPLET) + " " + file->GetName();
                 ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
                 if (ImGui::BeginDragDropSource())
@@ -404,7 +404,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 }
                 break;
 
-            case FileType::MODEL:
+            case FileType::Model:
                 label = std::string(ICON_FA_PERSON) + " " + file->GetName();
                 if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
                 {
@@ -415,7 +415,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 }
                 break;
 
-            case FileType::SCENE:
+            case FileType::Scene:
                 label = std::string(ICON_FA_BOX_OPEN) + " " + file->GetName();
                 ImGui::Text(label.c_str());
                 if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
@@ -434,7 +434,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 }
                 break;
 
-            case FileType::TEXTURE:
+            case FileType::Texture:
                 label = std::string(ICON_FA_PALETTE) + " " + file->GetName();
                 ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
                 if (ImGui::BeginItemTooltip())
@@ -453,7 +453,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 }
                 break;
 
-            case FileType::MESH:
+            case FileType::Mesh:
                 label = std::string(ICON_FA_VECTOR_SQUARE) + " " + file->GetName();
                 ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
                 if (ImGui::BeginDragDropSource())

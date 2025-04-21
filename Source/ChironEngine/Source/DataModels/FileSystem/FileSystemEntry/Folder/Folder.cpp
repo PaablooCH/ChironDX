@@ -5,7 +5,6 @@
 
 #include "../File/File.h"
 
-
 Folder::Folder(const std::string& path) : FileSystemEntry(path), _opened(false)
 {
 }

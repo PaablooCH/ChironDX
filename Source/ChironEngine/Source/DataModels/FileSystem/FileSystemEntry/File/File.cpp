@@ -47,26 +47,26 @@ void File::CheckType()
 
     if (_ext == FBX_EXT || _ext == OBJ_EXT || _ext == GLTF_EXT)
     {
-        _type = FileType::MODEL;
+        _type = FileType::Model;
     }
     else if (_ext == JPG_EXT || _ext == PNG_EXT ||
         _ext == TIF_EXT || _ext == DDS_EXT ||
         _ext == TGA_EXT || _ext == HDR_EXT)
     {
-        _type = FileType::TEXTURE;
         _icon = moduleResources->RequestAsset<TextureAsset>(_path).get();
+        _type = FileType::Texture;
     }
     else if (_ext == MAT_EXT)
     {
-        _type = FileType::MATERIAL;
+        _type = FileType::Material;
     }
     else if (_ext == MESH_EXT)
     {
-        _type = FileType::MESH;
+        _type = FileType::Mesh;
     }
     else if (_ext == SCENE_EXT)
     {
-        _type = FileType::SCENE;
+        _type = FileType::Scene;
     }
     else
     {

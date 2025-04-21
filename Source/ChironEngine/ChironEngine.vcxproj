@@ -103,6 +103,7 @@
     <ClCompile Include="Source\ThreadPool\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Enums\FileType.h" />
     <ClInclude Include="Source\Auxiliar\BidirectionalMap.h" />
     <ClInclude Include="Source\Auxiliar\SceneLoader.h" />
     <ClInclude Include="Source\DataModels\Components\Interfaces\Renderable.h" />

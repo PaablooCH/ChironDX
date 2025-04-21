@@ -648,6 +648,9 @@
     <ClInclude Include="Source\Auxiliar\BidirectionalMap.h">
       <Filter>Source\Auxiliar</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Enums\FileType.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\DataModels\GameObject\GameObject.inl">

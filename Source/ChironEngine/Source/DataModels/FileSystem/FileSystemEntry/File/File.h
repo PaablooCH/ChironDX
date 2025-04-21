@@ -1,19 +1,10 @@
 #pragma once
 
 #include "../FileSystemEntry.h"
+#include "Enums/FileType.h"
 
 class Folder;
 class TextureAsset;
-
-enum class FileType
-{
-    MATERIAL,
-    MESH,
-    TEXTURE,
-    MODEL,
-    SCENE,
-    UNKNOWN
-};
 
 class File : public FileSystemEntry
 {
