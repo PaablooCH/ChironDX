@@ -10,18 +10,18 @@ namespace Chiron
     public:
         inline void Insert(const Key& key, const Value& value);
 
-        inline void EraseByKey(const Key& key);
+        inline void UpdateByKey(const Key& key, const Value& value);
+        inline void UpdateByValue(const Value& value, const Key& key);
 
+        inline void EraseByKey(const Key& key);
         inline void EraseByValue(const Value& value);
 
         inline std::optional<Value> GetValue(const Key& key) const;
-
         inline std::optional<Key> GetKey(const Value& value) const;
 
         inline void Clear();
 
         inline bool ContainsKey(const Key& key) const;
-
         inline bool ContainsValue(const Value& value) const;
 
     private:
@@ -34,6 +34,28 @@ namespace Chiron
     {
         _keyToValue[key] = value;
         _valueToKey[value] = key;
+    }
+
+    template<typename Key, typename Value>
+    inline void BidirectionalMap<Key, Value>::UpdateByKey(const Key& key, const Value& value)
+    {
+        auto it = _keyToValue.find(key);
+        if (it != _keyToValue.end())
+        {
+            _valueToKey.erase(it->second);
+            Insert(key, value);
+        }
+    }
+
+    template<typename Key, typename Value>
+    inline void BidirectionalMap<Key, Value>::UpdateByValue(const Value& value, const Key& key)
+    {
+        auto it = _valueToKey.find(value);
+        if (it != _valueToKey.end())
+        {
+            _keyToValue.erase(it->second);
+            Insert(key, value);
+        }
     }
 
     template<typename Key, typename Value>
