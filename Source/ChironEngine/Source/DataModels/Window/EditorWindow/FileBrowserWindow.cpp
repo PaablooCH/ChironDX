@@ -149,7 +149,7 @@ void FileBrowserWindow::DrawFolderTree()
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
             {
                 UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
-                auto draggedFileSystemEntry = _rootFolder->FindFolder(draggedUIDFileSystemEntry);
+                auto draggedFileSystemEntry = _rootFolder->FindFileSystemEntry(draggedUIDFileSystemEntry);
                 if (draggedFileSystemEntry)
                 {
                     draggedFileSystemEntry->ChangeParent(folder);
@@ -328,7 +328,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
                 {
                     UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
-                    auto draggedFileSystemEntry = _rootFolder->FindFolder(draggedUIDFileSystemEntry);
+                    auto draggedFileSystemEntry = _rootFolder->FindFileSystemEntry(draggedUIDFileSystemEntry);
                     if (draggedFileSystemEntry)
                     {
                         draggedFileSystemEntry->ChangeParent(folder.get());

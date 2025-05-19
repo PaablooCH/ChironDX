@@ -19,7 +19,7 @@ Folder::~Folder()
 {
 }
 
-FileSystemEntry* Folder::FindFolder(UID uid)
+FileSystemEntry* Folder::FindFileSystemEntry(UID uid)
 {
     std::queue<Folder*> queue;
     queue.push(this);
@@ -66,15 +66,34 @@ Folder* Folder::FindFolder(const std::vector<std::string>& path, int iterator /*
     return nullptr;
 }
 
+File* Folder::FindFile(const std::string& path)
+{
+    for (auto& file : _files)
+    {
+        if (file->GetPath() == path)
+        {
+            return file.get();
+        }
+    }
+    for (auto& sub : _subdirectories)
+    {
+        auto file = sub->FindFile(path);
+        if (file)
+        {
+            return file;
+        }
+    }
+    LOG_ERROR("Didn't find file");
+    return nullptr;
+}
+
 void Folder::LinkSubdirectory(Folder* subdirectory)
 {
     assert(subdirectory);
 
     if (!IsSubdirectory(subdirectory))
     {
-        subdirectory->_parent = this;
-        std::string newPath = _path + '/' + subdirectory->_name;
-        subdirectory->_path = newPath;
+        subdirectory->SetParent(this);
         _subdirectories.push_back(std::unique_ptr<Folder>(subdirectory));
     }
 }
@@ -115,8 +134,6 @@ void Folder::LinkFile(File* file)
     if (!IsFile(file))
     {
         file->SetParent(this);
-        std::string newPath = _path + '/' + file->GetName();
-        file->SetPath(newPath);
         _files.push_back(std::unique_ptr<File>(file));
     }
 }
