@@ -34,6 +34,7 @@ bool ModuleAssets::Init()
 
 bool ModuleAssets::Start()
 {
+    _fileBrowserWindow = static_cast<FileBrowserWindow*>(App->GetModule<ModuleEditor>()->GetWindow(WindowsType::FILE_BROWSER));
     return true;
 }
 
@@ -46,10 +47,34 @@ bool ModuleAssets::CleanUp()
 
 void ModuleAssets::AddDroppedFiles(HDROP hDrop)
 {
+    auto selectedFolder = _fileBrowserWindow->GetSelectedFolder();
+
+    char filePath[MAX_PATH];
+    UINT fileCount = DragQueryFileA(hDrop, 0xFFFFFFFF, NULL, 0);
+
+    for (UINT i = 0; i < fileCount; ++i) {
+        DragQueryFileA(hDrop, i, filePath, MAX_PATH);
+        std::string droppedFilePathString(filePath);
+        std::replace(droppedFilePathString.begin(), droppedFilePathString.end(), '\\', '/');
+
+        CopyAndSaveFile(droppedFilePathString);
+    }
 }
 
 UID ModuleAssets::CopyAndSaveFile(const std::string& path)
 {
+    auto selectedFolder = _fileBrowserWindow->GetSelectedFolder();
+
+    std::string enginePath = selectedFolder->GetPath() + '/' + ModuleFileSystem::GetFile(path.c_str());
+    bool exists = ModuleFileSystem::ExistsFile(enginePath.c_str());
+    ModuleFileSystem::CopyFileC(path.c_str(), enginePath.c_str());
+    if (!exists)
+    {
+        File* file = new File(ModuleFileSystem::GetFile(path.c_str()), selectedFolder);
+        CreateMetaOfFile(file);
+        return file->GetMetaUID();
+    }
+    return selectedFolder->FindFile(enginePath)->GetMetaUID();
 }
 
 void ModuleAssets::SaveEngineFile(const std::string& path, const void* fileBuffer, size_t size, Folder* folder)

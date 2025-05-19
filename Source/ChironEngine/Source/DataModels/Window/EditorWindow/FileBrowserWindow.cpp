@@ -3,9 +3,9 @@
 
 #include "Application.h"
 
+#include "Modules/ModuleAssets.h"
 #include "Modules/ModuleFileSystem.h"
 #include "Modules/ModuleScene.h"
-#include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/TextureAsset.h"
 #include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
@@ -17,36 +17,19 @@
 
 #include <sstream>
 
-FileBrowserWindow::FileBrowserWindow() : EditorWindow(ICON_FA_FOLDER_TREE " File Browser", ImGuiWindowFlags_AlwaysAutoResize),
-_currentPath("Assets")
+FileBrowserWindow::FileBrowserWindow() : EditorWindow(ICON_FA_FOLDER_TREE " File Browser", ImGuiWindowFlags_AlwaysAutoResize)
 {
-    _rootFolder = std::make_unique<Folder>(_currentPath);
-    SelectFolder(_rootFolder.get());
-    GenerateFolders();
+    _rootFolder = App->GetModule<ModuleAssets>()->GetRootFolder();
+    SelectFolder(_rootFolder);
 }
 
 FileBrowserWindow::~FileBrowserWindow()
 {
 }
 
-void FileBrowserWindow::AddNewFiles(HDROP hDrop)
+const std::string& FileBrowserWindow::GetSelectedPath() const
 {
-    char filePath[MAX_PATH];
-    UINT fileCount = DragQueryFileA(hDrop, 0xFFFFFFFF, NULL, 0);
-
-    for (UINT i = 0; i < fileCount; ++i) {
-        DragQueryFileA(hDrop, i, filePath, MAX_PATH);
-        std::string droppedFilePathString(filePath);
-        std::replace(droppedFilePathString.begin(), droppedFilePathString.end(), '\\', '/');
-
-        std::string enginePath = _selectedFolder->GetPath() + '/' + ModuleFileSystem::GetFile(droppedFilePathString.c_str());
-        bool exists = ModuleFileSystem::ExistsFile(enginePath.c_str());
-        ModuleFileSystem::CopyFileC(droppedFilePathString.c_str(), enginePath.c_str());
-        if (!exists) 
-        { 
-            new File(ModuleFileSystem::GetFile(droppedFilePathString.c_str()), _selectedFolder); 
-        }
-    }
+    return _selectedFolder->GetPath();
 }
 
 void FileBrowserWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
@@ -78,7 +61,7 @@ void FileBrowserWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
 void FileBrowserWindow::DrawFolderTree()
 {
     std::stack<std::pair<Folder*, bool>> stack;
-    stack.push({ _rootFolder.get(), false});
+    stack.push({ _rootFolder, false});
 
     while (!stack.empty())
     {
@@ -109,7 +92,7 @@ void FileBrowserWindow::DrawFolderTree()
             }
             treeFlags |= ImGuiTreeNodeFlags_Leaf;
         }
-        if (folder == _rootFolder.get())
+        if (folder == _rootFolder)
         {
             treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         }
@@ -211,13 +194,12 @@ bool FileBrowserWindow::DrawDeleteFolderMenu(Folder* folder)
 {
     if (ImGui::MenuItem("Delete Folder"))
     {
-        auto parentFolder = folder->GetParent();
-        if (folder == _selectedFolder)
+        auto parent = folder->GetParent();
+        App->GetModule<ModuleAssets>()->DeleteFolder(folder);
+        if (_selectedFolder == nullptr)
         {
-            _selectedFolder = parentFolder;
+            SelectFolder(parent);
         }
-        ModuleFileSystem::DeleteDirectory(folder->GetPath().c_str());
-        delete parentFolder->UnlinkSubdirectory(folder);
         return true;
     }
     return false;
@@ -227,9 +209,7 @@ bool FileBrowserWindow::DrawDeleteFileMenu(File* file)
 {
     if (ImGui::MenuItem("Delete File"))
     {
-        auto parentFolder = file->GetParent();
-        ModuleFileSystem::DeleteFileC(file->GetPath().c_str());
-        delete parentFolder->UnlinkFile(file);
+        App->GetModule<ModuleAssets>()->DeleteFileC(file);
         return true;
     }
     return false;
@@ -505,38 +485,6 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
             ImGui::PopID();
         }
         ImGui::EndTable();
-    }
-}
-
-void FileBrowserWindow::GenerateFolders()
-{
-    std::vector<std::string> filesInLibPath = ModuleFileSystem::ListFilesWithPath((_currentPath + '/').c_str());
-    std::queue<std::pair<std::string, Folder*>> filesToCheck;
-    for (int i = 0; i < filesInLibPath.size(); i++)
-    {
-        filesToCheck.emplace(filesInLibPath[i], _rootFolder.get());
-    }
-
-    while (!filesToCheck.empty())
-    {
-        auto& pair = filesToCheck.front();
-        std::string path = pair.first;
-        filesToCheck.pop();
-        if (ModuleFileSystem::IsDirectory(path.c_str()))
-        {
-            Folder* folder = new Folder(path, pair.second);
-            path += "/";
-            std::vector<std::string> filesInsideDirectory = ModuleFileSystem::ListFilesWithPath(path.c_str());
-
-            for (const auto& file : filesInsideDirectory)
-            {
-                filesToCheck.emplace(file, folder);
-            }
-        }
-        else if (ModuleFileSystem::GetFileExtension(path.c_str()) != META_EXT)
-        {
-            new File(ModuleFileSystem::GetFile(path.c_str()), pair.second);
-        }
     }
 }
 

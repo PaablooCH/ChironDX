@@ -4,6 +4,7 @@
 #include "Auxiliar/BidirectionalMap.h"
 #include "DataModels/FileSystem/UID/UID.h"
 
+class FileBrowserWindow;
 class Folder;
 class File;
 
@@ -55,6 +56,7 @@ private:
 
     std::unique_ptr<Folder> _rootFolder;
 
+    FileBrowserWindow* _fileBrowserWindow;
 };
 
 inline void ModuleAssets::UpdatePath(const std::string& path, UID uid)

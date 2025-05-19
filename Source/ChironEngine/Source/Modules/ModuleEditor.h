@@ -7,6 +7,17 @@ class MainMenuWindow;
 class Window;
 class DescriptorAllocation;
 
+enum class WindowsType
+{
+    CONFIGURATION,
+    CONSOLE,
+    FILE_BROWSER,
+    HIERARCHY,
+    INSPECTOR,
+    SCENE,
+    SIZE
+};
+
 class ModuleEditor : public Module
 {
 public:
@@ -22,8 +33,7 @@ public:
     UpdateStatus PostUpdate() override;
 
     inline const std::vector<std::unique_ptr<Window>>& GetWindows() const;
-    
-    void AddNewFiles(HDROP hDrop) const;
+    inline Window* GetWindow(WindowsType wType) const;
 
 private:
     void StartDock() const;
@@ -36,17 +46,6 @@ private:
     void SetStyle();
 
 private:
-    enum class WindowsType
-    {
-        CONFIGURATION,
-        CONSOLE,
-        FILE_BROWSER,
-        HIERARCHY,
-        INSPECTOR,
-        SCENE,
-        SIZE
-    };
-
     std::vector<std::unique_ptr<Window>> _windows;
     std::unique_ptr<MainMenuWindow> _mainMenu;
 
@@ -66,4 +65,9 @@ private:
 inline const std::vector<std::unique_ptr<Window>>& ModuleEditor::GetWindows() const
 {
     return _windows;
+}
+
+inline Window* ModuleEditor::GetWindow(WindowsType wType) const
+{
+    return _windows[static_cast<int>(wType)].get();
 }
