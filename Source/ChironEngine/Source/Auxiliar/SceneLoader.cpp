@@ -162,8 +162,11 @@ namespace Chiron::Loader
         }
 
         // Async Load
-        std::thread startLoadThread = std::thread(&StartLoading);
-        startLoadThread.detach();
+        auto mainTreadPool = App->GetMainThreadPool();
+        mainTreadPool->AddTask(
+            [&]() {
+                StartLoading();
+            });
     }
 
     bool LoadInProcess()
