@@ -26,7 +26,7 @@ public:
     void SetParent(Folder* parent) override;
     inline void SetMetaUID (UID metaUID);
     void ChangeParent(Folder* parent) override;
-    inline void SetPath(const std::string& path);
+    void SetPath(const std::string& path) override;
 
 private:
     void CheckType();
@@ -66,7 +66,7 @@ inline Folder* File::GetParent() const
     return _parent;
 }
 
-inline void File::SetPath(const std::string& path)
+inline void File::SetMetaUID(UID metaUID)
 {
-    _path = path;
+    _metaUID = metaUID;
 }

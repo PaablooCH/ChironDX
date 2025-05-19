@@ -179,3 +179,16 @@ void Folder::ChangeParent(Folder* parent)
         parent->LinkSubdirectory(this);
     }
 }
+
+void Folder::SetPath(const std::string& path)
+{
+    _path = path + _name;
+    for (auto& subdirectory : _subdirectories)
+    {
+        subdirectory->SetPath(_path + '/');
+    }
+    for (auto& file : _files)
+    {
+        file->SetPath(_path + '/');
+    }
+}
