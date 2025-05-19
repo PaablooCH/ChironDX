@@ -38,6 +38,7 @@ public:
     
     inline void SetParent(Folder* parent) override;
     void ChangeParent(Folder* parent) override;
+    void SetPath(const std::string& path) override;
     inline void SetOpened();
     inline void SetClosed();
 
