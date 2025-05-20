@@ -3,7 +3,9 @@
 
 #include "Application.h"
 
-#include "Modules/ModuleID3D12.h"
+#include "Modules/ModuleAssets.h"
+#include "Modules/ModuleEditor.h"
+#include "Modules/ModuleFileSystem.h"
 #include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/MaterialAsset.h"
@@ -14,6 +16,11 @@
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/Resource/IndexBuffer.h"
 #include "DataModels/DX12/Resource/VertexBuffer.h"
+
+#include "DataModels/FileSystem/Json/Json.h"
+#include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
+
+#include "DataModels/Window/EditorWindow/FileBrowserWindow.h"
 
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
@@ -64,18 +71,11 @@ void ModelImporter::Load(const char* libraryPath, const std::shared_ptr<ModelAss
 #endif // OPTICK
     if (!ModuleFileSystem::ExistsFile(libraryPath))
     {
-        // ------------- META ----------------------
-
-        std::string metaPath = model->GetAssetPath() + META_EXT;
-        rapidjson::Document doc;
-        Json meta = Json(doc);
-        ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-
         // ------------- REIMPORT FILE ----------------------
 
-        std::string assetPath = meta["assetPath"];
-        Import(assetPath.c_str(), model);
-
+        std::string assetPAth = App->GetModule<ModuleAssets>()->GetFilePath(model->GetUID());
+        CHIRON_TODO("Try to load from meta. If not posible reimport.");
+        Import(assetPAth.c_str(), model);
         return;
     }
 
@@ -145,12 +145,12 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
 {
     // ------------- META ----------------------
 
-    std::string metaPath = model->GetAssetPath() + META_EXT;
+    std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(model->GetUID()) + META_EXT;
     rapidjson::Document doc;
     Json meta = Json(doc);
     ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-    auto meshes = meta["MeshesAssetPaths"];
-    auto mat = meta["MatAssetPaths"];
+    auto meshes = meta["meshesUIDs"];
+    auto mat = meta["materialsUIDs"];
     unsigned int countMeshes = 0;
     unsigned int countMat = 0;
 
@@ -203,28 +203,30 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
 
         for (int i = 0; i < node->meshMaterial.size(); ++i)
         {
+            UID meshUID = node->meshMaterial[i].first->GetUID();
+            
             // ------------- META ----------------------
 
-            meshes[countMeshes] = (MESHES_PATH + node->meshMaterial[i].first->GetName());
+            meshes[countMeshes] = meshUID;
             ++countMeshes;
 
             // ------------- BINARY ----------------------
 
-            UID meshUID = node->meshMaterial[i].first->GetUID();
             memcpy(cursor, &meshUID, sizeof(UID));
             cursor += sizeof(UID);
         }
 
         for (int i = 0; i < node->meshMaterial.size(); ++i)
         {
+            UID materialUID = node->meshMaterial[i].second->GetUID();
+
             // ------------- META ----------------------
 
-            mat[countMat] = (MATERIALS_PATH + node->meshMaterial[i].second->GetName());
+            mat[countMat] = materialUID;
             ++countMat;
 
             // ------------- BINARY ----------------------
 
-            UID materialUID = node->meshMaterial[i].second->GetUID();
             memcpy(cursor, &materialUID, sizeof(UID));
             cursor += sizeof(UID);
         }
@@ -237,7 +239,8 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
 
     // ------------- BINARY ----------------------
 
-    ModuleFileSystem::SaveFile(model->GetLibraryPath().c_str(), fileBuffer, size);
+    std::string libPath = MODELS_LIB_PATH + std::to_string(model->GetUID()) + BINARY_EXT;
+    ModuleFileSystem::SaveFile(libPath.c_str(), fileBuffer, size);
 
     delete[] fileBuffer;
 }
@@ -298,7 +301,10 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
 
 std::future<std::shared_ptr<MeshAsset>> ModelImporter::ImportMesh(const aiMesh* mesh, const std::string& fileName, int iteration)
 {
-    std::string meshPath = MESHES_PATH + fileName + "_" + std::to_string(iteration) + MESH_EXT;
+    auto fileBrowser = static_cast<FileBrowserWindow*>(App->GetModule<ModuleEditor>()->GetWindow(WindowsType::FILE_BROWSER));
+    
+    auto currentFolder = fileBrowser->GetSelectedFolder();
+    std::string meshPath = currentFolder->GetPath() + '/' + fileName + "_" + std::to_string(iteration) + MESH_EXT;
 
     if (ModuleFileSystem::ExistsFile(meshPath.c_str()))
     {
@@ -371,7 +377,7 @@ std::future<std::shared_ptr<MeshAsset>> ModelImporter::ImportMesh(const aiMesh* 
     memcpy(cursor, indexBufferData.data(), bytes);
     cursor += bytes;
 
-    ModuleFileSystem::SaveFile(meshPath.c_str(), fileBuffer, size);
+    App->GetModule<ModuleAssets>()->SaveEngineFile(meshPath, fileBuffer, size, currentFolder);
 
     delete[] fileBuffer;
 
@@ -382,8 +388,12 @@ std::future<std::shared_ptr<MaterialAsset>> ModelImporter::ImportMaterial(const 
 {
     auto resources = App->GetModule<ModuleResources>();
 
-    std::string matPath = MATERIALS_PATH + ModuleFileSystem::GetFileName(filePath) + "_" +
+    auto fileBrowser = static_cast<FileBrowserWindow*>(App->GetModule<ModuleEditor>()->GetWindow(WindowsType::FILE_BROWSER));
+    auto currentFolder = fileBrowser->GetSelectedFolder();
+
+    std::string matPath = currentFolder->GetPath() + '/' + ModuleFileSystem::GetFileName(filePath) + "_" +
         std::to_string(iteration) + MAT_EXT;
+
     if (ModuleFileSystem::ExistsFile(matPath.c_str()))
     {
         return App->GetModule<ModuleResources>()->RequestAsset<MaterialAsset>(matPath);
@@ -393,90 +403,80 @@ std::future<std::shared_ptr<MaterialAsset>> ModelImporter::ImportMaterial(const 
 
     rapidjson::Document doc;
     Json json = Json(doc);
-    json["BaseTexturePath"] = "";
-    json["NormalMapPath"] = "";
-    json["AmbientOcclusionPath"] = "";
-    json["PropertyTexturePath"] = "";
-    json["EmissiveTexturePath"] = "";
+    json["baseTextureUID"] = 0;
+    json["normalMapUID"] = 0;
+    json["ambientOcclusionUID"] = 0;
+    json["propertyTextureUID"] = 0;
+    json["emissiveTextureUID"] = 0;
 
     if (material->GetTexture(aiTextureType_DIFFUSE, 0, &file) == AI_SUCCESS)
     {
-        std::string baseTexturePath = "";
-        CheckPathMaterial(filePath.c_str(), file, baseTexturePath);
-        json["BaseTexturePath"] = baseTexturePath;
+        UID baseTextureUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, baseTextureUID);
+        json["baseTextureUID"] = baseTextureUID;
     }
 
     if (material->GetTexture(aiTextureType_NORMALS, 0, &file) == AI_SUCCESS)
     {
-        std::string normalMapPath = "";
-        CheckPathMaterial(filePath.c_str(), file, normalMapPath);
-        json["NormalMapPath"] = normalMapPath;
+        UID normalMapUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, normalMapUID);
+        json["normalMapUID"] = normalMapUID;
     }
 
     if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &file) == AI_SUCCESS)
     {
-        std::string ambientOcclusionPath = "";
-        CheckPathMaterial(filePath.c_str(), file, ambientOcclusionPath);
-        json["AmbientOcclusionPath"] = ambientOcclusionPath;
+        UID ambientOcclusionUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, ambientOcclusionUID);
+        json["ambientOcclusionUID"] = ambientOcclusionUID;
     }
 
     if (material->GetTexture(aiTextureType_METALNESS, 0, &file) == AI_SUCCESS)
     {
-        std::string propertyTexturePath = "";
-        CheckPathMaterial(filePath.c_str(), file, propertyTexturePath);
-        json["PropertyTexturePath"] = propertyTexturePath;
+        UID propertyTextureUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, propertyTextureUID);
+        json["propertyTextureUID"] = propertyTextureUID;
     }
 
     if (material->GetTexture(aiTextureType_EMISSIVE, 0, &file) == AI_SUCCESS)
     {
-        std::string emissiveTexturePath = "";
-        CheckPathMaterial(filePath.c_str(), file, emissiveTexturePath);
-        json["EmissiveTexturePath"] = emissiveTexturePath;
+        UID emissiveTextureUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, emissiveTextureUID);
+        json["emissiveTextureUID"] = emissiveTextureUID;
     }
 
     // ------------- SAVE MATERIAL FILE ----------------------
 
-    auto filebuffer = json.ToBuffer();
+    auto fileBuffer = json.ToBuffer();
 
-    ModuleFileSystem::SaveFile(matPath.c_str(),
-        filebuffer.GetString(), filebuffer.GetSize());
+    App->GetModule<ModuleAssets>()->SaveEngineFile(matPath, fileBuffer.GetString(), fileBuffer.GetSize(), currentFolder);
 
     return App->GetModule<ModuleResources>()->RequestAsset<MaterialAsset>(matPath);
 }
 
-void ModelImporter::CheckPathMaterial(const char* filePath, const aiString& file, std::string& dataBuffer)
+void ModelImporter::CheckPathMaterial(const char* filePath, const aiString& file, UID& textureUID)
 {
-    CHIRON_TODO("instead of check the path, search for the file and copy it into texture asset.");
+    std::string metaPath;
     // No exists in its file
     if (!ModuleFileSystem::ExistsFile(file.data))
     {
-        std::string name = ModuleFileSystem::GetFileName(file.data);
-        name += ModuleFileSystem::GetFileExtension(file.data);
+        std::string name = ModuleFileSystem::GetFile(file.data);
 
         std::string modelPath = ModuleFileSystem::GetPathWithoutFile(filePath);
         // No exists in its model path
         if (!ModuleFileSystem::ExistsFile((modelPath + name).c_str()))
         {
-            // No exists in the engine folder
-            if (!ModuleFileSystem::ExistsFile((TEXTURES_PATH + name).c_str()))
-            {
-                LOG_ERROR("Texture not found!!!");
-            }
-            else
-            {
-                // Exists in the engine folder
-                dataBuffer = TEXTURES_PATH + name;
-            }
+            LOG_INFO("Texture not found!!!");
+            return;
         }
         else
         {
             // Exists in its model path
-            dataBuffer = modelPath + name;
+            textureUID = App->GetModule<ModuleAssets>()->CreateMetaFileC(modelPath + name);
         }
     }
     else
     {
         // Exists in its file
-        dataBuffer = file.data;
+        textureUID = App->GetModule<ModuleAssets>()->CopyAndSaveFile(file.data);
     }
 }

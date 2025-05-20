@@ -3,6 +3,7 @@
 
 #include "Application.h"
 
+#include "Modules/ModuleAssets.h"
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleFileSystem.h"
 
@@ -346,7 +347,7 @@ void TextureImporter::Load(const char* libraryPath, const std::shared_ptr<Textur
     {
         // ------------- META ----------------------
 
-        std::string metaPath = texture->GetAssetPath() + META_EXT;
+        std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(texture->GetUID()) + META_EXT;
         rapidjson::Document doc;
         Json meta = Json(doc);
         ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
@@ -448,7 +449,7 @@ void TextureImporter::Save(const std::shared_ptr<TextureAsset>& texture)
 {
     // ------------- META ----------------------
 
-    std::string metaPath = texture->GetAssetPath() + META_EXT;
+    std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(texture->GetUID()) + META_EXT;
     rapidjson::Document doc;
     Json meta = Json(doc);
     ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
@@ -478,7 +479,8 @@ void TextureImporter::Save(const std::shared_ptr<TextureAsset>& texture)
     memcpy(cursor, &texture->GetName()[0], bytes);
     cursor += bytes;
 
-    ModuleFileSystem::SaveFile(texture->GetLibraryPath().c_str(), fileBuffer, size);
+    std::string libPath = MATERIALS_LIB_PATH + std::to_string(texture->GetUID()) + BINARY_EXT;
+    ModuleFileSystem::SaveFile(libPath.c_str(), fileBuffer, size);
 
     delete[] fileBuffer;
 }

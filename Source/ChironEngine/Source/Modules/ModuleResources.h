@@ -1,15 +1,10 @@
 #pragma once
 #include "Module.h"
 
-#include "ModuleFileSystem.h"
-
 #include "DataModels/FileSystem/UID/UID.h"
-#include "DataModels/FileSystem/Json/Json.h"
 #include "Enums/AssetType.h"
 
 #include "ThreadPool/ThreadPool.h"
-
-#include "Defines/FileSystemDefine.h"
 
 class Asset;
 class MaterialImporter;
@@ -21,7 +16,7 @@ class ModuleResources : public Module
 {
 public:
     ModuleResources();
-    ~ModuleResources();
+    ~ModuleResources() override;
 
     bool Init() override;
     bool Start() override;
@@ -46,17 +41,19 @@ private:
     std::shared_ptr<Asset> CreateNewAsset(const std::string& assetPath, AssetType type);
     std::shared_ptr<Asset> CreateAssetOfType(AssetType type, UID uid, const std::string& assetPath, const std::string& libraryPath);
 
-    void CreateMetaOfAsset(const std::shared_ptr<Asset>& asset);
-
     // ------------- GETTERS ----------------------
 
     std::string GetLibraryPath(UID uid, AssetType type);
     std::string GetLibraryPathByType(AssetType type);
-    AssetType GetTypeByExtension(const std::string& path);
     AssetType GetTypeByLibraryPath(const std::string& path);
     AssetType GetTypeByFolderName(std::string& pathWithOutFile);
+    AssetType GetAssetTypeByExtension(const std::string& path);
 
-    void CreateAssetsAndLibraryFolders();
+    void CreateLibraryFolder();
+
+    UID GetFileUID(const std::string& filePath) const;
+    std::shared_ptr<Asset> CheckAndLoadAsset(const std::string& path, UID uid, AssetType type);
+    bool ExistsFile(UID uid);
 
 private:
     std::map<UID, std::weak_ptr<Asset>> _assets;
@@ -75,16 +72,12 @@ inline std::future<std::shared_ptr<A>> ModuleResources::RequestAsset(const std::
     std::shared_ptr<std::promise<std::shared_ptr<A>>> promise = std::make_shared<std::promise<std::shared_ptr<A>>>();
     auto future = promise->get_future();
     _threadPool->AddTask(
-        [this, path, promise]() {
-            try {
+        [this, path, promise]() 
+        {
+            try 
+            {
                 std::shared_ptr<Asset> shared;
-                std::string filePath = path;
-                if (!ModuleFileSystem::ExistsFile(filePath.c_str()))
-                {
-                    // if the path comes from outside the project we want to check only Assets folder
-                    filePath = ModuleFileSystem::TrimPathToDesired(filePath, "Assets");
-                }
-                AssetType type = GetTypeByExtension(filePath);
+                AssetType type = GetAssetTypeByExtension(path);
                 if (type == AssetType::UNKNOWN)
                 {
                     LOG_ERROR("Extension not supported.");
@@ -92,39 +85,26 @@ inline std::future<std::shared_ptr<A>> ModuleResources::RequestAsset(const std::
                     return;
                 }
 
-                std::string metaPath = filePath + META_EXT;
+                UID uid = GetFileUID(path);
 
-                if (ModuleFileSystem::ExistsFile(metaPath.c_str()))
+                if (uid == 0) 
                 {
-                    rapidjson::Document doc;
-                    Json json = Json(doc);
-                    ModuleFileSystem::LoadJson(metaPath.c_str(), json);
-
-                    UID uid = json["uid"];
-
-                    auto it = _assets.find(uid);
-                    if (it != _assets.end() && !(it->second).expired())
-                    {
-                        shared = (it->second).lock();
-                        promise->set_value(std::dynamic_pointer_cast<A>(shared));
-                        return;
-                    }
-                    std::string libraryPath = GetLibraryPath(uid, type);
-
-                    auto libraryDate = ModuleFileSystem::GetModificationDate(libraryPath.c_str());
-                    auto metaDate = ModuleFileSystem::GetModificationDate(metaPath.c_str());
-
-                    if (metaDate <= libraryDate)
-                    {
-                        shared = CreateAssetOfType(type, uid, filePath, libraryPath);
-                        LoadAsset(shared);
-                        promise->set_value(std::dynamic_pointer_cast<A>(shared));
-                        return;
-                    }
+                    LOG_INFO("No meta found for '{}'. Reimporting...", path);
+                    shared = CreateNewAsset(path, type);
+                    ImportAsset(shared);
+                    promise->set_value(std::dynamic_pointer_cast<A>(shared));
+                    return;
                 }
-                // If anything previous works import it again
-                shared = CreateNewAsset(filePath, type);
-                ImportAsset(shared);
+
+                auto it = _assets.find(uid);
+                if (it != _assets.end() && !(it->second).expired())
+                {
+                    shared = (it->second).lock();
+                    promise->set_value(std::dynamic_pointer_cast<A>(shared));
+                    return;
+                }
+
+                shared = CheckAndLoadAsset(path, uid, type);
                 promise->set_value(std::dynamic_pointer_cast<A>(shared));
             }
             catch (std::future_error const& e)
@@ -150,8 +130,10 @@ inline std::future<std::shared_ptr<A>> ModuleResources::SearchAsset(UID uid)
     std::shared_ptr<std::promise<std::shared_ptr<A>>> promise = std::make_shared<std::promise<std::shared_ptr<A>>>();
     auto future = promise->get_future();
     _threadPool->AddTask(
-        [this, uid, promise]() {
-            try {
+        [this, uid, promise]() 
+        {
+            try 
+            {
                 std::shared_ptr<Asset> shared;
                 auto it = _assets.find(uid);
                 if (it != _assets.end() && !(it->second).expired())
@@ -160,9 +142,10 @@ inline std::future<std::shared_ptr<A>> ModuleResources::SearchAsset(UID uid)
                     promise->set_value(std::dynamic_pointer_cast<A>(shared));
                     return;
                 }
-                shared = LoadBinary(uid);
-                if (shared)
+
+                if (ExistsFile(uid))
                 {
+                    shared = LoadBinary(uid);
                     promise->set_value(std::dynamic_pointer_cast<A>(shared));
                     return;
                 }

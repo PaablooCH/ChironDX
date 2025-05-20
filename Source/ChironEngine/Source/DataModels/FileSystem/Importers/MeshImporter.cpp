@@ -3,6 +3,7 @@
 
 #include "Application.h"
 
+#include "Modules/ModuleAssets.h"
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleFileSystem.h"
 
@@ -47,9 +48,9 @@ void MeshImporter::Import(const char* filePath, const std::shared_ptr<MeshAsset>
 
     const UINT vertexBufferSize = static_cast<UINT>(triangleVertices.size() * sizeof(Vertex));
 
-    std::string newFileName = "Vertex " + mesh->GetName();
+    std::string newMeshName = "Vertex " + mesh->GetName();
     mesh->SetVertexBuffer(CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
-        triangleVertices, newFileName);
+        triangleVertices, newMeshName);
 
     // -------------- INDEX ---------------------
 
@@ -59,9 +60,9 @@ void MeshImporter::Import(const char* filePath, const std::shared_ptr<MeshAsset>
 
     const UINT indexBufferSize = static_cast<UINT>(indexBufferData.size() * sizeof(UINT));
 
-    newFileName = "Index " + mesh->GetName();
+    newMeshName = "Index " + mesh->GetName();
     mesh->SetIndexBuffer(CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize), indexBufferData,
-        DXGI_FORMAT_R32_UINT, newFileName);
+        DXGI_FORMAT_R32_UINT, newMeshName);
 
     Save(mesh);
 
@@ -72,18 +73,10 @@ void MeshImporter::Load(const char* libraryPath, const std::shared_ptr<MeshAsset
 {
     if (!ModuleFileSystem::ExistsFile(libraryPath))
     {
-        // ------------- META ----------------------
-
-        std::string metaPath = mesh->GetAssetPath() + META_EXT;
-        rapidjson::Document doc;
-        Json meta = Json(doc);
-        ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-
         // ------------- REIMPORT FILE ----------------------
-
-        std::string assetPath = meta["assetPath"];
-        Import(assetPath.c_str(), mesh);
-
+        
+        std::string assetPAth = App->GetModule<ModuleAssets>()->GetFilePath(mesh->GetUID());
+        Import(assetPAth.c_str(), mesh);
         return;
     }
 
@@ -166,7 +159,8 @@ void MeshImporter::Save(const std::shared_ptr<MeshAsset>& mesh)
     memcpy(cursor, index.data(), bytes);
     cursor += bytes;
 
-    ModuleFileSystem::SaveFile(mesh->GetLibraryPath().c_str(), fileBuffer, size);
+    std::string libPath = MESHES_LIB_PATH + std::to_string(mesh->GetUID()) + BINARY_EXT;
+    ModuleFileSystem::SaveFile(libPath.c_str(), fileBuffer, size);
 
     delete[] fileBuffer;
 }

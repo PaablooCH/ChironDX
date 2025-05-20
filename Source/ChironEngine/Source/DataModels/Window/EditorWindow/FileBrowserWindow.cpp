@@ -391,6 +391,9 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                     if (ImGui::IsMouseDoubleClicked(0))
                     {
                         App->GetModule<ModuleScene>()->ModelToGameObject(file->GetPath());
+                        ImGui::PopID();
+                        ImGui::EndTable();
+                        return;
                     }
                 }
                 break;
