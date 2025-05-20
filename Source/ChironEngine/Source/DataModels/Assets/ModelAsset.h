@@ -16,7 +16,7 @@ struct Node
 class ModelAsset : public Asset
 {
 public:
-    ModelAsset(UID uid, const std::string& assetPath, const std::string& libraryPath);
+    ModelAsset(UID uid);
     ~ModelAsset() override;
 
     inline void AddNode(Node* node);

@@ -380,7 +380,12 @@ bool ModuleFileSystem::DeleteFileC(const char* path)
 
 bool ModuleFileSystem::ExistsFile(const char* path)
 {
-    return PHYSFS_exists(path);
+    bool exists = PHYSFS_exists(path);
+    if (!exists)
+    {
+        return std::filesystem::exists(path);
+    }
+    return exists;
 }
 
 bool ModuleFileSystem::CreateDirectoryC(const char* directoryName)

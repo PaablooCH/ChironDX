@@ -39,14 +39,12 @@ private:
     // ------------- CREATORS ----------------------
 
     std::shared_ptr<Asset> CreateNewAsset(const std::string& assetPath, AssetType type);
-    std::shared_ptr<Asset> CreateAssetOfType(AssetType type, UID uid, const std::string& assetPath, const std::string& libraryPath);
+    std::shared_ptr<Asset> CreateAssetOfType(AssetType type, UID uid);
 
     // ------------- GETTERS ----------------------
 
     std::string GetLibraryPath(UID uid, AssetType type);
     std::string GetLibraryPathByType(AssetType type);
-    AssetType GetTypeByLibraryPath(const std::string& path);
-    AssetType GetTypeByFolderName(std::string& pathWithOutFile);
     AssetType GetAssetTypeByExtension(const std::string& path);
 
     void CreateLibraryFolder();

@@ -38,7 +38,7 @@ bool ModuleResources::Init()
 
 bool ModuleResources::Start()
 {
-    CreateAssetsAndLibraryFolders();
+    CreateLibraryFolder();
     return true;
 }
 
@@ -125,29 +125,28 @@ std::shared_ptr<Asset> ModuleResources::LoadBinary(UID uid)
 
 std::shared_ptr<Asset> ModuleResources::CreateNewAsset(const std::string& assetPath, AssetType type)
 {
-    std::string libraryPath = GetLibraryPath(uid, type);
     UID uid = App->GetModule<ModuleAssets>()->CreateMetaFileC(assetPath);
 
-    auto asset = CreateAssetOfType(type, uid, assetPath, libraryPath);
+    auto asset = CreateAssetOfType(type, uid);
     return asset;
 }
 
-std::shared_ptr<Asset> ModuleResources::CreateAssetOfType(AssetType type, UID uid, const std::string& assetPath, const std::string& libraryPath)
+std::shared_ptr<Asset> ModuleResources::CreateAssetOfType(AssetType type, UID uid)
 {
     std::shared_ptr<Asset> asset;
     switch (type)
     {
     case AssetType::Material:
-        asset = std::make_shared<MaterialAsset>(uid, assetPath, libraryPath);
+        asset = std::make_shared<MaterialAsset>(uid);
         break;
     case AssetType::Mesh:
-        asset = std::make_shared<MeshAsset>(uid, assetPath, libraryPath);
+        asset = std::make_shared<MeshAsset>(uid);
         break;
     case AssetType::Model:
-        asset = std::make_shared<ModelAsset>(uid, assetPath, libraryPath);
+        asset = std::make_shared<ModelAsset>(uid);
         break;
     case AssetType::Texture:
-        asset = std::make_shared<TextureAsset>(uid, assetPath, libraryPath);
+        asset = std::make_shared<TextureAsset>(uid);
         break;
     case AssetType::UNKNOWN:
         LOG_WARNING("Try to create an Asset with UNKNOWN type.");
@@ -156,7 +155,7 @@ std::shared_ptr<Asset> ModuleResources::CreateAssetOfType(AssetType type, UID ui
 
     if (asset)
     {
-        asset->SetName(ModuleFileSystem::GetFileName(assetPath));
+        asset->SetName(App->GetModule<ModuleAssets>()->GetFilePath(asset->GetUID()));
         _assets[uid] = asset;
     }
     return asset;
@@ -220,47 +219,8 @@ std::string ModuleResources::GetLibraryPathByType(AssetType type)
     return "";
 }
 
-AssetType ModuleResources::GetTypeByLibraryPath(const std::string& path)
+void ModuleResources::CreateLibraryFolder()
 {
-    std::string pathWithOutFile = ModuleFileSystem::GetPathWithoutFile(path);
-    std::string::size_type libPathPos = pathWithOutFile.find(LIB_PATH);
-
-    if (libPathPos != std::string::npos)
-    {
-        pathWithOutFile.erase(libPathPos, std::string(LIB_PATH).length());
-        pathWithOutFile.pop_back();
-    }
-
-    return GetTypeByFolderName(pathWithOutFile);
-}
-
-AssetType ModuleResources::GetTypeByFolderName(std::string& folderName)
-{
-    if (folderName == "Models")
-    {
-        return AssetType::Model;
-    }
-    if (folderName == "Textures")
-    {
-        return AssetType::Texture;
-    }
-    if (folderName == "Meshes")
-    {
-        return AssetType::Mesh;
-    }
-    if (folderName == "Materials")
-    {
-        return AssetType::Material;
-    }
-    return AssetType::UNKNOWN;
-}
-
-void ModuleResources::CreateAssetsAndLibraryFolders()
-{
-    if (!ModuleFileSystem::IsDirectory(ASSETS_FOLDER))
-    {
-        ModuleFileSystem::CreateDirectoryC(ASSETS_FOLDER);
-    }
     if (!ModuleFileSystem::IsDirectory(LIB_FOLDER))
     {
         ModuleFileSystem::CreateDirectoryC(LIB_FOLDER);
@@ -273,12 +233,6 @@ void ModuleResources::CreateAssetsAndLibraryFolders()
 
     for (auto& folder : folders)
     {
-        std::string assetsFolderOfType = ASSETS_PATH + folder;
-        if (!ModuleFileSystem::IsDirectory(assetsFolderOfType.c_str()))
-        {
-            ModuleFileSystem::CreateDirectoryC(assetsFolderOfType.c_str());
-        }
-
         std::string libraryFolderOfType = LIB_PATH + folder;
         if (!ModuleFileSystem::IsDirectory(libraryFolderOfType.c_str()))
         {

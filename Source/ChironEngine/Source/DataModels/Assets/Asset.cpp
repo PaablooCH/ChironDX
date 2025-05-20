@@ -3,13 +3,11 @@
 
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
 
-Asset::Asset(UID uid, const std::string& assetPath, const std::string& libraryPath, AssetType type) : _uid(uid), _type(type),
-_assetPath(assetPath), _libraryPath(libraryPath), _loaded(false)
+Asset::Asset(UID uid, AssetType type) : _uid(uid), _type(type), _loaded(false)
 {
 }
 
-Asset::Asset(AssetType type) : _uid(Chiron::UIDGenerator::GenerateUID()),
-_type(type), _assetPath(""), _libraryPath(""), _loaded(false)
+Asset::Asset(AssetType type) : _uid(Chiron::UIDGenerator::GenerateUID()), _type(type), _loaded(false)
 {
 }
 
