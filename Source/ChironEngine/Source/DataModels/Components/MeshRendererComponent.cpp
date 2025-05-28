@@ -47,10 +47,10 @@ void MeshRendererComponent::Render(const std::shared_ptr<CommandList>& commandLi
     modelAttributes.uvCorrector = texture ? texture->GetConfigFlags() : isBottomLeft;
     CHIRON_TODO("CorrectUV for each texture");
 
-    commandList->SetGraphicsRoot32BitConstants(1, sizeof(ModelAttributes) / 4, &modelAttributes);
 
     if (texture)
     {
+        modelAttributes.hasAlbedo = 1;
         commandList->TransitionBarrier(texture->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         // set the descriptor heap
         ID3D12DescriptorHeap* descriptorHeaps[] = {
@@ -59,6 +59,11 @@ void MeshRendererComponent::Render(const std::shared_ptr<CommandList>& commandLi
         commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
         commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
     }
+    else
+    {
+        modelAttributes.hasAlbedo = 0;
+    }
+    commandList->SetGraphicsRoot32BitConstants(1, sizeof(ModelAttributes) / 4, &modelAttributes);
 
     commandList->DrawIndexed(static_cast<UINT>(_mesh->GetIndexBuffer()->GetNumIndices()));
 }
