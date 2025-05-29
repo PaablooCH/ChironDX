@@ -11,6 +11,7 @@ public:
 
     void Import(const char* filePath, const std::shared_ptr<MeshAsset>& mesh) override;
     void Load(const char* libraryPath, const std::shared_ptr<MeshAsset>& mesh) override;
+    void LoadFromMeta(const char* filePath, const std::shared_ptr<MeshAsset>& mesh) override;
 
 private:
     void Save(const std::shared_ptr<MeshAsset>& mesh) override;

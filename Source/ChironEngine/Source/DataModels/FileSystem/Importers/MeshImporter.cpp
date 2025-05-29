@@ -76,7 +76,7 @@ void MeshImporter::Load(const char* libraryPath, const std::shared_ptr<MeshAsset
         // ------------- REIMPORT FILE ----------------------
         
         std::string assetPAth = App->GetModule<ModuleAssets>()->GetFilePath(mesh->GetUID());
-        Import(assetPAth.c_str(), mesh);
+        LoadFromMeta(assetPAth.c_str(), mesh);
         return;
     }
 
@@ -120,6 +120,11 @@ void MeshImporter::Load(const char* libraryPath, const std::shared_ptr<MeshAsset
         DXGI_FORMAT_R32_UINT, newFileName);
 
     delete[] fileBufferOriginal;
+}
+
+void MeshImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<MeshAsset>& mesh)
+{
+    Import(filePath, mesh);
 }
 
 void MeshImporter::Save(const std::shared_ptr<MeshAsset>& mesh)

@@ -101,28 +101,15 @@ void MaterialImporter::Import(const char* filePath, const std::shared_ptr<Materi
 
 void MaterialImporter::Load(const char* libraryPath, const std::shared_ptr<MaterialAsset>& material)
 {
+    
+    /* I'm not 100% sure if this is needed 
     if (!ModuleFileSystem::ExistsFile(libraryPath))
     {
-        // ------------- META ----------------------
-
         std::string assetPath = App->GetModule<ModuleAssets>()->GetFilePath(material->GetUID());
-        std::string metaPath = assetPath + META_EXT;
-        rapidjson::Document doc;
-        Json meta = Json(doc);
-        ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-
-        Color baseColor = Color(meta["baseColor"]["r"], meta["baseColor"]["g"], meta["baseColor"]["b"], meta["baseColor"]["a"]);
-        material->SetBaseColor(baseColor);
-        Color specularColor = Color(meta["specularColor"]["r"], meta["specularColor"]["g"], meta["specularColor"]["b"], meta["specularColor"]["a"]);
-        material->SetSpecularColor(specularColor);
-        UINT options = meta["Options"];
-        material->SetOptions(options);
-
-        // ------------- REIMPORT FILE ----------------------
-
-        Import(assetPath.c_str(), material);
+        LoadFromMeta(assetPath.c_str(), material);
         return;
     }
+    */
 
     char* fileBuffer;
     ModuleFileSystem::LoadFile(libraryPath, fileBuffer);
@@ -231,6 +218,27 @@ void MaterialImporter::Load(const char* libraryPath, const std::shared_ptr<Mater
     }
 
     delete[] fileBufferOriginal;
+}
+
+void MaterialImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<MaterialAsset>& material)
+{
+    // ------------- META ----------------------
+
+    std::string metaPath = std::string(filePath) + META_EXT;
+    rapidjson::Document doc;
+    Json meta = Json(doc);
+    ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
+
+    Color baseColor = Color(meta["baseColor"]["r"], meta["baseColor"]["g"], meta["baseColor"]["b"], meta["baseColor"]["a"]);
+    material->SetBaseColor(baseColor);
+    Color specularColor = Color(meta["specularColor"]["r"], meta["specularColor"]["g"], meta["specularColor"]["b"], meta["specularColor"]["a"]);
+    material->SetSpecularColor(specularColor);
+    UINT options = meta["Options"];
+    material->SetOptions(options);
+
+    // ------------- REIMPORT FILE ----------------------
+
+    Import(filePath, material);
 }
 
 void MaterialImporter::Save(const std::shared_ptr<MaterialAsset>& material)

@@ -69,15 +69,15 @@ void ModelImporter::Load(const char* libraryPath, const std::shared_ptr<ModelAss
     OPTICK_THREAD("LoadThread");
     OPTICK_CATEGORY("Load Model", Optick::Category::Debug);
 #endif // OPTICK
+    std::vector<std::unique_ptr<Node>> nodes;
+
+    /* I'm not 100% sure if this is needed
     if (!ModuleFileSystem::ExistsFile(libraryPath))
     {
-        // ------------- REIMPORT FILE ----------------------
-
-        std::string assetPAth = App->GetModule<ModuleAssets>()->GetFilePath(model->GetUID());
-        CHIRON_TODO("Try to load from meta. If not posible reimport.");
-        Import(assetPAth.c_str(), model);
+        LoadFromMeta(App->GetModule<ModuleAssets>()->GetFilePath(model->GetUID()).c_str(), model);
         return;
     }
+    */
 
     char* fileBuffer;
     ModuleFileSystem::LoadFile(libraryPath, fileBuffer);
@@ -93,7 +93,6 @@ void ModelImporter::Load(const char* libraryPath, const std::shared_ptr<ModelAss
     model->SetName(std::string(fileBuffer, header[0]));
     fileBuffer += header[0];
 
-    std::vector<std::unique_ptr<Node>> nodes;
     nodes.reserve(header[1]);
 
     for (unsigned int i = 0; i < header[1]; ++i)
@@ -141,6 +140,73 @@ void ModelImporter::Load(const char* libraryPath, const std::shared_ptr<ModelAss
     delete[] oringinalBuffer;
 }
 
+void ModelImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<ModelAsset>& model)
+{
+    std::vector<std::unique_ptr<Node>> nodes;
+    std::string metaPath = std::string(filePath) + META_EXT;
+
+    // ------------- LOAD META ----------------------
+
+    rapidjson::Document doc;
+    Json meta = Json(doc);
+    ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
+
+    int nodesCount = meta["nodeSize"];
+    nodes.reserve(nodesCount);
+    auto metaNodes = meta["nodes"];
+
+    for (int i = 0; i < nodesCount; i++)
+    {
+        std::unique_ptr<Node> node = std::make_unique<Node>();
+
+        node->name = metaNodes[i]["name"];
+
+        Matrix transform;
+        transform._11 = metaNodes[i]["transform"]["11"];
+        transform._12 = metaNodes[i]["transform"]["12"];
+        transform._13 = metaNodes[i]["transform"]["13"];
+        transform._14 = metaNodes[i]["transform"]["14"];
+        transform._21 = metaNodes[i]["transform"]["21"];
+        transform._22 = metaNodes[i]["transform"]["22"];
+        transform._23 = metaNodes[i]["transform"]["23"];
+        transform._24 = metaNodes[i]["transform"]["24"];
+        transform._31 = metaNodes[i]["transform"]["31"];
+        transform._32 = metaNodes[i]["transform"]["32"];
+        transform._33 = metaNodes[i]["transform"]["33"];
+        transform._34 = metaNodes[i]["transform"]["34"];
+        transform._41 = metaNodes[i]["transform"]["41"];
+        transform._42 = metaNodes[i]["transform"]["42"];
+        transform._43 = metaNodes[i]["transform"]["43"];
+        transform._44 = metaNodes[i]["transform"]["44"];
+
+        node->transform = transform;
+
+        node->parent = metaNodes[i]["parent"];
+
+        int meshMaterialSize = metaNodes[i]["meshMaterialSize"];
+        node->meshMaterial.reserve(meshMaterialSize);
+
+        auto moduleResource = App->GetModule<ModuleResources>();
+        for (int j = 0; j < meshMaterialSize; ++j)
+        {
+            auto futureMesh = moduleResource->SearchAsset<MeshAsset>(metaNodes[i]["meshesUIDs"][j]);
+            auto futureMat = moduleResource->SearchAsset<MaterialAsset>(metaNodes[i]["materialsUIDs"][j]);
+
+            auto mesh = futureMesh.get();
+            auto mat = futureMat.get();
+            if (mesh == nullptr || mat == nullptr)
+            {
+                model->ClearNodes();
+                Import(filePath, model);
+                return;
+            }
+            node->meshMaterial.emplace_back(mesh, mat);
+        }
+        nodes.push_back(std::move(node));
+    }
+    model->SetNodes(nodes);
+}
+
 void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
 {
     // ------------- META ----------------------
@@ -149,10 +215,8 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
     rapidjson::Document doc;
     Json meta = Json(doc);
     ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-    auto meshes = meta["meshesUIDs"];
-    auto mat = meta["materialsUIDs"];
-    unsigned int countMeshes = 0;
-    unsigned int countMat = 0;
+    meta["nodeSize"] = model->GetNodes().size();
+    auto nodes = meta["nodes"];
 
     // ------------- BINARY ----------------------
 
@@ -180,8 +244,38 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
     memcpy(cursor, &model->GetName()[0], bytes);
     cursor += bytes;
 
-    for (auto& node : model->GetNodes())
+    for (int i = 0; i < model->GetNodes().size(); i++)
     {
+        auto& node = model->GetNodes()[i];
+
+        // ------------- META ----------------------
+
+        nodes[i]["name"] = node->name;
+        nodes[i]["parent"] = node->parent;
+
+        nodes[i]["transform"]["11"] = node->transform._11;
+        nodes[i]["transform"]["12"] = node->transform._12;
+        nodes[i]["transform"]["13"] = node->transform._13;
+        nodes[i]["transform"]["14"] = node->transform._14;
+        nodes[i]["transform"]["21"] = node->transform._21;
+        nodes[i]["transform"]["22"] = node->transform._22;
+        nodes[i]["transform"]["23"] = node->transform._23;
+        nodes[i]["transform"]["24"] = node->transform._24;
+        nodes[i]["transform"]["31"] = node->transform._31;
+        nodes[i]["transform"]["32"] = node->transform._32;
+        nodes[i]["transform"]["33"] = node->transform._33;
+        nodes[i]["transform"]["34"] = node->transform._34;
+        nodes[i]["transform"]["41"] = node->transform._41;
+        nodes[i]["transform"]["42"] = node->transform._42;
+        nodes[i]["transform"]["43"] = node->transform._43;
+        nodes[i]["transform"]["44"] = node->transform._44;
+        
+        nodes[i]["meshMaterialSize"] = node->meshMaterial.size();
+        auto meshes = nodes[i]["meshesUIDs"];
+        auto mat = nodes[i]["materialsUIDs"];
+
+        // ------------- BINARY ----------------------
+
         unsigned int nodeHeader[2] = { static_cast<unsigned int>(node->name.size()),
                                        static_cast<unsigned int>(node->meshMaterial.size()) };
 
@@ -201,9 +295,11 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
         memcpy(cursor, &(node->parent), bytes);
         cursor += bytes;
 
-        for (int i = 0; i < node->meshMaterial.size(); ++i)
+        unsigned int countMeshes = 0;
+        unsigned int countMat = 0;
+        for (int j = 0; j < node->meshMaterial.size(); ++j)
         {
-            UID meshUID = node->meshMaterial[i].first->GetUID();
+            UID meshUID = node->meshMaterial[j].first->GetUID();
             
             // ------------- META ----------------------
 
@@ -216,9 +312,9 @@ void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
             cursor += sizeof(UID);
         }
 
-        for (int i = 0; i < node->meshMaterial.size(); ++i)
+        for (int j = 0; j < node->meshMaterial.size(); ++j)
         {
-            UID materialUID = node->meshMaterial[i].second->GetUID();
+            UID materialUID = node->meshMaterial[j].second->GetUID();
 
             // ------------- META ----------------------
 
