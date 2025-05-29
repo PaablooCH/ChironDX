@@ -42,6 +42,8 @@ public:
     static std::vector<std::string> ListFiles(const char* directoryPath);
     static std::vector<std::string> ListFilesWithPath(const char* directoryPath);
 
+    static std::string RemoveTrailingSlash(const std::string& path);
+
 private:
     enum class OpenFileMethod
     {
