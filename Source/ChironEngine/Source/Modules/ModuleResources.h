@@ -12,6 +12,21 @@ class MeshImporter;
 class ModelImporter;
 class TextureImporter;
 
+template<typename TImporter, typename TAsset>
+concept ValidAssetProcessing = std::derived_from<TAsset, Asset> &&
+    requires(TImporter* importer, const char* path, std::shared_ptr<TAsset> asset)
+    {
+        { 
+            importer->Import(path, asset) 
+        };
+        { 
+            importer->LoadFromMeta(path, asset) 
+        };
+        { 
+            importer->Load(path, asset) 
+        };
+    };
+
 class ModuleResources : public Module
 {
 public:
@@ -31,8 +46,19 @@ public:
     std::future<std::shared_ptr<A>> SearchAsset(UID uid);
 
 private:
-    void ImportAsset(const std::shared_ptr<Asset>& asset);
-    void LoadAsset(const std::shared_ptr<Asset>& asset);
+    void ScanLibraryDirectory();
+
+    enum class AssetOperation
+    {
+        IMPORT,
+        LOAD_META,
+        LOAD_LIBRARY
+    };
+    void ProcessAsset(const std::shared_ptr<Asset>& asset, AssetOperation import);
+
+    template<typename TImporter, typename TAsset>
+    requires ValidAssetProcessing<TImporter, TAsset>
+    void ProcessTypedAsset(TImporter* importer, const std::string& path, const std::shared_ptr<Asset>& asset, AssetOperation op);
 
     std::shared_ptr<Asset> LoadBinary(UID uid);
 
@@ -54,7 +80,8 @@ private:
     bool ExistsFile(UID uid);
 
 private:
-    std::map<UID, std::weak_ptr<Asset>> _assets;
+    std::unordered_map<UID, std::weak_ptr<Asset>> _assets;
+    std::unordered_map<UID, std::string> _uidToLibPath;
 
     std::unique_ptr<TextureImporter> _textureImporter;
     std::unique_ptr<MaterialImporter> _materialImporter;
@@ -89,7 +116,7 @@ inline std::future<std::shared_ptr<A>> ModuleResources::RequestAsset(const std::
                 {
                     LOG_INFO("No meta found for '{}'. Reimporting...", path);
                     shared = CreateNewAsset(path, type);
-                    ImportAsset(shared);
+                    ProcessAsset(shared, AssetOperation::IMPORT);
                     promise->set_value(std::dynamic_pointer_cast<A>(shared));
                     return;
                 }
@@ -141,7 +168,7 @@ inline std::future<std::shared_ptr<A>> ModuleResources::SearchAsset(UID uid)
                     return;
                 }
 
-                if (ExistsFile(uid))
+                if (_uidToLibPath.contains(uid))
                 {
                     shared = LoadBinary(uid);
                     promise->set_value(std::dynamic_pointer_cast<A>(shared));

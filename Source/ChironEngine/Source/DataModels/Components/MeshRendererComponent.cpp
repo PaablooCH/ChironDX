@@ -47,7 +47,6 @@ void MeshRendererComponent::Render(const std::shared_ptr<CommandList>& commandLi
     modelAttributes.uvCorrector = texture ? texture->GetConfigFlags() : isBottomLeft;
     CHIRON_TODO("CorrectUV for each texture");
 
-
     if (texture)
     {
         modelAttributes.hasAlbedo = 1;

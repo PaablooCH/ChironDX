@@ -39,6 +39,12 @@ bool ModuleResources::Init()
 bool ModuleResources::Start()
 {
     CreateLibraryFolder();
+    _threadPool->AddTask([this]() 
+        {
+            ScanLibraryDirectory();
+        }
+    );
+
     return true;
 }
 
@@ -47,80 +53,118 @@ bool ModuleResources::CleanUp()
     return true;
 }
 
-void ModuleResources::ImportAsset(const std::shared_ptr<Asset>& asset)
+void ModuleResources::ScanLibraryDirectory()
 {
-    auto assetPath = App->GetModule<ModuleAssets>()->GetFilePath(asset->GetUID());
-    switch (asset->GetType())
+    std::vector<std::string> filesInLibPath = ModuleFileSystem::ListFilesWithPath(LIB_PATH);
+    std::vector<std::string> allFiles;
+
+    for (const auto& path : filesInLibPath)
     {
-    case AssetType::Material:
-        _materialImporter->Import(assetPath.c_str(), std::dynamic_pointer_cast<MaterialAsset>(asset));
-        break;
-    case AssetType::Mesh:
-        _meshImporter->Import(assetPath.c_str(), std::dynamic_pointer_cast<MeshAsset>(asset));
-        break;
-    case AssetType::Model:
-        _modelImporter->Import(assetPath.c_str(), std::dynamic_pointer_cast<ModelAsset>(asset));
-        break;
-    case AssetType::Texture:
-        _textureImporter->Import(assetPath.c_str(), std::dynamic_pointer_cast<TextureAsset>(asset));
-        break;
-    case AssetType::UNKNOWN:
-        break;
+        if (ModuleFileSystem::IsDirectory(path.c_str()))
+        {
+            std::string subDir = path + "/";
+            std::vector<std::string> filesInSubdir = ModuleFileSystem::ListFilesWithPath(subDir.c_str());
+            allFiles.insert(allFiles.end(), filesInSubdir.begin(), filesInSubdir.end());
+        }
+        else
+        {
+            allFiles.push_back(path);
+        }
     }
 
-    _assets[asset->GetUID()] = asset;
+    for (const auto& filePath : allFiles)
+    {
+        UID fileName = std::stoull(ModuleFileSystem::GetFileName(filePath.c_str()));
+        _uidToLibPath[fileName] = filePath;
+    }
 }
 
-void ModuleResources::LoadAsset(const std::shared_ptr<Asset>& asset)
+void ModuleResources::ProcessAsset(const std::shared_ptr<Asset>& asset, AssetOperation import)
 {
-    std::string libPath = std::to_string(asset->GetUID()) + BINARY_EXT;
-    switch (asset->GetType())
+    const UID uid = asset->GetUID();
+    const AssetType type = asset->GetType();
+    std::string path = App->GetModule<ModuleAssets>()->GetFilePath(uid);
+    std::string libPath = std::to_string(uid) + BINARY_EXT;
+
+    switch (type)
     {
     case AssetType::Material:
-        _materialImporter->Load((MATERIALS_LIB_PATH + libPath).c_str(), std::dynamic_pointer_cast<MaterialAsset>(asset));
+        if (import == AssetOperation::LOAD_LIBRARY)
+        {
+            path = MATERIALS_LIB_PATH + libPath;
+        }
+        ProcessTypedAsset<MaterialImporter, MaterialAsset>(_materialImporter.get(), path, asset, import);
         break;
+
     case AssetType::Mesh:
-        _meshImporter->Load((MESHES_LIB_PATH + libPath).c_str(), std::dynamic_pointer_cast<MeshAsset>(asset));
+        if (import == AssetOperation::LOAD_LIBRARY)
+        {
+            path = MESHES_LIB_PATH + libPath;
+        }
+        ProcessTypedAsset<MeshImporter, MeshAsset>(_meshImporter.get(), path, asset, import);
         break;
+
     case AssetType::Model:
-        _modelImporter->Load((MODELS_LIB_PATH + libPath).c_str(), std::dynamic_pointer_cast<ModelAsset>(asset));
+        if (import == AssetOperation::LOAD_LIBRARY)
+        {
+            path = MODELS_LIB_PATH + libPath;
+        }
+        ProcessTypedAsset<ModelImporter, ModelAsset>(_modelImporter.get(), path, asset, import);
         break;
+
     case AssetType::Texture:
-        _textureImporter->Load((TEXTURES_LIB_PATH + libPath).c_str(), std::dynamic_pointer_cast<TextureAsset>(asset));
+        if (import == AssetOperation::LOAD_LIBRARY)
+        {
+            path = TEXTURES_LIB_PATH + libPath;
+        }
+        ProcessTypedAsset<TextureImporter, TextureAsset>(_textureImporter.get(), path, asset, import);
         break;
+
     case AssetType::UNKNOWN:
         LOG_WARNING("Try to load an UNKNOWN asset.");
         break;
     }
+    if (import == AssetOperation::LOAD_LIBRARY)
+    {
+        _uidToLibPath[uid] = path;
+    }
+    _assets[uid] = asset;
+}
 
-    _assets[asset->GetUID()] = asset;
+template<typename TImporter, typename TAsset>
+requires ValidAssetProcessing<TImporter, TAsset>
+void ModuleResources::ProcessTypedAsset(TImporter* importer, const std::string& path, const std::shared_ptr<Asset>& asset, AssetOperation op)
+{
+    switch (op)
+    {
+    case ModuleResources::AssetOperation::IMPORT:
+        importer->Import(path.c_str(), std::dynamic_pointer_cast<TAsset>(asset));
+        break;
+    case ModuleResources::AssetOperation::LOAD_META:
+        importer->LoadFromMeta(path.c_str(), std::dynamic_pointer_cast<TAsset>(asset));
+        break;
+    case ModuleResources::AssetOperation::LOAD_LIBRARY:
+        importer->Load(path.c_str(), std::dynamic_pointer_cast<TAsset>(asset));
+        break;
+    }
 }
 
 std::shared_ptr<Asset> ModuleResources::LoadBinary(UID uid)
 {
-    auto metaPath = App->GetModule<ModuleAssets>()->GetFilePath(uid) + META_EXT;
-    rapidjson::Document doc;
-    Json meta = Json(doc);
-    ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-    std::string typeString = meta["type"];
-    
-    auto type = AssetTypeUtils::FromString(typeString);
-    std::string libFolder = AssetTypeUtils::GetFolder(type);
-
-    std::string binaryToSearch = std::to_string(uid) + BINARY_EXT;
-
-    std::vector<std::string> filesInLibPath = ModuleFileSystem::ListFilesWithPath((LIB_PATH + libFolder + '/').c_str());
-    for (auto& binaryPath : filesInLibPath)
+    auto it = _uidToLibPath.find(uid);
+    if (it == _uidToLibPath.end())
     {
-        auto fileName = ModuleFileSystem::GetFile(binaryPath.c_str());
-        if (fileName == binaryToSearch)
-        {
-            auto asset = CreateAssetOfType(type, uid);
-            LoadAsset(asset);
-            return asset;
-        }
+        return nullptr;
     }
-    return nullptr;
+
+    auto pathModified = ModuleFileSystem::GetPathWithoutFile(it->second);
+    pathModified = ModuleFileSystem::RemoveTrailingSlash(pathModified);
+    pathModified = ModuleFileSystem::GetFile(pathModified.c_str());
+    AssetType type = AssetTypeUtils::GetFromFolder(pathModified);
+    
+    auto asset = CreateAssetOfType(type, uid);
+    ProcessAsset(asset, AssetOperation::LOAD_LIBRARY);
+    return asset;
 }
 
 std::shared_ptr<Asset> ModuleResources::CreateNewAsset(const std::string& assetPath, AssetType type)
@@ -256,12 +300,17 @@ std::shared_ptr<Asset> ModuleResources::CheckAndLoadAsset(const std::string& pat
     std::shared_ptr<Asset> shared = CreateAssetOfType(type, uid);
     if (metaDate <= libraryDate)
     {
-        LoadAsset(shared);
+        ProcessAsset(shared, AssetOperation::LOAD_LIBRARY);
+    }
+    else if (libraryDate == 0 && metaDate != 0)
+    {
+        LOG_WARNING("Library file for '{}' does not exist. Reimporting meta", path);
+        ProcessAsset(shared, AssetOperation::LOAD_META);
     }
     else
     {
-        LOG_WARNING("Outdated library file for '{}'. Reimporting...", path);
-        ImportAsset(shared);
+        LOG_WARNING("Importing Asset", path);
+        ProcessAsset(shared, AssetOperation::IMPORT);
     }
     return shared;
 }
