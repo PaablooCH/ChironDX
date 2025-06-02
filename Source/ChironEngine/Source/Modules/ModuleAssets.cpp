@@ -176,10 +176,18 @@ void ModuleAssets::ScanAssetFolder()
         else if (ModuleFileSystem::GetFileExtension(path.c_str()) != META_EXT)
         {
             filePreMeta = new File(ModuleFileSystem::GetFile(path.c_str()), pair.second);
+            if (!ModuleFileSystem::ExistsFile((path + META_EXT).c_str()))
+            {
+                CreateMetaOfFile(filePreMeta);
+                ProcessMetaFile(path + META_EXT, filePreMeta);
+            }
         }
         else if (ModuleFileSystem::GetFileExtension(path.c_str()) == META_EXT)
         {
-            ProcessMetaFile(path, filePreMeta);
+            if (filePreMeta && ModuleFileSystem::GetFileName(path.c_str()) == filePreMeta->GetName())
+            {
+                ProcessMetaFile(path, filePreMeta);
+            }
         }
     }
 }

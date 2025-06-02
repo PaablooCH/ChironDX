@@ -19,6 +19,7 @@ namespace AssetTypeUtils
             return "Textures";
         case AssetType::UNKNOWN:
             LOG_ERROR("Try to get folder UKNOWN");
+            return "Unknown";
             break;
         default:
             LOG_ERROR("Unhandled AssetType in GetFolder.");

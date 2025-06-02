@@ -60,7 +60,7 @@ private:
     requires ValidAssetProcessing<TImporter, TAsset>
     void ProcessTypedAsset(TImporter* importer, const std::string& path, const std::shared_ptr<Asset>& asset, AssetOperation op);
 
-    std::shared_ptr<Asset> LoadBinary(UID uid);
+    std::shared_ptr<Asset> LoadUID(UID uid);
 
     // ------------- CREATORS ----------------------
 
@@ -168,13 +168,12 @@ inline std::future<std::shared_ptr<A>> ModuleResources::SearchAsset(UID uid)
                     return;
                 }
 
-                if (_uidToLibPath.contains(uid))
+                shared = LoadUID(uid);
+                if (shared)
                 {
-                    shared = LoadBinary(uid);
                     promise->set_value(std::dynamic_pointer_cast<A>(shared));
                     return;
                 }
-                LOG_WARNING("Couldn't find or load {} file.", uid);
                 promise->set_value(nullptr);
             }
             catch (const std::exception& e)

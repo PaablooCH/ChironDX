@@ -363,6 +363,10 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
 
         for (auto& file : _selectedFolder->GetFiles())
         {
+            if (!file)
+            {
+                continue;
+            }
             ImGui::PushID(file->GetUID());
 
             ImGui::TableNextRow();

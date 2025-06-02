@@ -149,21 +149,39 @@ void ModuleResources::ProcessTypedAsset(TImporter* importer, const std::string& 
     }
 }
 
-std::shared_ptr<Asset> ModuleResources::LoadBinary(UID uid)
+std::shared_ptr<Asset> ModuleResources::LoadUID(UID uid)
 {
+    AssetType type;
+    AssetOperation operation;
     auto it = _uidToLibPath.find(uid);
-    if (it == _uidToLibPath.end())
-    {
-        return nullptr;
-    }
+    if (it == _uidToLibPath.end()) {
+        std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(uid) + META_EXT;
 
-    auto pathModified = ModuleFileSystem::GetPathWithoutFile(it->second);
-    pathModified = ModuleFileSystem::RemoveTrailingSlash(pathModified);
-    pathModified = ModuleFileSystem::GetFile(pathModified.c_str());
-    AssetType type = AssetTypeUtils::GetFromFolder(pathModified);
+        if (!ModuleFileSystem::ExistsFile(metaPath.c_str())) {
+            LOG_ERROR("Meta file not found: %s", metaPath.c_str());
+            return nullptr;
+        }
+
+        rapidjson::Document doc;
+        Json meta = Json(doc);
+
+        ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
+
+        std::string typeString = meta["type"];
+        type = AssetTypeUtils::FromString(typeString);
+        operation = AssetOperation::LOAD_META;
+    }
+    else
+    {
+        auto pathModified = ModuleFileSystem::GetPathWithoutFile(it->second);
+        pathModified = ModuleFileSystem::RemoveTrailingSlash(pathModified);
+        pathModified = ModuleFileSystem::GetFile(pathModified.c_str());
+        type = AssetTypeUtils::GetFromFolder(pathModified);
+        operation = AssetOperation::LOAD_LIBRARY;
+    }
     
     auto asset = CreateAssetOfType(type, uid);
-    ProcessAsset(asset, AssetOperation::LOAD_LIBRARY);
+    ProcessAsset(asset, operation);
     return asset;
 }
 
