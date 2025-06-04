@@ -1,5 +1,10 @@
 # ChironDX
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://raw.githubusercontent.com/PaablooCH/ChironDX/master/LICENSE)
+![Size](https://img.shields.io/github/repo-size/PaablooCH/ChironDX.svg)
+![Release](https://img.shields.io/github/release/PaablooCH/ChironDX.svg)
+![Release Date](https://img.shields.io/github/release-date/PaablooCH/ChironDX)
+
 3D Game engine made with C++ and using DirectX12, created and developed by [Pablo Cebollada Hernández](https://github.com/PaablooCH).
 </br>
 You can check the repo with all the code [here](https://github.com/PaablooCH/ChironDX).
