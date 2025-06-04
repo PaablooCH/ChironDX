@@ -22,6 +22,7 @@ public:
     // ------------- SETTERS ----------------------
 
     virtual void SetParent(Folder* parent) = 0;
+    virtual void SetPath(const std::string& path) = 0;
     virtual void ChangeParent(Folder* parent) = 0;
 
 protected:

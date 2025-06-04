@@ -11,8 +11,9 @@ public:
     Folder(const std::string& path, Folder* parent);
     ~Folder() override;
 
-    FileSystemEntry* FindFolder(UID uid);
+    FileSystemEntry* FindFileSystemEntry(UID uid);
     Folder* FindFolder(const std::vector<std::string>& path, int iterator = 0);
+    File* FindFile(const std::string& path);
 
     // ------------- SUBDIRECTORIES METHODS ----------------------
 
@@ -37,6 +38,7 @@ public:
     
     inline void SetParent(Folder* parent) override;
     void ChangeParent(Folder* parent) override;
+    void SetPath(const std::string& path) override;
     inline void SetOpened();
     inline void SetClosed();
 
@@ -70,6 +72,8 @@ inline bool Folder::HasSubdirectories() const
 inline void Folder::SetParent(Folder* parent)
 {
     _parent = parent;
+    std::string newPath = parent->_path + '/';
+    SetPath(newPath);
 }
 
 inline void Folder::SetOpened()

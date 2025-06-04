@@ -11,6 +11,7 @@ struct ModelAttributes
 {
     matrix model;
     int uvCorrector;
+    int hasAlbedo;
     //int uvCorrectorSpecularMetallnes;
     //int uvCorrectorNormalMap;
     //int uvCorrectorOcclusion;
@@ -62,5 +63,9 @@ float4 PSmain(PS_INPUT input) : SV_Target
     {
         coord.y = 1.0f - coord.y;
     }
-    return t1.Sample(s1, coord);
+    if (modelAttributes.hasAlbedo == 1)
+    {
+        return t1.Sample(s1, coord);
+    }
+    return float4(1.0f, 0.0f, 1.0f, 1.0f);
 }

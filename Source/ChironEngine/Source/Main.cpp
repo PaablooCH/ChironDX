@@ -6,7 +6,7 @@
 
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
-#include "Modules/ModuleEditor.h"
+#include "Modules/ModuleAssets.h"
 #include <ImGui/imgui.h>
 
 #ifdef PROFILE
@@ -217,7 +217,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DROPFILES: {
         HDROP hDrop = (HDROP)wParam;
 
-        App->GetModule<ModuleEditor>()->AddNewFiles(hDrop);
+        App->GetModule<ModuleAssets>()->AddDroppedFiles(hDrop);
 
         DragFinish(hDrop);
         break;

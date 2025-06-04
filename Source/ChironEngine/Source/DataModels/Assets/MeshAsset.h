@@ -17,7 +17,7 @@ class MeshAsset : public Asset
 {
 public:
     MeshAsset();
-    MeshAsset(UID uid, const std::string& assetPath, const std::string& libraryPath);
+    MeshAsset(UID uid);
     ~MeshAsset() override;
 
     // ------------- GETTERS ----------------------

@@ -1,6 +1,8 @@
 #pragma once
 #include "Importer.h"
 
+#include "DataModels/FileSystem/UID/UID.h"
+
 class ModelAsset;
 class MeshAsset;
 class MaterialAsset;
@@ -20,6 +22,7 @@ public:
 
     void Import(const char* filePath, const std::shared_ptr<ModelAsset>& model) override;
     void Load(const char* libraryPath, const std::shared_ptr<ModelAsset>& model) override;
+    void LoadFromMeta(const char* filePath, const std::shared_ptr<ModelAsset>& model) override;
 
 private:
     void Save(const std::shared_ptr<ModelAsset>& model) override;
@@ -29,5 +32,5 @@ private:
     std::future<std::shared_ptr<MeshAsset>> ImportMesh(const aiMesh* mesh, const std::string& fileName, int iteration);
     std::future<std::shared_ptr<MaterialAsset>> ImportMaterial(const aiMaterial* material, const std::string& filePath, int iteration);
 
-    void CheckPathMaterial(const char* filePath, const aiString& file, std::string& dataBuffer);
+    void CheckPathMaterial(const char* filePath, const aiString& file, UID& textureUID);
 };

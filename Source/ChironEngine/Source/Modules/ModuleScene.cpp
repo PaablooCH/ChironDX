@@ -3,6 +3,7 @@
 
 #include "Application.h"
 
+#include "ModuleAssets.h"
 #include "ModuleFileSystem.h"
 #include "ModuleResources.h"
 
@@ -17,8 +18,6 @@
 #include "DataModels/Components/MeshRendererComponent.h"
 
 #include "Auxiliar/SceneLoader.h"
-
-#include <sstream>
 
 ModuleScene::ModuleScene() : _loadedScene(nullptr), _selectedGameObject(nullptr)
 {
@@ -83,21 +82,18 @@ bool ModuleScene::CleanUp()
 
 void ModuleScene::SaveScene()
 {
-    if (!ModuleFileSystem::IsDirectory(SCENES_FOLDER))
-    {
-        ModuleFileSystem::CreateDirectoryC(SCENES_FOLDER);
-    }
+    CHIRON_TODO("this save scene should be splitted into quick save and save as.");
+    auto asset = App->GetModule<ModuleAssets>();
+
     rapidjson::Document doc;
     Json json = Json(doc);
 
     _loadedScene->Save(json);
     auto buffer = json.ToBuffer();
 
-    std::ostringstream oss;
-    const std::string& name = _loadedScene->GetRoot()->GetName();
-    oss << SCENES_PATH << name << SCENE_EXT;
+    std::string name = _loadedScene->GetRoot()->GetName() + SCENE_EXT;
 
-    ModuleFileSystem::SaveFile(oss.str().c_str(), buffer.GetString(), buffer.GetSize());
+    asset->SaveEngineFile(name, buffer.GetString(), buffer.GetSize(), asset->GetRootFolder());
 }
 
 void ModuleScene::LoadScene(const std::string& scenePath, std::function<void(void)>&& callback, bool mantainCurrentScene /* = false */)

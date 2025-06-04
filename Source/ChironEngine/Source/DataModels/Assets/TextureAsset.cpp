@@ -27,8 +27,8 @@ _texConversionFlags(0), _texConfigFlags(isBottomLeft)
     _texConversionFlags |= kDefaultBC;
 }
 
-TextureAsset::TextureAsset(TextureType type, UID uid, const std::string& assetPath, const std::string& libraryPath) :
-    Asset(uid, assetPath, libraryPath, AssetType::Texture), _type(type), _texConversionFlags(0), _texConfigFlags(isBottomLeft)
+TextureAsset::TextureAsset(TextureType type, UID uid) : Asset(uid, AssetType::Texture), _type(type), _texConversionFlags(0),
+_texConfigFlags(isBottomLeft)
 {
     if (_type == TextureType::ALBEDO)
     {
@@ -46,8 +46,8 @@ TextureAsset::TextureAsset(TextureType type, UID uid, const std::string& assetPa
     _texConversionFlags |= kDefaultBC;
 }
 
-TextureAsset::TextureAsset(UID uid, const std::string& assetPath, const std::string& libraryPath) :
-    Asset(uid, assetPath, libraryPath, AssetType::Texture), _type(TextureType::ALBEDO), _texConversionFlags(0), _texConfigFlags(isBottomLeft)
+TextureAsset::TextureAsset(UID uid) : Asset(uid, AssetType::Texture), _type(TextureType::ALBEDO), _texConversionFlags(0), 
+_texConfigFlags(isBottomLeft)
 {
     _texConversionFlags |= kSRGB;
     _texConversionFlags |= kPreserveAlpha;

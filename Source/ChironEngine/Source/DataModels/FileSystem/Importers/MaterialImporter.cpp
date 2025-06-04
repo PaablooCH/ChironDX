@@ -3,7 +3,9 @@
 
 #include "Application.h"
 
+#include "Modules/ModuleAssets.h"
 #include "Modules/ModuleResources.h"
+#include "Modules/ModuleFileSystem.h"
 
 #include "DataModels/Assets/MaterialAsset.h"
 #include "DataModels/Assets/TextureAsset.h"
@@ -38,38 +40,38 @@ void MaterialImporter::Import(const char* filePath, const std::shared_ptr<Materi
     bool hasProperty = false;
     bool hasEmissive = false;
 
-    std::string path = json["BaseTexturePath"];
-    if (path != "")
+    UID textureUID = json["baseTextureUID"];
+    if (textureUID != 0)
     {
-        futureBase = resources->RequestAsset<TextureAsset>(path);
+        futureBase = resources->SearchAsset<TextureAsset>(textureUID);
         hasBase = true;
     }
 
-    path = json["NormalMapPath"];
-    if (path != "")
+    textureUID = json["normalMapUID"];
+    if (textureUID != 0)
     {
-        futureNormalMap = resources->RequestAsset<TextureAsset>(path);
+        futureNormalMap = resources->SearchAsset<TextureAsset>(textureUID);
         hasNormal = true;
     }
 
-    path = json["AmbientOcclusionPath"];
-    if (path != "")
+    textureUID = json["ambientOcclusionUID"];
+    if (textureUID != 0)
     {
-        futureOcclusion = resources->RequestAsset<TextureAsset>(path);
+        futureOcclusion = resources->SearchAsset<TextureAsset>(textureUID);
         hasOcclusion = true;
     }
 
-    path = json["PropertyTexturePath"];
-    if (path != "")
+    textureUID = json["propertyTextureUID"];
+    if (textureUID != 0)
     {
-        futureProperty = resources->RequestAsset<TextureAsset>(path);
+        futureProperty = resources->SearchAsset<TextureAsset>(textureUID);
         hasProperty = true;
     }
 
-    path = json["EmissiveTexturePath"];
-    if (path != "")
+    textureUID = json["emissiveTextureUID"];
+    if (textureUID != 0)
     {
-        futureEmissive = resources->RequestAsset<TextureAsset>(path);
+        futureEmissive = resources->SearchAsset<TextureAsset>(textureUID);
         hasEmissive = true;
     }
 
@@ -99,29 +101,15 @@ void MaterialImporter::Import(const char* filePath, const std::shared_ptr<Materi
 
 void MaterialImporter::Load(const char* libraryPath, const std::shared_ptr<MaterialAsset>& material)
 {
+    
+    /* I'm not 100% sure if this is needed 
     if (!ModuleFileSystem::ExistsFile(libraryPath))
     {
-        // ------------- META ----------------------
-
-        std::string metaPath = material->GetAssetPath() + META_EXT;
-        rapidjson::Document doc;
-        Json meta = Json(doc);
-        ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
-
-        Color baseColor = Color(meta["BaseColor"]["R"], meta["BaseColor"]["G"], meta["BaseColor"]["B"], meta["BaseColor"]["A"]);
-        material->SetBaseColor(baseColor);
-        Color specularColor = Color(meta["SpecularColor"]["R"], meta["SpecularColor"]["G"], meta["SpecularColor"]["B"], meta["SpecularColor"]["A"]);
-        material->SetSpecularColor(specularColor);
-        UINT options = meta["Options"];
-        material->SetOptions(options);
-
-        // ------------- REIMPORT FILE ----------------------
-
-        std::string assetPath = meta["assetPath"];
-        Import(assetPath.c_str(), material);
-
+        std::string assetPath = App->GetModule<ModuleAssets>()->GetFilePath(material->GetUID());
+        LoadFromMeta(assetPath.c_str(), material);
         return;
     }
+    */
 
     char* fileBuffer;
     ModuleFileSystem::LoadFile(libraryPath, fileBuffer);
@@ -232,26 +220,51 @@ void MaterialImporter::Load(const char* libraryPath, const std::shared_ptr<Mater
     delete[] fileBufferOriginal;
 }
 
+void MaterialImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<MaterialAsset>& material)
+{
+    // ------------- META ----------------------
+
+    std::string metaPath = std::string(filePath) + META_EXT;
+    rapidjson::Document doc;
+    Json meta = Json(doc);
+    ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
+
+    Color baseColor = Color(meta["baseColor"]["r"], meta["baseColor"]["g"], meta["baseColor"]["b"], meta["baseColor"]["a"]);
+    material->SetBaseColor(baseColor);
+    Color specularColor = Color(meta["specularColor"]["r"], meta["specularColor"]["g"], meta["specularColor"]["b"], meta["specularColor"]["a"]);
+    material->SetSpecularColor(specularColor);
+    UINT options = meta["Options"];
+    material->SetOptions(options);
+
+    // ------------- REIMPORT FILE ----------------------
+
+    Import(filePath, material);
+}
+
 void MaterialImporter::Save(const std::shared_ptr<MaterialAsset>& material)
 {
     // ------------- META ----------------------
 
+    std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(material->GetUID()) + META_EXT;
+
     rapidjson::Document doc;
     Json json = Json(doc);
+    ModuleFileSystem::LoadJson(metaPath.c_str(), json);
 
-    json["BaseColor"]["R"] = material->GetBaseColor().R();
-    json["BaseColor"]["G"] = material->GetBaseColor().G();
-    json["BaseColor"]["B"] = material->GetBaseColor().B();
-    json["BaseColor"]["A"] = material->GetBaseColor().A();
+    json["baseColor"]["r"] = material->GetBaseColor().R();
+    json["baseColor"]["g"] = material->GetBaseColor().G();
+    json["baseColor"]["b"] = material->GetBaseColor().B();
+    json["baseColor"]["a"] = material->GetBaseColor().A();
 
-    json["SpecularColor"]["R"] = material->GetSpecularColor().R();
-    json["SpecularColor"]["G"] = material->GetSpecularColor().G();
-    json["SpecularColor"]["B"] = material->GetSpecularColor().B();
-    json["SpecularColor"]["A"] = material->GetSpecularColor().A();
-    json["Options"] = material->GetOptions();
+    json["specularColor"]["r"] = material->GetSpecularColor().R();
+    json["specularColor"]["g"] = material->GetSpecularColor().G();
+    json["specularColor"]["b"] = material->GetSpecularColor().B();
+    json["specularColor"]["a"] = material->GetSpecularColor().A();
+
+    json["options"] = material->GetOptions();
 
     auto filebuffer = json.ToBuffer();
-    ModuleFileSystem::SaveFile((material->GetAssetPath() + META_EXT).c_str(), filebuffer.GetString(), filebuffer.GetSize());
+    ModuleFileSystem::SaveFile(metaPath.c_str(), filebuffer.GetString(), filebuffer.GetSize());
 
     // ------------- BINARY ----------------------
 
@@ -305,8 +318,9 @@ void MaterialImporter::Save(const std::shared_ptr<MaterialAsset>& material)
     bytes = sizeof(UINT);
     UINT options = material->GetOptions();
     memcpy(cursor, &options, bytes);
-
-    ModuleFileSystem::SaveFile(material->GetLibraryPath().c_str(), fileBuffer, size);
+    
+    std::string libPath = MATERIALS_LIB_PATH + std::to_string(material->GetUID()) + BINARY_EXT;
+    ModuleFileSystem::SaveFile(libPath.c_str(), fileBuffer, size);
 
     delete[] fileBuffer;
 }

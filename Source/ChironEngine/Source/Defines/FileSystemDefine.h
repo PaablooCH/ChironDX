@@ -7,16 +7,6 @@
 
 #define ASSETS_FOLDER "Assets"
 #define ASSETS_PATH "Assets/"
-#define MODELS_FOLDER "Assets/Models"
-#define MODELS_PATH "Assets/Models/"
-#define TEXTURES_FOLDER "Assets/Textures"
-#define TEXTURES_PATH "Assets/Textures/"
-#define MESHES_FOLDER "Assets/Meshes"
-#define MESHES_PATH "Assets/Meshes/"
-#define MATERIALS_FOLDER "Assets/Materials"
-#define MATERIALS_PATH "Assets/Materials/"
-#define SCENES_FOLDER "Assets/Scenes"
-#define SCENES_PATH "Assets/Scenes/"
 
 // ------------- EXTENSIONS ----------------------
 

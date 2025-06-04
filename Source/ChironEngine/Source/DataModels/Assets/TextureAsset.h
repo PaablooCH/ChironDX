@@ -45,8 +45,8 @@ class TextureAsset : public Asset
 {
 public:
     TextureAsset(TextureType type);
-    TextureAsset(TextureType type, UID uid, const std::string& assetPath, const std::string& libraryPath);
-    TextureAsset(UID uid, const std::string& assetPath, const std::string& libraryPath);
+    TextureAsset(TextureType type, UID uid);
+    TextureAsset(UID uid);
     ~TextureAsset() override;
 
     inline void AddConfigFlags(unsigned int flags);

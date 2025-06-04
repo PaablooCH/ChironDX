@@ -13,7 +13,7 @@ class MaterialAsset : public Asset
 {
 public:
     MaterialAsset();
-    MaterialAsset(UID uid, const std::string& assetPath, const std::string& libraryPath);
+    MaterialAsset(UID uid);
     ~MaterialAsset() override;
 
     // ------------- GETTERS ----------------------

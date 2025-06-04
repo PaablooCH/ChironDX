@@ -380,7 +380,12 @@ bool ModuleFileSystem::DeleteFileC(const char* path)
 
 bool ModuleFileSystem::ExistsFile(const char* path)
 {
-    return PHYSFS_exists(path);
+    bool exists = PHYSFS_exists(path);
+    if (!exists)
+    {
+        return std::filesystem::exists(path);
+    }
+    return exists;
 }
 
 bool ModuleFileSystem::CreateDirectoryC(const char* directoryName)
@@ -431,6 +436,15 @@ std::vector<std::string> ModuleFileSystem::ListFilesWithPath(const char* directo
         files[i] = directoryPath + files[i];
     }
     return files;
+}
+
+std::string ModuleFileSystem::RemoveTrailingSlash(const std::string& path)
+{
+    if (!path.empty() && (path.back() == '/' || path.back() == '\\'))
+    {
+        return path.substr(0, path.size() - 1);
+    }
+    return path;
 }
 
 void ModuleFileSystem::UniqueName(std::string& directoryName)

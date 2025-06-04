@@ -1,19 +1,10 @@
 #pragma once
 
 #include "../FileSystemEntry.h"
+#include "Enums/FileType.h"
 
 class Folder;
 class TextureAsset;
-
-enum class FileType
-{
-    MATERIAL,
-    MESH,
-    TEXTURE,
-    MODEL,
-    SCENE,
-    UNKNOWN
-};
 
 class File : public FileSystemEntry
 {
@@ -26,14 +17,16 @@ public:
     inline const std::string& GetSize() const;
     inline const std::string& GetExt() const;
     inline FileType GetType() const;
-    inline TextureAsset* GetIcon() const;
+    inline UID GetMetaUID() const;
+    TextureAsset* GetIcon();
     inline Folder* GetParent() const;
 
     // ------------- SETTERS ----------------------
 
-    inline void SetParent(Folder* parent) override;
+    void SetParent(Folder* parent) override;
+    inline void SetMetaUID (UID metaUID);
     void ChangeParent(Folder* parent) override;
-    inline void SetPath(const std::string& path);
+    void SetPath(const std::string& path) override;
 
 private:
     void CheckType();
@@ -42,6 +35,8 @@ private:
     std::string _size;
     std::string _ext;
     FileType _type;
+
+    UID _metaUID;
 
     std::shared_ptr<TextureAsset> _icon;
 };
@@ -61,9 +56,9 @@ inline FileType File::GetType() const
     return _type;
 }
 
-inline TextureAsset* File::GetIcon() const
+inline UID File::GetMetaUID() const
 {
-    return _icon.get();
+    return _metaUID;
 }
 
 inline Folder* File::GetParent() const
@@ -71,12 +66,7 @@ inline Folder* File::GetParent() const
     return _parent;
 }
 
-inline void File::SetParent(Folder* parent)
+inline void File::SetMetaUID(UID metaUID)
 {
-    _parent = parent;
-}
-
-inline void File::SetPath(const std::string& path)
-{
-    _path = path;
+    _metaUID = metaUID;
 }

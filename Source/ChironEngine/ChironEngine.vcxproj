@@ -75,6 +75,7 @@
     <ClCompile Include="Source\DataModels\Window\MainMenuWindow.cpp" />
     <ClCompile Include="Source\DebugDrawPass.cpp" />
     <ClCompile Include="Source\Factories\ComponentWindowFactory.cpp" />
+    <ClCompile Include="Source\Modules\ModuleAssets.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
     <ClCompile Include="Source\Modules\ModuleEditor.cpp" />
     <ClCompile Include="Source\Modules\ModuleFileSystem.cpp" />
@@ -102,6 +103,8 @@
     <ClCompile Include="Source\ThreadPool\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Enums\FileType.h" />
+    <ClInclude Include="Source\Auxiliar\BidirectionalMap.h" />
     <ClInclude Include="Source\Auxiliar\SceneLoader.h" />
     <ClInclude Include="Source\DataModels\Components\Interfaces\Renderable.h" />
     <ClInclude Include="Source\DataModels\Components\MeshRendererComponent.h" />
@@ -141,6 +144,7 @@
     <ClInclude Include="Source\DataModels\Window\Window.h" />
     <ClInclude Include="Source\DataModels\Window\MainMenuWindow.h" />
     <ClInclude Include="Source\Factories\ComponentWindowFactory.h" />
+    <ClInclude Include="Source\Modules\ModuleAssets.h" />
     <ClInclude Include="Source\Modules\ModuleEditor.h" />
     <ClInclude Include="Source\Modules\ModuleResources.h" />
     <ClInclude Include="Source\Modules\ModuleScene.h" />

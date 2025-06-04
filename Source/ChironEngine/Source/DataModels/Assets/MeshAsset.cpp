@@ -13,8 +13,7 @@ MeshAsset::MeshAsset() : Asset(AssetType::Mesh)
 {
 }
 
-MeshAsset::MeshAsset(UID uid, const std::string& assetPath, const std::string& libraryPath) :
-    Asset(uid, assetPath, libraryPath, AssetType::Mesh)
+MeshAsset::MeshAsset(UID uid) : Asset(uid, AssetType::Mesh)
 {
 }
 

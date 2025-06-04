@@ -16,10 +16,11 @@ struct Node
 class ModelAsset : public Asset
 {
 public:
-    ModelAsset(UID uid, const std::string& assetPath, const std::string& libraryPath);
+    ModelAsset(UID uid);
     ~ModelAsset() override;
 
     inline void AddNode(Node* node);
+    inline void ClearNodes();
 
     // ------------- GETTERS ----------------------
 
@@ -36,6 +37,11 @@ private:
 inline void ModelAsset::AddNode(Node* node)
 {
     _nodes.push_back(std::unique_ptr<Node>(node));
+}
+
+inline void ModelAsset::ClearNodes()
+{
+    _nodes.clear();
 }
 
 inline const std::vector<std::unique_ptr<Node>>& ModelAsset::GetNodes() const

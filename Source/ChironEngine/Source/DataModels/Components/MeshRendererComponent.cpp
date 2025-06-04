@@ -44,18 +44,25 @@ void MeshRendererComponent::Render(const std::shared_ptr<CommandList>& commandLi
 
     ModelAttributes modelAttributes;
     modelAttributes.model = model.Transpose();
-    modelAttributes.uvCorrector = texture->GetConfigFlags() | isBottomLeft;
+    modelAttributes.uvCorrector = texture ? texture->GetConfigFlags() : isBottomLeft;
     CHIRON_TODO("CorrectUV for each texture");
 
+    if (texture)
+    {
+        modelAttributes.hasAlbedo = 1;
+        commandList->TransitionBarrier(texture->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        // set the descriptor heap
+        ID3D12DescriptorHeap* descriptorHeaps[] = {
+            texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
+        };
+        commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+        commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
+    }
+    else
+    {
+        modelAttributes.hasAlbedo = 0;
+    }
     commandList->SetGraphicsRoot32BitConstants(1, sizeof(ModelAttributes) / 4, &modelAttributes);
-
-    commandList->TransitionBarrier(texture->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    // set the descriptor heap
-    ID3D12DescriptorHeap* descriptorHeaps[] = {
-        texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
-    };
-    commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-    commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
 
     commandList->DrawIndexed(static_cast<UINT>(_mesh->GetIndexBuffer()->GetNumIndices()));
 }
@@ -63,38 +70,29 @@ void MeshRendererComponent::Render(const std::shared_ptr<CommandList>& commandLi
 void MeshRendererComponent::InternalSave(Field& meta)
 {
     UID uid = 0;
-    std::string assetPath = "";
     if (_material)
     {
         uid = _material->GetUID();
-        assetPath = _material->GetAssetPath();
     }
-    meta["material"]["uid"] = uid;
-    meta["material"]["assetPath"] = assetPath;
+    meta["materialUIDs"] = uid;
 
     uid = 0;
-    assetPath.clear();
     if (_mesh)
     {
         uid = _mesh->GetUID();
-        assetPath = _mesh->GetAssetPath();
     }
-    meta["mesh"]["uid"] = uid;
-    meta["mesh"]["assetPath"] = assetPath;
+    meta["meshUIDs"] = uid;
 }
 
 void MeshRendererComponent::InternalLoad(const Field& meta)
 {
     auto moduleResource = App->GetModule<ModuleResources>();
 
-    UID materialUID = meta["material"]["uid"];
-    std::string materialPath = meta["material"]["assetPath"];
-    auto futureMaterial = moduleResource->RequestAsset<MaterialAsset>(materialPath);
+    UID materialUID = meta["materialUIDs"];
+    auto futureMaterial = moduleResource->SearchAsset<MaterialAsset>(materialUID);
 
-    UID meshUID = meta["mesh"]["uid"];
-    std::string meshPath = meta["mesh"]["assetPath"];
-    std::promise<std::shared_ptr<MeshAsset>> promiseMesh;
-    auto futureMesh = moduleResource->RequestAsset<MeshAsset>(meshPath);
+    UID meshUID = meta["meshUIDs"];
+    auto futureMesh = moduleResource->SearchAsset<MeshAsset>(meshUID);
 
     _material = futureMaterial.get();
     _mesh = futureMesh.get();
