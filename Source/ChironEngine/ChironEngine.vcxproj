@@ -15,6 +15,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\RenderComponentWindow.cpp" />
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\MeshComponentWindow.cpp" />
     <ClCompile Include="Source\Auxiliar\SceneLoader.cpp" />
     <ClCompile Include="Source\DataModels\Components\MeshRendererComponent.cpp" />
     <ClCompile Include="Source\DataModels\FileSystem\FileSystemEntry\FileSystemEntry.cpp" />
@@ -103,6 +105,8 @@
     <ClCompile Include="Source\ThreadPool\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\RenderComponentWindow.h" />
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\MeshComponentWindow.h" />
     <ClInclude Include="Source\Enums\FileType.h" />
     <ClInclude Include="Source\Auxiliar\BidirectionalMap.h" />
     <ClInclude Include="Source\Auxiliar\SceneLoader.h" />

@@ -54,7 +54,7 @@ void TransformComponentWindow::DrawTransforms()
     bool uniformScale = transformComponent->GetUniformScale();
     Axis modifiedAxis = Axis::NONE;
 
-    if (ImGui::BeginTable("TransformTable", 2, ImGuiTableFlags_BordersOuter))
+    if (ImGui::BeginTable("TransformTable", 2))
     {
         ImGui::TableSetupColumn("###transFirstCol", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("###transSecondCol", ImGuiTableColumnFlags_WidthStretch);

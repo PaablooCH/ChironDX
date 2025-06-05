@@ -13,7 +13,13 @@ void ComponentWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 {
     if (CollapsingHeader())
     {
-        DrawWindowContent(commandList);
+        std::ostringstream oss;
+        oss << "##com" << _windowUID;
+        if (ImGui::BeginChild(oss.str().c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle))
+        {
+            DrawWindowContent(commandList);
+        }
+        ImGui::EndChild();
     }
 }
 
@@ -71,8 +77,7 @@ void ComponentWindow::DrawRemoveComponent()
         ImGui::SameLine(ImGui::GetContentRegionAvail().x - 25);
         if (ImGui::Button(oss.str().c_str()))
         {
-            _component->GetOwner()->RemoveComponent(_component);
-            _component = nullptr;
+            RemoveAction();
         }
         if (ImGui::BeginItemTooltip())
         {
@@ -83,4 +88,10 @@ void ComponentWindow::DrawRemoveComponent()
         }
         ImGui::Dummy(ImVec2(30, 0));
     }
+}
+
+void ComponentWindow::RemoveAction()
+{
+    _component->GetOwner()->RemoveComponent(_component);
+    _component = nullptr;
 }

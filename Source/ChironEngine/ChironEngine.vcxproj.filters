@@ -354,6 +354,12 @@
     <ClCompile Include="Source\Modules\ModuleAssets.cpp">
       <Filter>Source\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\MeshComponentWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Inspector</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\RenderComponentWindow.cpp">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Inspector</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -650,6 +656,12 @@
     </ClInclude>
     <ClInclude Include="Source\Enums\FileType.h">
       <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\MeshComponentWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Inspector</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Window\EditorWindow\SubWindows\Inspector\RenderComponentWindow.h">
+      <Filter>Source\DataModels\Windows\EditorWindow\SubWindows\Inspector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
