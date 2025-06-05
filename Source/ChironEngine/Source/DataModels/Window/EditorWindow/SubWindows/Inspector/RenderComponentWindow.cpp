@@ -20,6 +20,13 @@ void RenderComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>
 
 void RenderComponentWindow::RemoveAction()
 {
+    auto meshRenderer = static_cast<MeshRendererComponent*>(_component);
+    meshRenderer->SetMaterial(nullptr);
+    _component = nullptr;
+    if (!meshRenderer->GetMesh())
+    {
+        _component->GetOwner()->RemoveComponent(_component);
+    }
 }
 
 void RenderComponentWindow::DrawRenderWindow(const std::shared_ptr<CommandList>& commandList)

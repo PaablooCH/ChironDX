@@ -21,12 +21,45 @@ MeshComponentWindow::MeshComponentWindow(MeshRendererComponent* component) :
 
 void MeshComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
+    auto meshComponent = static_cast<MeshRendererComponent*>(_component);
+    if (meshComponent)
+    {
+        DrawMeshWindow();
+    }
 }
 
 void MeshComponentWindow::RemoveAction()
 {
+    auto meshRenderer = static_cast<MeshRendererComponent*>(_component);
+    meshRenderer->SetMesh(nullptr);
+    _component = nullptr;
+    if (!meshRenderer->GetMaterial())
+    {
+        _component->GetOwner()->RemoveComponent(_component);
+    }
 }
 
 void MeshComponentWindow::DrawMeshWindow()
 {
+    auto meshRenderer = static_cast<MeshRendererComponent*>(_component);
+
+    CHIRON_TODO("ReImport via browser");
+
+    ImGui::SeparatorText("Geometry");
+    if (ImGui::BeginTable("##geometryInfo", 2))
+    {
+        ImGui::TableNextColumn();
+        ImGui::Text("Vertices: ");
+        ImGui::TableNextColumn();
+        std::string verticesText = std::to_string(meshRenderer->GetMesh()->GetVertexBuffer()->GetNumVertex());
+        ImGui::Text(verticesText.c_str());
+
+        ImGui::TableNextColumn();
+        ImGui::Text("Indices: ");
+        ImGui::TableNextColumn();
+        std::string indicesText = std::to_string(meshRenderer->GetMesh()->GetIndexBuffer()->GetNumIndices());
+        ImGui::Text(indicesText.c_str());
+
+        ImGui::EndTable();
+    }
 }
