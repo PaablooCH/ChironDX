@@ -354,7 +354,7 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
     std::string name = node->mName.C_Str();
     Matrix transform = (*(Matrix*)&node->mTransformation);
 
-    if (name.find("$AssimpFbx$") != std::string::npos)
+    if (name.find("$AssimpFbx$") != std::string::npos || name.find("RootNode") != std::string::npos)
     {
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
         {
