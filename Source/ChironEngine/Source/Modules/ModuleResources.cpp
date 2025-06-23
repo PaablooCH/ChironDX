@@ -316,7 +316,7 @@ std::shared_ptr<Asset> ModuleResources::CheckAndLoadAsset(const std::string& pat
     auto metaDate = ModuleFileSystem::GetModificationDate(metaPath.c_str());
 
     std::shared_ptr<Asset> shared = CreateAssetOfType(type, uid);
-    if (metaDate <= libraryDate)
+    if (metaDate <= libraryDate && metaDate != 0)
     {
         ProcessAsset(shared, AssetOperation::LOAD_LIBRARY);
     }
@@ -327,7 +327,7 @@ std::shared_ptr<Asset> ModuleResources::CheckAndLoadAsset(const std::string& pat
     }
     else
     {
-        LOG_WARNING("Importing Asset", path);
+        LOG_WARNING("Importing Asset: {}", path);
         ProcessAsset(shared, AssetOperation::IMPORT);
     }
     return shared;
