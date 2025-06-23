@@ -30,7 +30,7 @@ void MeshImporter::Import(const char* filePath, const std::shared_ptr<MeshAsset>
 
     char* fileBufferOriginal = fileBuffer;
 
-    mesh->SetName(ModuleFileSystem::GetFile(filePath));
+    mesh->SetName(filePath);
 
     unsigned int header[2];
     memcpy(header, fileBuffer, sizeof(header));
