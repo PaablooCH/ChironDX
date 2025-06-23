@@ -142,7 +142,6 @@ void ModelImporter::Load(const char* libraryPath, const std::shared_ptr<ModelAss
 
 void ModelImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<ModelAsset>& model)
 {
-    std::vector<std::unique_ptr<Node>> nodes;
     std::string metaPath = std::string(filePath) + META_EXT;
 
     // ------------- LOAD META ----------------------
@@ -152,6 +151,14 @@ void ModelImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<Mod
     ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
 
     int nodesCount = meta["nodeSize"];
+    
+    if (nodesCount == 0)
+    {
+        Import(filePath, model);
+        return;
+    }
+
+    std::vector<std::unique_ptr<Node>> nodes;
     nodes.reserve(nodesCount);
     auto metaNodes = meta["nodes"];
 
