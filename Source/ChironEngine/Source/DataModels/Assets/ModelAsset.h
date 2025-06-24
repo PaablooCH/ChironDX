@@ -26,7 +26,7 @@ public:
 
     inline const std::vector<std::unique_ptr<Node>>& GetNodes() const;
 
-    // ------------- GETTERS ----------------------
+    // ------------- SETTERS ----------------------
 
     inline void SetNodes(std::vector<std::unique_ptr<Node>>& nodes);
 
