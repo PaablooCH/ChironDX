@@ -17,4 +17,6 @@ protected:
 
 protected:
     ImGuiTreeNodeFlags _flags;
+
+    inline static const ImVec4 _secondaryColor = ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f);
 };

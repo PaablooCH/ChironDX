@@ -28,17 +28,6 @@ void MeshComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& 
     }
 }
 
-void MeshComponentWindow::RemoveAction()
-{
-    auto meshRenderer = static_cast<MeshRendererComponent*>(_component);
-    meshRenderer->SetMesh(nullptr);
-    _component = nullptr;
-    if (!meshRenderer->GetMaterial())
-    {
-        _component->GetOwner()->RemoveComponent(_component);
-    }
-}
-
 void MeshComponentWindow::DrawMeshWindow()
 {
     auto meshRenderer = static_cast<MeshRendererComponent*>(_component);

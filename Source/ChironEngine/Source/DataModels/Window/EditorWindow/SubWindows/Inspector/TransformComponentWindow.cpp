@@ -66,7 +66,7 @@ void TransformComponentWindow::DrawTransforms()
         ImGui::TableNextColumn();
 
         ImGui::TableNextColumn();
-        ImGui::Dummy(ImVec2(0, 1));
+        ImGui::Dummy(ImVec2(0.f, 1.f));
         ImGui::Text("Pos");
 
         ImGui::TableNextColumn();

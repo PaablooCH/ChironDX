@@ -66,12 +66,12 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::TableNextColumn();
         ImGui::Text("DirectX Version:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), "12");
+        ImGui::TextColored(_secondaryColor, "12");
 
         ImGui::TableNextColumn();
         ImGui::Text("DXGI Version:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), "1.6");
+        ImGui::TextColored(_secondaryColor, "1.6");
 
         ImGui::EndTable();
     }
@@ -81,12 +81,12 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::TableNextColumn();
         ImGui::Text("GPU Brand:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), _vendorName.c_str());
+        ImGui::TextColored(_secondaryColor, _vendorName.c_str());
 
         ImGui::TableNextColumn();
         ImGui::Text("GPU Device:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), _gpuName.c_str());
+        ImGui::TextColored(_secondaryColor, _gpuName.c_str());
 
         ImGui::TableNextColumn();
         ImGui::TableNextColumn();
@@ -94,7 +94,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::TableNextColumn();
         ImGui::Text("RAM:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), _ram.c_str());
+        ImGui::TextColored(_secondaryColor, _ram.c_str());
 
         ImGui::TableNextColumn();
         ImGui::TableNextColumn();
@@ -109,7 +109,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::TableNextColumn();
         ImGui::Text("VRAM:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), result.c_str());
+        ImGui::TextColored(_secondaryColor, result.c_str());
 
         ss.str("");
         ss.clear();
@@ -118,7 +118,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::TableNextColumn();
         ImGui::Text("Current VRAM usage:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), result.c_str());
+        ImGui::TextColored(_secondaryColor, result.c_str());
 
         ss.str("");
         ss.clear();
@@ -127,7 +127,7 @@ void HardwareSubWindow::DrawWindowContent(const std::shared_ptr<CommandList>& co
         ImGui::TableNextColumn();
         ImGui::Text("Available VRAM:");
         ImGui::TableNextColumn();
-        ImGui::TextColored(ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f), result.c_str());
+        ImGui::TextColored(_secondaryColor, result.c_str());
 
         ImGui::EndTable();
     }

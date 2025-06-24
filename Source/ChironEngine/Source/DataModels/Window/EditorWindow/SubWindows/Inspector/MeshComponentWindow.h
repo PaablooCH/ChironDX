@@ -15,7 +15,6 @@ private:
     MeshComponentWindow(MeshRendererComponent* component);
 
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList = nullptr) override;
-    void RemoveAction() override;
 
     void DrawMeshWindow();
 };

@@ -13,11 +13,31 @@ void ComponentWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 {
     if (CollapsingHeader())
     {
-        std::ostringstream oss;
-        oss << "##com" << _windowUID;
-        if (ImGui::BeginChild(oss.str().c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle))
+        std::ostringstream childString;
+        childString << "##com" << _windowUID;
+        if (ImGui::BeginChild(childString.str().c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY))
         {
-            DrawWindowContent(commandList);
+            std::ostringstream windowTableName;
+            windowTableName << "###ComponentWindowTable" << _windowUID;
+            if (ImGui::BeginTable(windowTableName.str().c_str(), 2))
+            {
+                std::ostringstream firstCol;
+                std::ostringstream secondCol;
+
+                firstCol << "###FirstCol" << _windowUID;
+                secondCol << "###SecondCol" << _windowUID;
+                
+                ImGui::TableSetupColumn(firstCol.str().c_str(), ImGuiTableColumnFlags_WidthFixed);
+                ImGui::TableSetupColumn(secondCol.str().c_str(), ImGuiTableColumnFlags_WidthStretch);
+
+                ImGui::TableNextColumn();
+                ImGui::Dummy(ImVec2(0.5f, 0.f));
+                
+                ImGui::TableNextColumn();
+                DrawWindowContent(commandList);
+                
+                ImGui::EndTable();
+            }
         }
         ImGui::EndChild();
     }
@@ -77,7 +97,8 @@ void ComponentWindow::DrawRemoveComponent()
         ImGui::SameLine(ImGui::GetContentRegionAvail().x - 25);
         if (ImGui::Button(oss.str().c_str()))
         {
-            RemoveAction();
+            _component->GetOwner()->RemoveComponent(_component);
+            _component = nullptr;
         }
         if (ImGui::BeginItemTooltip())
         {
@@ -92,6 +113,4 @@ void ComponentWindow::DrawRemoveComponent()
 
 void ComponentWindow::RemoveAction()
 {
-    _component->GetOwner()->RemoveComponent(_component);
-    _component = nullptr;
 }
