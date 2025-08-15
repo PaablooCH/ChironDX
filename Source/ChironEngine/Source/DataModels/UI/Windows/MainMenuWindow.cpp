@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "MainMenuWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "Application.h"
 
 #include "Modules/ModuleEditor.h"
@@ -9,8 +11,6 @@
 #include "AboutWindow.h"
 
 #include "DataModels/UI/Fonts/Font.h"
-
-#include <ImGui/imgui.h>
 
 MainMenuWindow::MainMenuWindow() : Window("Main Menu")
 {

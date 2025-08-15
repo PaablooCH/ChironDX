@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "EditorWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 EditorWindow::EditorWindow(const std::string& name, ImGuiWindowFlags flags) : Window(name), _flags(flags), _focused(false)
 {
 }

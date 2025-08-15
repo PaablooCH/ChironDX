@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "TransformComponentWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "DataModels/Components/TransformComponent.h"
 
 namespace

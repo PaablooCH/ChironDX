@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "AboutWindow.h"
 
-#include <ImGui/imgui.h>
+#include "DataModels/UI/UiIncludes.h"
 
 AboutWindow::AboutWindow() : Window(ICON_FA_CIRCLE_QUESTION " About"), _first(true)
 {

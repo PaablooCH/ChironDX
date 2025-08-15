@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "SceneWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "Application.h"
 
 #include "Modules/ModuleCamera.h"

@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "MeshComponentWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "DataModels/Assets/MeshAsset.h"
 
 #include "DataModels/DX12/Resource/IndexBuffer.h"

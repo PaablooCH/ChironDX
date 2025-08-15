@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "ConfigurationWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "Modules/ModuleFileSystem.h"
 
 #include "SubWindows/Configuration/CameraSubWindow.h"

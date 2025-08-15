@@ -1,6 +1,7 @@
 #pragma once
 #include "EditorWindow.h"
 
+class CommandList;
 class Folder;
 class File;
 
@@ -27,11 +28,6 @@ private:
     void SelectFolder(Folder* folder);
 
     inline bool IsDeletable(Folder* folder) const;
-
-
-
-    void SelectFile();
-    void SelectFile2();
 private:
     Folder* _rootFolder;
     Folder* _selectedFolder;

@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "ComponentWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "DataModels/Components/Component.h"
 
 #include "DataModels/GameObject/GameObject.h"

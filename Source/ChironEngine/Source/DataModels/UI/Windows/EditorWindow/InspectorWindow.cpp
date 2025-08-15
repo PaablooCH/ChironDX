@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "InspectorWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
+
 #include "Application.h"
 
 #include "Modules/ModuleScene.h"

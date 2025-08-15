@@ -1,6 +1,8 @@
 #pragma once
 #include "EditorWindow.h"
 
+class CommandList;
+
 class ConfigurationWindow : public EditorWindow
 {
 public:
