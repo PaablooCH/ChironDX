@@ -11,10 +11,10 @@
 #include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
 #include "DataModels/FileSystem/FileSystemEntry/File/File.h"
 
-#include "DataModels/Window/EditorWindow/FileBrowserWindow.h"
 
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
 
+#include "DataModels/UI/Windows/EditorWindow/FileBrowserWindow.h"
 #include "Defines/FileSystemDefine.h"
 
 ModuleAssets::ModuleAssets() : _fileBrowserWindow(nullptr)

@@ -5,8 +5,8 @@
 
 #include "Modules/ModuleID3D12.h"
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 HardwareSubWindow::HardwareSubWindow() : SubWindow("Hardware")
 {

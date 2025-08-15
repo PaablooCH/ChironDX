@@ -24,8 +24,6 @@ private:
     void DrawEnable();
     void DrawRemoveComponent();
 
-    virtual void RemoveAction();
-
 private:
     UID _windowUID;
 

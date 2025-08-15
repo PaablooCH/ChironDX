@@ -7,9 +7,9 @@
 #include "Modules/ModuleRender.h"
 
 #include "DataModels/Camera/Camera.h"
-#include "DataModels/DX12/CommandList/CommandList.h"
 
-#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
+#include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocation.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
 SceneWindow::SceneWindow() : EditorWindow(ICON_FA_BOX_OPEN " Scene", ImGuiWindowFlags_AlwaysAutoResize |

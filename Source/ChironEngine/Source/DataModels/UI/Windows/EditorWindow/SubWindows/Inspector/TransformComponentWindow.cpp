@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "TransformComponentWindow.h"
 
-#include "DataModels/GameObject/GameObject.h"
 #include "DataModels/Components/TransformComponent.h"
 
 namespace

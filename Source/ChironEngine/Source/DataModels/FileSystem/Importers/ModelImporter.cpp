@@ -19,8 +19,8 @@
 
 #include "DataModels/FileSystem/Json/Json.h"
 #include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
+#include "DataModels/UI/Windows/EditorWindow/FileBrowserWindow.h"
 
-#include "DataModels/Window/EditorWindow/FileBrowserWindow.h"
 
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"

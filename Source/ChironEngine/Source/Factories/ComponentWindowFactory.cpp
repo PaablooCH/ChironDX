@@ -5,7 +5,7 @@
 
 #include "DataModels/GameObject/GameObject.h"
 
-#include "DataModels/Window/EditorWindow/SubWindows/Inspector/TransformComponentWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/SubWindows/Inspector/TransformComponentWindow.h"
 
 std::unique_ptr<ComponentWindow> ComponentWindowFactory::CreateComponentWindow(Component* component)
 {

@@ -110,7 +110,3 @@ void ComponentWindow::DrawRemoveComponent()
         ImGui::Dummy(ImVec2(30, 0));
     }
 }
-
-void ComponentWindow::RemoveAction()
-{
-}

@@ -4,6 +4,8 @@
 class MeshRendererComponent;
 class ComponentWindowFactory;
 
+class TextureAsset;
+
 class RenderComponentWindow : public ComponentWindow
 {
 public:
@@ -15,9 +17,9 @@ private:
     RenderComponentWindow(MeshRendererComponent* component);
 
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList = nullptr) override;
-    
-    void RemoveAction() override;
 
     void DrawRenderWindow(const std::shared_ptr<CommandList>& commandList);
+
+    std::shared_ptr<TextureAsset> a;
 };
 

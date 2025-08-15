@@ -8,8 +8,6 @@
 
 #include "DataModels/Components/MeshRendererComponent.h"
 
-#include "DataModels/GameObject/GameObject.h"
-
 MeshComponentWindow::~MeshComponentWindow()
 {
 }
@@ -22,7 +20,7 @@ MeshComponentWindow::MeshComponentWindow(MeshRendererComponent* component) :
 void MeshComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
     auto meshComponent = static_cast<MeshRendererComponent*>(_component);
-    if (meshComponent)
+    if (meshComponent && meshComponent->GetMesh())
     {
         DrawMeshWindow();
     }
@@ -30,9 +28,11 @@ void MeshComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& 
 
 void MeshComponentWindow::DrawMeshWindow()
 {
-    auto meshRenderer = static_cast<MeshRendererComponent*>(_component);
+    auto mesh = static_cast<MeshRendererComponent*>(_component)->GetMesh();
 
     CHIRON_TODO("ReImport via browser");
+
+    ImGui::Text(mesh->GetName().c_str());
 
     ImGui::SeparatorText("Geometry");
     if (ImGui::BeginTable("##geometryInfo", 2))
@@ -40,14 +40,14 @@ void MeshComponentWindow::DrawMeshWindow()
         ImGui::TableNextColumn();
         ImGui::Text("Vertices: ");
         ImGui::TableNextColumn();
-        std::string verticesText = std::to_string(meshRenderer->GetMesh()->GetVertexBuffer()->GetNumVertex());
-        ImGui::Text(verticesText.c_str());
+        std::string verticesText = std::to_string(mesh->GetVertexBuffer()->GetNumVertex());
+        ImGui::TextColored(_secondaryColor, verticesText.c_str());
 
         ImGui::TableNextColumn();
         ImGui::Text("Indices: ");
         ImGui::TableNextColumn();
-        std::string indicesText = std::to_string(meshRenderer->GetMesh()->GetIndexBuffer()->GetNumIndices());
-        ImGui::Text(indicesText.c_str());
+        std::string indicesText = std::to_string(mesh->GetIndexBuffer()->GetNumIndices());
+        ImGui::TextColored(_secondaryColor, indicesText.c_str());
 
         ImGui::EndTable();
     }

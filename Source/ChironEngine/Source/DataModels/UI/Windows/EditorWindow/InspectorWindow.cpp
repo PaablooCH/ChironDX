@@ -9,10 +9,9 @@
 
 #include "Structs/AddComponentAction.h"
 
-#include "DataModels/Components/TransformComponent.h"
 #include "DataModels/Components/MeshRendererComponent.h"
 
-#include "DataModels/Window/EditorWindow/SubWindows/Inspector/TransformComponentWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/SubWindows/Inspector/ComponentWindow.h"
 
 #include "DataModels/GameObject/GameObject.h"
 
@@ -49,7 +48,7 @@ void InspectorWindow::DrawWindowContent(const std::shared_ptr<CommandList>& comm
             _componentsWindows.clear();
             FillComponentsWindows();
         }
-        else if (_lastSelected->HowManyComponentsHas() != _componentsWindows.size())
+        else if (_lastSelected->HowManyWindowsNeed() != _componentsWindows.size())
         {
             _componentsWindows.clear();
             FillComponentsWindows();
@@ -130,8 +129,8 @@ void InspectorWindow::DrawComponentsWindows(const std::shared_ptr<CommandList>& 
             {
                 componentWindow->Draw(commandList);
             }
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
     }
 }
 
@@ -184,14 +183,8 @@ void InspectorWindow::DrawAddComponent()
 
 void InspectorWindow::FillComponentsWindows()
 {
-    for (auto component : _lastSelected->GetComponents())
-    {
-        auto componentWindow = ComponentWindowFactory::CreateComponentWindow(component);
-        if (componentWindow)
-        {
-            _componentsWindows.push_back(std::move(componentWindow));
-        }
-    }
+    auto components = _lastSelected->GetComponents();
+    _componentsWindows = ComponentWindowFactory::CreateComponentsWindow(components);
 }
 
 void InspectorWindow::AddMeshRendererComponent()
