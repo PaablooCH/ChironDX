@@ -125,6 +125,19 @@ void GameObject::Render(const std::shared_ptr<CommandList>& commandList) const
     }
 }
 
+size_t GameObject::HowManyWindowsNeed() const
+{
+    size_t windowsNeeded = _components.size();
+    if (auto render = GetInternalComponent<MeshRendererComponent>())
+    {
+        if (render->GetMaterial() && render->GetMesh())
+        {
+            windowsNeeded++;
+        }
+    }
+    return windowsNeeded;
+}
+
 void GameObject::SetParent(GameObject* parent)
 {
     assert(parent);

@@ -7,6 +7,7 @@
 #include "ModuleID3D12.h"
 #include "ModuleWindow.h"
 
+#include "DataModels/UI/UiIncludes.h"
 #include "DataModels/UI/Fonts/Font.h"
 #include "DataModels/UI/Windows/AboutWindow.h"
 #include "DataModels/UI/Windows/EditorWindow/ConfigurationWindow.h"
@@ -18,15 +19,13 @@
 #include "DataModels/UI/Windows/MainMenuWindow.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocation.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
 #include "Defines/FileSystemDefine.h"
 
-
-#include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_dx12.h"
 #include "ImGui/imgui_impl_win32.h"
 #include "ImGui/imgui_internal.h"
@@ -157,7 +156,7 @@ UpdateStatus ModuleEditor::Update()
 
     _mainMenu->Draw();
 
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
 
     for (std::unique_ptr<Window>& window : _windows)

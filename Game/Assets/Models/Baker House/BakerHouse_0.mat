@@ -1,0 +1,19 @@
+{
+    "baseColor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+    },
+    "specularColor": {
+        "r": 0.5,
+        "g": 0.30000001192092896,
+        "b": 0.5,
+        "a": 1.0
+    },
+    "baseTextureUID": 16573092354478803061,
+    "normalMapUID": 0,
+    "ambientOcclusionUID": 0,
+    "propertyTextureUID": 0,
+    "emissiveTextureUID": 0
+}
