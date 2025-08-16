@@ -158,7 +158,7 @@ std::shared_ptr<Asset> ModuleResources::LoadUID(UID uid)
         std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(uid) + META_EXT;
 
         if (!ModuleFileSystem::ExistsFile(metaPath.c_str())) {
-            LOG_ERROR("Meta file not found: %s", metaPath.c_str());
+            LOG_ERROR("Meta file not found: {}", metaPath.c_str());
             return nullptr;
         }
 

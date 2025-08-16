@@ -66,32 +66,47 @@ TextureAsset* MaterialAsset::GetAmbientOcclusion()
 
 void MaterialAsset::SetBaseTexture(const std::shared_ptr<TextureAsset>& diffuse)
 {
-    _baseTexture = diffuse;
-    _baseTexture->SetTextureType(TextureType::ALBEDO);
+    if (diffuse)
+    {
+        _baseTexture = diffuse;
+        _baseTexture->SetTextureType(TextureType::ALBEDO);
+    }
 }
 
 void MaterialAsset::SetNormalMap(const std::shared_ptr<TextureAsset>& normal)
 {
-    _normalMap = normal;
-    _normalMap->SetTextureType(TextureType::NORMAL_MAP);
+    if (normal)
+    {
+        _normalMap = normal;
+        _normalMap->SetTextureType(TextureType::NORMAL_MAP);
+    }
 }
 
 void MaterialAsset::SetPropertyTexture(const std::shared_ptr<TextureAsset>& metalness)
 {
+    if (metalness)
+    {
     _propertyTexture = metalness;
     _propertyTexture->SetTextureType(TextureType::METALLIC);
+    }
 }
 
 void MaterialAsset::SetEmissiveTexture(const std::shared_ptr<TextureAsset>& emissive)
 {
-    _emissiveTexture = emissive;
-    _emissiveTexture->SetTextureType(TextureType::EMISSIVE);
+    if (emissive)
+    {
+        _emissiveTexture = emissive;
+        _emissiveTexture->SetTextureType(TextureType::EMISSIVE);
+    }
 }
 
 void MaterialAsset::SetAmbientOcclusion(const std::shared_ptr<TextureAsset>& occlusion)
 {
-    _ambientOcclusion = occlusion;
-    _ambientOcclusion->SetTextureType(TextureType::OCCLUSION);
+    if (occlusion)
+    {
+        _ambientOcclusion = occlusion;
+        _ambientOcclusion->SetTextureType(TextureType::OCCLUSION);
+    }
 }
 
 bool MaterialAsset::InternalLoad()
