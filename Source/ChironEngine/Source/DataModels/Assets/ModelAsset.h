@@ -17,10 +17,13 @@ class ModelAsset : public Asset
 {
 public:
     ModelAsset(UID uid);
+    ModelAsset(ModelAsset& copy);
     ~ModelAsset() override;
 
     inline void AddNode(Node* node);
     inline void ClearNodes();
+
+    inline bool IsValid() const override;
 
     // ------------- GETTERS ----------------------
 
@@ -29,6 +32,9 @@ public:
     // ------------- SETTERS ----------------------
 
     inline void SetNodes(std::vector<std::unique_ptr<Node>>& nodes);
+
+private:
+    inline void InternalUnload() override;
 
 private:
     std::vector<std::unique_ptr<Node>> _nodes;
@@ -44,6 +50,11 @@ inline void ModelAsset::ClearNodes()
     _nodes.clear();
 }
 
+inline bool ModelAsset::IsValid() const
+{
+    return !_nodes.empty();
+}
+
 inline const std::vector<std::unique_ptr<Node>>& ModelAsset::GetNodes() const
 {
     return _nodes;
@@ -52,4 +63,9 @@ inline const std::vector<std::unique_ptr<Node>>& ModelAsset::GetNodes() const
 inline void ModelAsset::SetNodes(std::vector<std::unique_ptr<Node>>& nodes)
 {
     _nodes = std::move(nodes);
+}
+
+inline void ModelAsset::InternalUnload()
+{
+    _nodes.clear();
 }

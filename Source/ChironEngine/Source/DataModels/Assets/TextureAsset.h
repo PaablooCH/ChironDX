@@ -47,7 +47,10 @@ public:
     TextureAsset(TextureType type);
     TextureAsset(TextureType type, UID uid);
     TextureAsset(UID uid);
+    TextureAsset(TextureAsset& copy);
     ~TextureAsset() override;
+
+    inline bool IsValid() const override;
 
     inline void AddConfigFlags(unsigned int flags);
     inline void RemoveConfigFlags(unsigned int flags);
@@ -70,8 +73,8 @@ public:
     inline void SetImages(const std::vector<MyImage>& images);
 
 private:
-    bool InternalLoad() override;
-    bool InternalUnload() override;
+    void InternalLoad() override;
+    void InternalUnload() override;
 
 private:
     std::shared_ptr<Texture> _texture;
@@ -81,6 +84,8 @@ private:
     unsigned int _texConversionFlags;
 
     std::vector<MyImage> _images;
+
+    bool _loaded;
 };
 
 void TextureAsset::AddConfigFlags(unsigned int flags)
@@ -145,4 +150,9 @@ inline void TextureAsset::SetTextureType(TextureType newType)
 inline void TextureAsset::SetImages(const std::vector<MyImage>& images)
 {
     _images = images;
+}
+
+inline bool TextureAsset::IsValid() const
+{
+    return _loaded;
 }

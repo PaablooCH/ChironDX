@@ -3,11 +3,15 @@
 
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
 
-Asset::Asset(UID uid, AssetType type) : _uid(uid), _type(type), _loaded(false)
+Asset::Asset(UID uid, AssetType type) : _uid(uid), _type(type)
 {
 }
 
-Asset::Asset(AssetType type) : _uid(Chiron::UIDGenerator::GenerateUID()), _type(type), _loaded(false)
+Asset::Asset(AssetType type) : _uid(Chiron::UIDGenerator::GenerateUID()), _type(type)
+{
+}
+
+Asset::Asset(Asset& copy) : _uid(Chiron::UIDGenerator::GenerateUID()), _name(copy._name), _type(copy._type)
 {
 }
 
@@ -17,18 +21,18 @@ Asset::~Asset()
 
 bool Asset::Load()
 {
-    if (!_loaded)
+    if (!IsValid())
     {
-        _loaded = InternalLoad();
+        InternalLoad();
     }
-    return _loaded;
+    return IsValid();
 }
 
 bool Asset::Unload()
 {
-    if (_loaded)
+    if (IsValid())
     {
-        _loaded = InternalUnload();
+        InternalUnload();
     }
-    return _loaded;
+    return !IsValid();
 }

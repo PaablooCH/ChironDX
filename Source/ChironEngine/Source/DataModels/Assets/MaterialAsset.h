@@ -14,7 +14,10 @@ class MaterialAsset : public Asset
 public:
     MaterialAsset();
     MaterialAsset(UID uid);
+    MaterialAsset(MaterialAsset& copy);
     ~MaterialAsset() override;
+
+    inline bool IsValid() const override;
 
     // ------------- GETTERS ----------------------
 
@@ -39,8 +42,8 @@ public:
     inline void SetOptions(UINT options);
 
 private:
-    bool InternalLoad() override;
-    bool InternalUnload() override;
+    void InternalLoad() override;
+    void InternalUnload() override;
 
 private:
     std::shared_ptr<TextureAsset> _baseTexture;
@@ -49,11 +52,42 @@ private:
     std::shared_ptr<TextureAsset> _emissiveTexture;
     std::shared_ptr<TextureAsset> _ambientOcclusion;
 
+    bool _baseTextureLoaded;
+    bool _normalMapLoaded;
+    bool _propertyTextureLoaded;
+    bool _emissiveTextureLoaded;
+    bool _ambientOcclusionLoaded;
+
     Color _baseColor;
     Color _specularColor;
 
     UINT _options;
 };
+
+inline bool MaterialAsset::IsValid() const
+{
+    if (_baseTexture && !_baseTextureLoaded)
+    {
+        return false;
+    }
+    if (_normalMap && !_normalMapLoaded)
+    {
+        return false;
+    }
+    if (_propertyTexture && !_propertyTextureLoaded)
+    {
+        return false;
+    }
+    if (_emissiveTexture && !_emissiveTextureLoaded)
+    {
+        return false;
+    }
+    if (_ambientOcclusion && !_ambientOcclusionLoaded)
+    {
+        return false;
+    }
+    return true;
+}
 
 inline const Color& MaterialAsset::GetBaseColor() const
 {
@@ -77,7 +111,7 @@ inline void MaterialAsset::SetBaseColor(Color& color)
 
 inline void MaterialAsset::SetSpecularColor(Color& color)
 {
-    _baseColor = color;
+    _specularColor = color;
 }
 
 inline void MaterialAsset::SetOptions(UINT options)

@@ -3,15 +3,22 @@
 
 #include "TextureAsset.h"
 
-MaterialAsset::MaterialAsset() : Asset(AssetType::Model),
-_baseColor(0.2752307057380676, 0.31043916940689087, 0.3382353186607361, 1.0),
-_specularColor(0.5, 0.30000001192092896, 0.5, 1.0), _options(usePBR | isOpaque)
+MaterialAsset::MaterialAsset() : Asset(AssetType::Material), _baseColor(1.f, 1.f, 1.f, 1.f),
+_specularColor(0.5f, 0.30000001192092896f, 0.5f, 1.f), _options(usePBR | isOpaque), _baseTextureLoaded(false), _normalMapLoaded(false),
+_propertyTextureLoaded(false), _emissiveTextureLoaded(false), _ambientOcclusionLoaded(false)
 {
 }
 
-MaterialAsset::MaterialAsset(UID uid) : Asset(uid, AssetType::Material),
-_baseColor(0.2752307057380676, 0.31043916940689087, 0.3382353186607361, 1.0),
-_specularColor(0.5, 0.30000001192092896, 0.5, 1.0), _options(usePBR | isOpaque)
+MaterialAsset::MaterialAsset(UID uid) : Asset(uid, AssetType::Material), _baseColor(1.f, 1.f, 1.f, 1.f),
+_specularColor(0.5f, 0.30000001192092896f, 0.5f, 1.f), _options(usePBR | isOpaque), _baseTextureLoaded(false), _normalMapLoaded(false),
+_propertyTextureLoaded(false), _emissiveTextureLoaded(false), _ambientOcclusionLoaded(false)
+{
+}
+
+MaterialAsset::MaterialAsset(MaterialAsset& copy) : Asset(copy), _baseTexture(copy._baseTexture), _normalMap(copy._normalMap), 
+_propertyTexture(copy._propertyTexture), _emissiveTexture(copy._emissiveTexture), _ambientOcclusion(copy._ambientOcclusion), 
+_baseColor(copy._baseColor), _specularColor(copy._specularColor), _options(copy._options), _baseTextureLoaded(false), _normalMapLoaded(false),
+_propertyTextureLoaded(false), _emissiveTextureLoaded(false), _ambientOcclusionLoaded(false)
 {
 }
 
@@ -66,98 +73,93 @@ TextureAsset* MaterialAsset::GetAmbientOcclusion()
 
 void MaterialAsset::SetBaseTexture(const std::shared_ptr<TextureAsset>& diffuse)
 {
-    if (diffuse)
+    _baseTexture = diffuse;
+    if (_baseTexture)
     {
-        _baseTexture = diffuse;
         _baseTexture->SetTextureType(TextureType::ALBEDO);
     }
 }
 
 void MaterialAsset::SetNormalMap(const std::shared_ptr<TextureAsset>& normal)
 {
-    if (normal)
+    _normalMap = normal;
+    if (_normalMap)
     {
-        _normalMap = normal;
         _normalMap->SetTextureType(TextureType::NORMAL_MAP);
     }
 }
 
 void MaterialAsset::SetPropertyTexture(const std::shared_ptr<TextureAsset>& metalness)
 {
-    if (metalness)
-    {
     _propertyTexture = metalness;
-    _propertyTexture->SetTextureType(TextureType::METALLIC);
+    if (_propertyTexture)
+    {
+        _propertyTexture->SetTextureType(TextureType::METALLIC);
     }
 }
 
 void MaterialAsset::SetEmissiveTexture(const std::shared_ptr<TextureAsset>& emissive)
 {
-    if (emissive)
+    _emissiveTexture = emissive;
+    if (_emissiveTexture)
     {
-        _emissiveTexture = emissive;
         _emissiveTexture->SetTextureType(TextureType::EMISSIVE);
     }
 }
 
 void MaterialAsset::SetAmbientOcclusion(const std::shared_ptr<TextureAsset>& occlusion)
 {
-    if (occlusion)
+   _ambientOcclusion = occlusion;
+    if (_ambientOcclusion)
     {
-        _ambientOcclusion = occlusion;
         _ambientOcclusion->SetTextureType(TextureType::OCCLUSION);
     }
 }
 
-bool MaterialAsset::InternalLoad()
+void MaterialAsset::InternalLoad()
 {
-    bool result = true;
-
-    if (_baseTexture)
+    if (_baseTexture && !_baseTextureLoaded)
     {
-        result = result && _baseTexture->Load();
+        _baseTextureLoaded = _baseTexture->Load();
     }
-    if (_normalMap)
+    if (_normalMap && !_normalMapLoaded)
     {
-        result = result && _normalMap->Load();
+        _normalMapLoaded = _normalMap->Load();
     }
-    if (_propertyTexture)
+    if (_propertyTexture && !_propertyTextureLoaded)
     {
-        result = result && _propertyTexture->Load();
+        _propertyTextureLoaded = _propertyTexture->Load();
     }
-    if (_emissiveTexture)
+    if (_emissiveTexture && !_emissiveTextureLoaded)
     {
-        result = result && _emissiveTexture->Load();
+        _emissiveTextureLoaded = _emissiveTexture->Load();
     }
-    if (_ambientOcclusion)
+    if (_ambientOcclusion && !_ambientOcclusionLoaded)
     {
-        result = result && _ambientOcclusion->Load();
+        _ambientOcclusionLoaded = _ambientOcclusion->Load();
     }
-    return result;
 }
 
-bool MaterialAsset::InternalUnload()
+void MaterialAsset::InternalUnload()
 {
-    bool result = false;
-    if (_baseTexture)
+    if (_baseTexture && _baseTextureLoaded)
     {
-        result = result || _baseTexture->Unload();
+        _baseTextureLoaded = !_baseTexture->Unload();
     }
-    if (_normalMap)
+    if (_normalMap && _normalMapLoaded)
     {
-        result = result || _normalMap->Unload();
+        _normalMapLoaded = !_normalMap->Unload();
     }
-    if (_propertyTexture)
+    if (_propertyTexture && _propertyTextureLoaded)
     {
-        result = result || _propertyTexture->Unload();
+        _propertyTextureLoaded = !_propertyTexture->Unload();
     }
-    if (_emissiveTexture)
+    if (_emissiveTexture && _emissiveTextureLoaded)
     {
-        result = result || _emissiveTexture->Unload();
+        _emissiveTextureLoaded = !_emissiveTexture->Unload();
     }
-    if (_ambientOcclusion)
+    if (_ambientOcclusion && _ambientOcclusionLoaded)
     {
-        result = result || _ambientOcclusion->Unload();
+        _ambientOcclusionLoaded = !_ambientOcclusion->Unload();
     }
-    return result;
 }

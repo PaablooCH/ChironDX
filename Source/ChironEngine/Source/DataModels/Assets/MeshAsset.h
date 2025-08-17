@@ -18,7 +18,10 @@ class MeshAsset : public Asset
 public:
     MeshAsset();
     MeshAsset(UID uid);
+    MeshAsset(MeshAsset& copy);
     ~MeshAsset() override;
+
+    inline bool IsValid() const override;
 
     // ------------- GETTERS ----------------------
 
@@ -36,8 +39,8 @@ public:
         const std::string& name = "");
 
 private:
-    bool InternalLoad() override;
-    bool InternalUnload() override;
+    void InternalLoad() override;
+    void InternalUnload() override;
 
 private:
     std::unique_ptr<IndexBuffer> _indexBuffer;
@@ -45,11 +48,14 @@ private:
 
     std::vector<UINT> _indexBufferData;
     std::vector<Vertex> _triangleVertices;
+
+    bool _indexLoaded;
+    bool _vertexLoaded;
 };
 
 inline IndexBuffer* MeshAsset::GetIndexBuffer()
 {
-    if (!IsValid())
+    if (_indexBuffer && !_indexLoaded)
     {
         Load();
     }
@@ -63,7 +69,7 @@ inline const std::vector<UINT>& MeshAsset::GetIndexData()
 
 inline VertexBuffer* MeshAsset::GetVertexBuffer()
 {
-    if (!IsValid())
+    if (_vertexBuffer && !_vertexLoaded)
     {
         Load();
     }
@@ -73,4 +79,17 @@ inline VertexBuffer* MeshAsset::GetVertexBuffer()
 inline const std::vector<Vertex>& MeshAsset::GetTriangleVertices()
 {
     return _triangleVertices;
+}
+
+inline bool MeshAsset::IsValid() const
+{
+    if (_vertexBuffer && !_vertexLoaded)
+    {
+        return false;
+    }
+    if (_indexBuffer && !_indexLoaded)
+    {
+        return false;
+    }
+    return true;
 }
