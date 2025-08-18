@@ -89,6 +89,8 @@ private:
     std::unique_ptr<ModelImporter> _modelImporter;
 
     std::unique_ptr<ThreadPool> _threadPool;
+
+    std::mutex _mutex;
 };
 
 template<class A>
@@ -121,7 +123,11 @@ inline std::future<std::shared_ptr<A>> ModuleResources::RequestAsset(const std::
                     return;
                 }
 
-                auto it = _assets.find(uid);
+                auto it = _assets.end();
+                {
+                    std::unique_lock<std::mutex> lock(_mutex);
+                    it = _assets.find(uid);
+                }
                 if (it != _assets.end() && !(it->second).expired())
                 {
                     shared = (it->second).lock();
@@ -160,7 +166,12 @@ inline std::future<std::shared_ptr<A>> ModuleResources::SearchAsset(UID uid)
             try 
             {
                 std::shared_ptr<Asset> shared;
-                auto it = _assets.find(uid);
+
+                auto it = _assets.end();
+                {
+                    std::unique_lock<std::mutex> lock(_mutex);
+                    it = _assets.find(uid);
+                }
                 if (it != _assets.end() && !(it->second).expired())
                 {
                     shared = (it->second).lock();
