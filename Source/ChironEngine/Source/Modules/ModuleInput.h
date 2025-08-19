@@ -4,15 +4,15 @@
 class ModuleInput : public Module
 {
 public:
-    ModuleInput() = delete;
-    ModuleInput(HWND hwnd);
+    ModuleInput();
     ~ModuleInput() override;
 
-    bool Init() override;
     UpdateStatus PreUpdate() override;
     UpdateStatus Update() override;
     UpdateStatus PostUpdate() override;
     bool CleanUp() override;
+
+    void StartCapturing();
 
     inline const Vector2 MouseRel();
     inline void CaptureMousePos();
