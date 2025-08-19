@@ -45,6 +45,8 @@ public:
     template<class A = Asset>
     std::future<std::shared_ptr<A>> SearchAsset(UID uid);
 
+    void WaitForCompletion();
+
 private:
     void ScanLibraryDirectory();
 

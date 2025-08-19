@@ -28,7 +28,11 @@ ModuleAssets::~ModuleAssets()
 
 bool ModuleAssets::Init()
 {
-    ScanAssetFolder();
+    App->GetMainThreadPool()->AddTask([this]()
+        {
+            ScanAssetFolder();
+        }
+    );
     return true;
 }
 

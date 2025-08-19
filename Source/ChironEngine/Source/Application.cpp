@@ -60,6 +60,8 @@ bool Application::Init()
         }
     }
 
+    WaitThreadPools();
+
     return true;
 }
 
@@ -75,7 +77,7 @@ bool Application::Start()
         }
     }
 
-    _mainThreadPool->WaitForCompletion();
+    WaitThreadPools();
     GetModule<ModuleInput>()->StartCapturing();
 
     return true;
@@ -142,6 +144,7 @@ UpdateStatus Application::Update()
 
 bool Application::CleanUp()
 {
+    WaitThreadPools();
     GetModule<ModuleID3D12>()->Flush();
 
     std::ranges::reverse_view reverseModules = std::ranges::reverse_view{ _modules };
@@ -154,4 +157,10 @@ bool Application::CleanUp()
     }
 
     return true;
+}
+
+void Application::WaitThreadPools()
+{
+    GetModule<ModuleResources>()->WaitForCompletion();
+    _mainThreadPool->WaitForCompletion();
 }

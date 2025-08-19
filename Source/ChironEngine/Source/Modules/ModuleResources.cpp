@@ -35,9 +35,9 @@ bool ModuleResources::Init()
 
     _threadPool = std::make_unique<ThreadPool>(8);
 
-    CreateLibraryFolder();
-    _threadPool->AddTask([this]() 
+    App->GetMainThreadPool()->AddTask([this]()
         {
+            CreateLibraryFolder();
             ScanLibraryDirectory();
         }
     );
@@ -58,6 +58,11 @@ bool ModuleResources::CleanUp()
         _assets.clear();
     }
     return true;
+}
+
+void ModuleResources::WaitForCompletion()
+{
+    _threadPool->WaitForCompletion();
 }
 
 void ModuleResources::ScanLibraryDirectory()
