@@ -50,104 +50,117 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
 
         const int maxChars = 9;
         ImGui::Dummy(ImVec2(0.f, 1.f));
-        for (const auto& assetFile : _rootFolder->GetFiles())
+
+
+        std::queue<Folder*> foldersToCheck;
+        foldersToCheck.push(_rootFolder);
+        while (!foldersToCheck.empty())
         {
-            if (assetFile->GetType() != type)
+            auto currentFolder = foldersToCheck.front();
+            foldersToCheck.pop();
+            for (auto& subfolder : currentFolder->GetSubdirectories())
             {
-                continue;
+                foldersToCheck.push(subfolder.get());
             }
-            if (index % itemsPerRow != 0)
+            for (auto& file : currentFolder->GetFiles())
             {
-                ImGui::SameLine();
-            }
-            else
-            {
-                ImGui::Dummy(ImVec2(1.f, 0.f));
-                ImGui::SameLine();
-            }
-
-            ImGui::BeginGroup();
-            ImGui::PushID(index);
-
-            // Background color
-            if (actualUID == assetFile->GetMetaUID())
-            {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(41.f / 255.f, 107.f / 255.f, 84.f / 255.f, 1.f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f));
-            }
-            else
-            {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.20f, 0.20f, 0.20f, 1.0f));
-            }
-
-            switch (type)
-            {
-            case FileType::Material:
-                if (ImGui::Button(ICON_FA_DROPLET, ImVec2(64.f, 64.f)))
+                if (file->GetType() != type)
                 {
-                    actualUID = assetFile->GetMetaUID();
+                    continue;
+                }
+                if (index % itemsPerRow != 0)
+                {
+                    ImGui::SameLine();
+                }
+                else
+                {
+                    ImGui::Dummy(ImVec2(1.f, 0.f));
+                    ImGui::SameLine();
+                }
+
+                ImGui::BeginGroup();
+                ImGui::PushID(index);
+
+                // Background color
+                if (actualUID == file->GetMetaUID())
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(41.f / 255.f, 107.f / 255.f, 84.f / 255.f, 1.f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f));
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.20f, 0.20f, 0.20f, 1.0f));
+                }
+
+                switch (type)
+                {
+                case FileType::Material:
+                    if (ImGui::Button(ICON_FA_DROPLET, ImVec2(64.f, 64.f)))
+                    {
+                        actualUID = file->GetMetaUID();
+                        EndImGui();
+                        return true;
+                    }
+                    break;
+                case FileType::Mesh:
+                    if (ImGui::Button(ICON_FA_VECTOR_SQUARE, ImVec2(64.f, 64.f)))
+                    {
+                        actualUID = file->GetMetaUID();
+                        EndImGui();
+                        return true;
+                    }
+                    break;
+                case FileType::Model:
+                    break;
+                case FileType::Texture:
+                    if (ImGui::ImageButton("", (ImTextureID)file->GetIcon()->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr,
+                        ImVec2(64.f, 64.f)))
+                    {
+                        actualUID = file->GetMetaUID();
+                        EndImGui();
+                        return true;
+                    }
+                    break;
+                case FileType::Scene:
+                    break;
+                case FileType::UNKNOWN:
+                    break;
+                default:
+                    break;
+                }
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                {
+                    ImGui::CloseCurrentPopup();
                     EndImGui();
                     return true;
                 }
-                break;
-            case FileType::Mesh:
-                if (ImGui::Button(ICON_FA_VECTOR_SQUARE, ImVec2(64.f, 64.f)))
-                {
-                    actualUID = assetFile->GetMetaUID();
-                    EndImGui();
-                    return true;
+
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+
+                std::string name = file->GetName();
+
+                if (name.length() > maxChars) {
+                    name = name.substr(0, maxChars - 3) + "...";
                 }
-                break;
-            case FileType::Model:
-                break;
-            case FileType::Texture:
-                if (ImGui::ImageButton("", (ImTextureID)assetFile->GetIcon()->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr,
-                    ImVec2(64.f, 64.f)))
+
+                ImGui::TextUnformatted(name.c_str());
+                if (ImGui::BeginItemTooltip())
                 {
-                    actualUID = assetFile->GetMetaUID();
-                    EndImGui();
-                    return true;
+                    ImGui::Text(file->GetPath().c_str());
+                    ImGui::EndTooltip();
                 }
-                break;
-            case FileType::Scene:
-                break;
-            case FileType::UNKNOWN:
-                break;
-            default:
-                break;
+
+                ImGui::PopID();
+                ImGui::EndGroup();
+
+                index++;
             }
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-            {
-                ImGui::CloseCurrentPopup();
-                EndImGui();
-                return true;
-            }
-
-            ImGui::PopStyleColor();
-            ImGui::PopStyleColor();
-
-            std::string name = assetFile->GetName();
-
-            if (name.length() > maxChars) {
-                name = name.substr(0, maxChars - 3) + "...";
-            }
-
-            ImGui::TextUnformatted(name.c_str());
-            if (ImGui::BeginItemTooltip())
-            {
-                ImGui::Text(assetFile->GetName().c_str());
-                ImGui::EndTooltip();
-            }
-
-            ImGui::PopID();
-            ImGui::EndGroup();
-
-            index++;
         }
-
         ImGui::EndChild();
         ImGui::EndPopup();
+
     }
     return false;
 }
