@@ -1,12 +1,7 @@
 #include "Pch.h"
 #include "ModuleProgram.h"
 
-#include "Application.h"
-
-#include "ModuleID3D12.h"
-
 #include "DataModels/Programs/DefaultProgram.h"
-#include "DataModels/Programs/GenerateMipsProgram.h"
 
 ModuleProgram::ModuleProgram()
 {

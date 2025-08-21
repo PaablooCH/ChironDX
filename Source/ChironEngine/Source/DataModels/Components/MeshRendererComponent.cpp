@@ -5,8 +5,8 @@
 
 #include "Modules/ModuleResources.h"
 
-#include "DataModels/Assets/MeshAsset.h"
 #include "DataModels/Assets/MaterialAsset.h"
+#include "DataModels/Assets/MeshAsset.h"
 #include "DataModels/Assets/TextureAsset.h"
 
 #include "DataModels/Components/TransformComponent.h"
@@ -16,8 +16,8 @@
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/Resource/IndexBuffer.h"
-#include "DataModels/DX12/Resource/VertexBuffer.h"
 #include "DataModels/DX12/Resource/Texture.h"
+#include "DataModels/DX12/Resource/VertexBuffer.h"
 
 #include "Structs/ModelAttributes.h"
 

@@ -11,16 +11,13 @@
 #include "DataModels/Assets/MaterialAsset.h"
 #include "DataModels/Assets/MeshAsset.h"
 #include "DataModels/Assets/ModelAsset.h"
-#include "DataModels/Assets/TextureAsset.h"
 
-#include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/Resource/IndexBuffer.h"
-#include "DataModels/DX12/Resource/VertexBuffer.h"
-
-#include "DataModels/FileSystem/Json/Json.h"
 #include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
+#include "DataModels/FileSystem/Json/Json.h"
+
 #include "DataModels/UI/Windows/EditorWindow/FileBrowserWindow.h"
 
+#include "Defines/FileSystemDefine.h"
 
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"

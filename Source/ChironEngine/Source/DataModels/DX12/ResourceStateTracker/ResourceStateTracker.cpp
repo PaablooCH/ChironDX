@@ -2,7 +2,6 @@
 #include "ResourceStateTracker.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/Resource/Resource.h"
 
 // Static definitions.
 std::mutex ResourceStateTracker::_globalMutex;

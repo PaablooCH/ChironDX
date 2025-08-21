@@ -14,7 +14,6 @@
 #include "DataModels/Scene/Scene.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
 #include "DataModels/Programs/Program.h"

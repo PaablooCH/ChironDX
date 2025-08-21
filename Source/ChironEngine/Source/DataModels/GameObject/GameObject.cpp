@@ -5,10 +5,9 @@
 
 #include "Modules/ModuleScene.h"
 
-#include "DataModels/Components/TransformComponent.h"
 #include "DataModels/Components/MeshRendererComponent.h"
-#include "DataModels/Components/Interfaces/Drawable.h"
-#include "DataModels/Components/Interfaces/Updatable.h"
+#include "DataModels/Components/TransformComponent.h"
+
 #include "DataModels/Components/Interfaces/Renderable.h"
 
 #include "DataModels/FileSystem/UID/UIDGenerator.h"

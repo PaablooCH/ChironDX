@@ -1,9 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-#include <ranges>
 #include <functional>
+#include <memory>
+#include <ranges>
+#include <vector>
 
 class Component;
 

@@ -4,11 +4,13 @@
 #include "Application.h"
 
 #include "Modules/ModuleAssets.h"
-#include "Modules/ModuleResources.h"
 #include "Modules/ModuleFileSystem.h"
+#include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/MaterialAsset.h"
 #include "DataModels/Assets/TextureAsset.h"
+
+#include "Defines/FileSystemDefine.h"
 
 MaterialImporter::MaterialImporter()
 {

@@ -14,10 +14,12 @@
 
 #include "DataModels/GameObject/GameObject.h"
 
-#include "DataModels/Components/TransformComponent.h"
 #include "DataModels/Components/MeshRendererComponent.h"
+#include "DataModels/Components/TransformComponent.h"
 
 #include "Auxiliar/SceneLoader.h"
+
+#include "Defines/FileSystemDefine.h"
 
 ModuleScene::ModuleScene() : _loadedScene(nullptr), _selectedGameObject(nullptr)
 {
