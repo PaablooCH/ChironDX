@@ -8,13 +8,12 @@
 
 #include "DataModels/FileSystem/Json/Json.h"
 
-#include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
 #include "DataModels/FileSystem/FileSystemEntry/File/File.h"
-
-
+#include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
 
 #include "DataModels/UI/Windows/EditorWindow/FileBrowserWindow.h"
+
 #include "Defines/FileSystemDefine.h"
 
 ModuleAssets::ModuleAssets() : _fileBrowserWindow(nullptr)
@@ -51,6 +50,10 @@ bool ModuleAssets::CleanUp()
 
 void ModuleAssets::AddDroppedFiles(HDROP hDrop)
 {
+    if (!_fileBrowserWindow)
+    {
+        return;
+    }
     auto selectedFolder = _fileBrowserWindow->GetSelectedFolder();
 
     char filePath[MAX_PATH];
@@ -67,6 +70,10 @@ void ModuleAssets::AddDroppedFiles(HDROP hDrop)
 
 UID ModuleAssets::CopyAndSaveFile(const std::string& path)
 {
+    if (!_fileBrowserWindow)
+    {
+        return 0;
+    }
     auto selectedFolder = _fileBrowserWindow->GetSelectedFolder();
 
     std::string enginePath = selectedFolder->GetPath() + '/' + ModuleFileSystem::GetFile(path.c_str());
@@ -76,9 +83,9 @@ UID ModuleAssets::CopyAndSaveFile(const std::string& path)
     {
         File* file = new File(ModuleFileSystem::GetFile(path.c_str()), selectedFolder);
         CreateMetaOfFile(file);
-        return file->GetMetaUID();
+        return file->GetUID();
     }
-    return selectedFolder->FindFile(enginePath)->GetMetaUID();
+    return selectedFolder->FindFile(enginePath)->GetUID();
 }
 
 void ModuleAssets::SaveEngineFile(const std::string& path, const void* fileBuffer, size_t size, Folder* folder)
@@ -96,7 +103,7 @@ UID ModuleAssets::CreateMetaFileC(const std::string& filePath)
 {
     auto file = _rootFolder->FindFile(filePath);
     CreateMetaOfFile(file);
-    return file->GetMetaUID();
+    return file->GetUID();
 }
 
 void ModuleAssets::DeleteFileC(File* file)

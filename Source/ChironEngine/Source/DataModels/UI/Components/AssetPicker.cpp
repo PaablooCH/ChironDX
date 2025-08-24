@@ -51,7 +51,6 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
         const int maxChars = 9;
         ImGui::Dummy(ImVec2(0.f, 1.f));
 
-
         std::queue<Folder*> foldersToCheck;
         foldersToCheck.push(_rootFolder);
         while (!foldersToCheck.empty())
@@ -82,7 +81,7 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
                 ImGui::PushID(index);
 
                 // Background color
-                if (actualUID == file->GetMetaUID())
+                if (actualUID == file->GetUID())
                 {
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(41.f / 255.f, 107.f / 255.f, 84.f / 255.f, 1.f));
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f));
@@ -98,7 +97,7 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
                 case FileType::Material:
                     if (ImGui::Button(ICON_FA_DROPLET, ImVec2(64.f, 64.f)))
                     {
-                        actualUID = file->GetMetaUID();
+                        actualUID = file->GetUID();
                         EndImGui();
                         return true;
                     }
@@ -106,7 +105,7 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
                 case FileType::Mesh:
                     if (ImGui::Button(ICON_FA_VECTOR_SQUARE, ImVec2(64.f, 64.f)))
                     {
-                        actualUID = file->GetMetaUID();
+                        actualUID = file->GetUID();
                         EndImGui();
                         return true;
                     }
@@ -117,7 +116,7 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
                     if (ImGui::ImageButton("", (ImTextureID)file->GetIcon()->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr,
                         ImVec2(64.f, 64.f)))
                     {
-                        actualUID = file->GetMetaUID();
+                        actualUID = file->GetUID();
                         EndImGui();
                         return true;
                     }
