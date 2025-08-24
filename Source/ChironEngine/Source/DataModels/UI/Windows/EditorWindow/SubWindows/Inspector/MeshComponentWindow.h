@@ -1,6 +1,8 @@
 #pragma once
 #include "ComponentWindow.h"
 
+#include "DataModels/UI/Components/AssetPicker.h"
+
 class MeshRendererComponent;
 class ComponentWindowFactory;
 
@@ -17,5 +19,8 @@ private:
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList = nullptr) override;
 
     void DrawMeshWindow();
+
+private:
+    AssetPicker _assetPicker;
 };
 

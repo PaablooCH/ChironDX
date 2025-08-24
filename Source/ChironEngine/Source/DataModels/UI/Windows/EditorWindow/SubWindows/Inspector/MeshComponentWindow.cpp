@@ -3,6 +3,10 @@
 
 #include "DataModels/UI/UiIncludes.h"
 
+#include "Application.h"
+
+#include "Modules/ModuleResources.h"
+
 #include "DataModels/Assets/MeshAsset.h"
 
 #include "DataModels/DX12/Resource/IndexBuffer.h"
@@ -30,11 +34,31 @@ void MeshComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& 
 
 void MeshComponentWindow::DrawMeshWindow()
 {
-    auto mesh = static_cast<MeshRendererComponent*>(_component)->GetMesh();
+    auto meshRenderer = static_cast<MeshRendererComponent*>(_component);
+    auto meshAsset = meshRenderer->GetMesh();
 
-    CHIRON_TODO("ReImport via browser");
+    UID actualUID = meshAsset ? meshAsset->GetUID() : 0;
+    if (_assetPicker.Draw(FileType::Mesh, actualUID, "##matInput"))
+    {
+        meshRenderer->SetMesh(App->GetModule<ModuleResources>()->SearchAsset<MeshAsset>(actualUID).get());
+        meshAsset = meshRenderer->GetMesh();
+    }
 
-    ImGui::Text(mesh->GetName().c_str());
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 8.f);
+    std::string name = meshAsset ? meshAsset->GetName() : "";
+    ImGui::InputText("##meshInput", &name, ImGuiInputTextFlags_ReadOnly);
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_MESH"))
+        {
+            UID draggedUIDTexture = *static_cast<UID*>(payload->Data);
+            meshRenderer->SetMesh(App->GetModule<ModuleResources>()->SearchAsset<MeshAsset>(draggedUIDTexture).get());
+            meshAsset = meshRenderer->GetMesh();
+        }
+        ImGui::EndDragDropTarget();
+    }
 
     ImGui::SeparatorText("Geometry");
     if (ImGui::BeginTable("##geometryInfo", 2))
@@ -42,13 +66,13 @@ void MeshComponentWindow::DrawMeshWindow()
         ImGui::TableNextColumn();
         ImGui::Text("Vertices: ");
         ImGui::TableNextColumn();
-        std::string verticesText = std::to_string(mesh->GetVertexBuffer()->GetNumVertex());
+        std::string verticesText = std::to_string(meshAsset->GetVertexBuffer()->GetNumVertex());
         ImGui::TextColored(_secondaryColor, verticesText.c_str());
 
         ImGui::TableNextColumn();
         ImGui::Text("Indices: ");
         ImGui::TableNextColumn();
-        std::string indicesText = std::to_string(mesh->GetIndexBuffer()->GetNumIndices());
+        std::string indicesText = std::to_string(meshAsset->GetIndexBuffer()->GetNumIndices());
         ImGui::TextColored(_secondaryColor, indicesText.c_str());
 
         ImGui::EndTable();
