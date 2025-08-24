@@ -54,10 +54,17 @@ bool AssetPicker::Draw(FileType type, UID& actualUID, const std::string& id)
 
         // int itemsPerRow = std::max(1, static_cast<int>(xspace / 64.f) - 1);
         int itemsPerRow = 4;
-        int index = 0;
+        int index = 1;
 
         const int maxChars = 9;
         ImGui::Dummy(ImVec2(0.f, 1.f));
+
+        bool retFlag;
+        bool retVal = DrawDeleteAsset(actualUID, retFlag);
+        if (retFlag)
+        {
+            return retVal;
+        }
 
         std::queue<Folder*> foldersToCheck;
         foldersToCheck.push(_rootFolder);
@@ -170,6 +177,55 @@ bool AssetPicker::Draw(FileType type, UID& actualUID, const std::string& id)
 
     }
     return false;
+}
+
+bool AssetPicker::DrawDeleteAsset(UID& actualUID, bool& retFlag)
+{
+    retFlag = true;
+    ImGui::Dummy(ImVec2(1.f, 0.f));
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    ImGui::PushID(0);
+    // Background color
+    if (actualUID == 0)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(41.f / 255.f, 107.f / 255.f, 84.f / 255.f, 1.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f));
+    }
+    else
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.20f, 0.20f, 0.20f, 1.0f));
+    }
+
+    if (ImGui::Button(ICON_FA_XMARK, ImVec2(64.f, 64.f)))
+    {
+        actualUID = 0;
+        EndImGui();
+        return true;
+    }
+    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+    {
+        ImGui::CloseCurrentPopup();
+        EndImGui();
+        return true;
+    }
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+
+    ImGui::TextUnformatted("None");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::Text("None");
+        ImGui::EndTooltip();
+    }
+
+    ImGui::PopID();
+    ImGui::EndGroup();
+
+    ImGui::SameLine();
+    retFlag = false;
+    return {};
 }
 
 void AssetPicker::EndImGui()

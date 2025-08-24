@@ -28,7 +28,7 @@ RenderComponentWindow::RenderComponentWindow(MeshRendererComponent* component) :
 void RenderComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
     auto meshComponent = static_cast<MeshRendererComponent*>(_component);
-    if (meshComponent && meshComponent->GetMaterial())
+    if (meshComponent)
     {
         DrawRenderWindow(commandList);
     }
@@ -42,8 +42,16 @@ void RenderComponentWindow::DrawRenderWindow(const std::shared_ptr<CommandList>&
     UID actualUID = materialAsset ? materialAsset->GetUID() : 0;
     if (_assetPicker.Draw(FileType::Material, actualUID, "##matInput"))
     {
-        meshRenderer->SetMaterial(App->GetModule<ModuleResources>()->SearchAsset<MaterialAsset>(actualUID).get());
-        materialAsset = meshRenderer->GetMaterial();
+        if (actualUID == 0)
+        {
+            meshRenderer->SetMaterial(nullptr);
+            materialAsset = nullptr;
+        }
+        else
+        {
+            meshRenderer->SetMaterial(App->GetModule<ModuleResources>()->SearchAsset<MaterialAsset>(actualUID).get());
+            materialAsset = meshRenderer->GetMaterial();
+        }
     }
 
     ImGui::SameLine();
@@ -141,9 +149,18 @@ void RenderComponentWindow::DrawTexture(const std::shared_ptr<CommandList>& comm
         UID actualUID = textureAsset ? textureAsset->GetUID() : 0;
         if (_assetPicker.Draw(FileType::Texture, actualUID, label))
         {
-            materialAsset->SetTexture(App->GetModule<ModuleResources>()->SearchAsset<TextureAsset>(actualUID).get(), textureType);
-            textureAsset = materialAsset->GetTexture(textureType);
-            texture = textureAsset ? textureAsset->GetTexture() : nullptr;
+            if (actualUID == 0)
+            {
+                materialAsset->SetTexture(nullptr, textureType);
+                textureAsset = nullptr;
+                texture = nullptr;
+            }
+            else
+            {
+                materialAsset->SetTexture(App->GetModule<ModuleResources>()->SearchAsset<TextureAsset>(actualUID).get(), textureType);
+                textureAsset = materialAsset->GetTexture(textureType);
+                texture = textureAsset ? textureAsset->GetTexture() : nullptr;
+            }
         }
 
         ImGui::SameLine();

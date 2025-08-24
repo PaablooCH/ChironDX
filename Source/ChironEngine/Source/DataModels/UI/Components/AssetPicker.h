@@ -13,6 +13,8 @@ public:
 
     bool Draw(FileType type, UID& actualUID, const std::string& id);
 
+    bool DrawDeleteAsset(UID& actualUID, bool& retFlag);
+
 private:
     void EndImGui();
 

@@ -26,7 +26,7 @@ MeshComponentWindow::MeshComponentWindow(MeshRendererComponent* component) :
 void MeshComponentWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
 {
     auto meshComponent = static_cast<MeshRendererComponent*>(_component);
-    if (meshComponent && meshComponent->GetMesh())
+    if (meshComponent)
     {
         DrawMeshWindow();
     }
@@ -40,8 +40,16 @@ void MeshComponentWindow::DrawMeshWindow()
     UID actualUID = meshAsset ? meshAsset->GetUID() : 0;
     if (_assetPicker.Draw(FileType::Mesh, actualUID, "##matInput"))
     {
-        meshRenderer->SetMesh(App->GetModule<ModuleResources>()->SearchAsset<MeshAsset>(actualUID).get());
-        meshAsset = meshRenderer->GetMesh();
+        if (actualUID == 0)
+        {
+            meshRenderer->SetMesh(nullptr);
+            meshAsset = nullptr;
+        }
+        else
+        {
+            meshRenderer->SetMesh(App->GetModule<ModuleResources>()->SearchAsset<MeshAsset>(actualUID).get());
+            meshAsset = meshRenderer->GetMesh();
+        }
     }
 
     ImGui::SameLine();
@@ -58,6 +66,11 @@ void MeshComponentWindow::DrawMeshWindow()
             meshAsset = meshRenderer->GetMesh();
         }
         ImGui::EndDragDropTarget();
+    }
+
+    if (!meshAsset)
+    {
+        return;
     }
 
     ImGui::SeparatorText("Geometry");
