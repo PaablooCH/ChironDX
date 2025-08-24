@@ -21,8 +21,7 @@
 
 #include "Structs/ModelAttributes.h"
 
-MeshRendererComponent::MeshRendererComponent(GameObject* owner) : Component(ComponentType::MESH_RENDERER, owner), _material(nullptr),
-_mesh(nullptr)
+MeshRendererComponent::MeshRendererComponent(GameObject* owner) : Component(ComponentType::MESH_RENDERER, owner)
 {
 }
 
@@ -36,35 +35,42 @@ MeshRendererComponent::~MeshRendererComponent()
 
 void MeshRendererComponent::Render(const std::shared_ptr<CommandList>& commandList) const
 {
-    commandList->SetVertexBuffers(0, 1, &_mesh->GetVertexBuffer()->GetVertexBufferView());
-    commandList->SetIndexBuffer(&_mesh->GetIndexBuffer()->GetIndexBufferView());
-
-    auto texture = _material->GetBaseTexture();
+    if (_mesh && _mesh->GetVertexBuffer() && _mesh->GetIndexBuffer())
+    {
+        commandList->SetVertexBuffers(0, 1, &_mesh->GetVertexBuffer()->GetVertexBufferView());
+        commandList->SetIndexBuffer(&_mesh->GetIndexBuffer()->GetIndexBufferView());
+    }
+    
     Matrix model = _owner->GetInternalComponent<TransformComponent>()->GetGlobalMatrix();
 
     ModelAttributes modelAttributes;
     modelAttributes.model = model.Transpose();
-    modelAttributes.uvCorrector = texture ? texture->GetConfigFlags() : isBottomLeft;
+    modelAttributes.uvCorrector = isBottomLeft;
+    modelAttributes.hasAlbedo = 0;
+    
     CHIRON_TODO("CorrectUV for each texture");
 
-    if (texture)
+    if (_material)
     {
-        modelAttributes.hasAlbedo = 1;
-        commandList->TransitionBarrier(texture->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        // set the descriptor heap
-        ID3D12DescriptorHeap* descriptorHeaps[] = {
-            texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
-        };
-        commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-        commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
-    }
-    else
-    {
-        modelAttributes.hasAlbedo = 0;
+        if (TextureAsset* texture = _material->GetBaseTexture())
+        {
+            modelAttributes.uvCorrector = texture->GetConfigFlags();
+            modelAttributes.hasAlbedo = 1;
+            commandList->TransitionBarrier(texture->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            // set the descriptor heap
+            ID3D12DescriptorHeap* descriptorHeaps[] = {
+                texture->GetTexture()->GetShaderResourceView().GetDescriptorAllocatorPage()->GetDescriptorHeap().Get()
+            };
+            commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+            commandList->SetGraphicsRootDescriptorTable(2, texture->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle());
+        }
     }
     commandList->SetGraphicsRoot32BitConstants(1, sizeof(ModelAttributes) / 4, &modelAttributes);
 
-    commandList->DrawIndexed(static_cast<UINT>(_mesh->GetIndexBuffer()->GetNumIndices()));
+    if (_mesh && _mesh->GetIndexBuffer())
+    {
+        commandList->DrawIndexed(static_cast<UINT>(_mesh->GetIndexBuffer()->GetNumIndices()));
+    }
 }
 
 void MeshRendererComponent::InternalSave(Field& meta)
