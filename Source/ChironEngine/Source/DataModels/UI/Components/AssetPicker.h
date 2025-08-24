@@ -11,7 +11,7 @@ public:
     AssetPicker();
     ~AssetPicker() = default;
 
-    bool Draw(FileType type, UID& actualUID);
+    bool Draw(FileType type, UID& actualUID, const std::string& id);
 
 private:
     void EndImGui();

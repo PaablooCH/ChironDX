@@ -14,17 +14,25 @@
 #include "DataModels/FileSystem/FileSystemEntry/File/File.h"
 #include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
 
+#include <sstream>
+
 AssetPicker::AssetPicker() : _selectedFileType(FileType::UNKNOWN)
 {
     _rootFolder = App->GetModule<ModuleAssets>()->GetRootFolder();
 }
 
-bool AssetPicker::Draw(FileType type, UID& actualUID)
+bool AssetPicker::Draw(FileType type, UID& actualUID, const std::string& id)
 {
+    std::ostringstream button;
+    button << ICON_FA_CIRCLE_DOT << "##" << id;
+
+    std::ostringstream popup;
+    popup << "Asset Picker" << "##" << id;
+
     auto text = ("Select " + FileTypeUtils::ToString(type));
-    if (ImGui::Button(ICON_FA_CIRCLE_DOT))
+    if (ImGui::Button(button.str().c_str()))
     {
-        ImGui::OpenPopup("Asset Picker");
+        ImGui::OpenPopup(popup.str().c_str());
     }
     if (ImGui::IsItemHovered())
     {
@@ -36,7 +44,7 @@ bool AssetPicker::Draw(FileType type, UID& actualUID)
     }
 
     ImGui::SetNextWindowSize(ImVec2(360, 235), ImGuiCond_Appearing);
-    if (ImGui::BeginPopup("Asset Picker"))
+    if (ImGui::BeginPopup(popup.str().c_str()))
     {
         ImGui::Text(text.c_str());
         ImGui::Dummy(ImVec2(0.f, 1.f));
