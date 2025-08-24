@@ -19,7 +19,7 @@ MeshComponentWindow::~MeshComponentWindow()
 }
 
 MeshComponentWindow::MeshComponentWindow(MeshRendererComponent* component) :
-    ComponentWindow(ICON_FA_VECTOR_SQUARE " Mesh", component)
+    ComponentWindow(ICON_FA_VECTOR_SQUARE " Mesh", component), _assetPicker()
 {
 }
 
