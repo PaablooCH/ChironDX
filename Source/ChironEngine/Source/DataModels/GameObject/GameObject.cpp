@@ -126,14 +126,7 @@ void GameObject::Render(const std::shared_ptr<CommandList>& commandList) const
 
 size_t GameObject::HowManyWindowsNeed() const
 {
-    size_t windowsNeeded = _components.size();
-    if (auto render = GetInternalComponent<MeshRendererComponent>())
-    {
-        if (render->GetMaterial() && render->GetMesh())
-        {
-            windowsNeeded++;
-        }
-    }
+    size_t windowsNeeded = _components.size() + GetInternalComponents<MeshRendererComponent>().size();
     return windowsNeeded;
 }
 
