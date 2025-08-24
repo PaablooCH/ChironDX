@@ -155,6 +155,7 @@ void ModelImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<Mod
         return;
     }
 
+    model->SetName(ModuleFileSystem::GetFileName(filePath));
     std::vector<std::unique_ptr<Node>> nodes;
     nodes.reserve(nodesCount);
     auto metaNodes = meta["nodes"];
@@ -503,6 +504,17 @@ std::future<std::shared_ptr<MaterialAsset>> ModelImporter::ImportMaterial(const 
 
     rapidjson::Document doc;
     Json json = Json(doc);
+
+    json["baseColor"]["r"] = 1.f;
+    json["baseColor"]["g"] = 1.f;
+    json["baseColor"]["b"] = 1.f;
+    json["baseColor"]["a"] = 1.f;
+
+    json["specularColor"]["r"] = 0.5f;
+    json["specularColor"]["g"] = 0.30000001192092896f;
+    json["specularColor"]["b"] = 0.5f;
+    json["specularColor"]["a"] = 1.f;
+
     json["baseTextureUID"] = 0;
     json["normalMapUID"] = 0;
     json["ambientOcclusionUID"] = 0;
