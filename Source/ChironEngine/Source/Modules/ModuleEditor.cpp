@@ -5,6 +5,7 @@
 
 #include "ModuleFileSystem.h"
 #include "ModuleID3D12.h"
+#include "ModuleRender.h"
 #include "ModuleWindow.h"
 
 #include "DataModels/UI/UiIncludes.h"
@@ -158,6 +159,8 @@ UpdateStatus ModuleEditor::Update()
 
     //ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
+
+    d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, App->GetModule<ModuleRender>()->GetFrameFenceValue());
 
     for (std::unique_ptr<Window>& window : _windows)
     {

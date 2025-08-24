@@ -88,7 +88,7 @@ void TextureAsset::RemoveConfigFlags(unsigned int flags)
 
 inline std::shared_ptr<Texture> TextureAsset::GetTexture()
 {
-    if (!IsValid())
+    if (_texture && !IsValid())
     {
         Load();
     }

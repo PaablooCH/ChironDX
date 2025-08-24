@@ -22,6 +22,7 @@ public:
     // ------------- GETTERS ----------------------
 
     inline const Texture* GetSceneTexture() const;
+    inline const uint64_t& GetFrameFenceValue() const;
 
 private:
     void CreateTextures();
@@ -35,9 +36,16 @@ private:
     std::shared_ptr<CommandList> _drawCommandList;
 
     D3D12_RECT _scissor;
+
+    uint64_t _frameFenceValue;
 };
 
 inline const Texture* ModuleRender::GetSceneTexture() const
 {
     return _sceneTexture.get();
+}
+
+inline const uint64_t& ModuleRender::GetFrameFenceValue() const
+{
+    return _frameFenceValue;
 }
