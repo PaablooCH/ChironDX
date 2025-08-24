@@ -19,6 +19,7 @@ public:
 private:
     void DrawWindowContent(const std::shared_ptr<CommandList>& commandList) override;
     void DrawFolderTree();
+    bool MoveFileOrFolder(const ImGuiPayload* payload, Folder*& folder, bool nodeOpen);
     bool DrawDeleteFolderMenu(Folder* folder);
     bool DrawDeleteFileMenu(File* file);
     void DrawFolderPath();

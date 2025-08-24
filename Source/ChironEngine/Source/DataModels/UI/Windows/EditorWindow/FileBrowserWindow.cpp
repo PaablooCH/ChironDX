@@ -18,6 +18,11 @@
 
 #include <sstream>
 
+namespace 
+{
+    const ImVec4 secondaryColor = ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f);
+}
+
 FileBrowserWindow::FileBrowserWindow() : EditorWindow(ICON_FA_FOLDER_TREE " File Browser", ImGuiWindowFlags_AlwaysAutoResize)
 {
     _rootFolder = App->GetModule<ModuleAssets>()->GetRootFolder();
@@ -147,19 +152,32 @@ void FileBrowserWindow::DrawFolderTree()
 
         if (ImGui::BeginDragDropTarget())
         {
+
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
             {
-                UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
-                auto draggedFileSystemEntry = _rootFolder->FindFileSystemEntry(draggedUIDFileSystemEntry);
-                if (draggedFileSystemEntry)
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
                 {
-                    draggedFileSystemEntry->ChangeParent(folder);
-                    ImGui::EndDragDropTarget();
-                    ImGui::PopID();
-                    if (nodeOpen)
-                    {
-                        ImGui::TreePop();
-                    }
+                    continue;
+                }
+            }
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_MATERIAL"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
+                    continue;
+                }
+            }
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_MESH"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
+                    continue;
+                }
+            }
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_TEXTURE"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
                     continue;
                 }
             }
@@ -189,6 +207,24 @@ void FileBrowserWindow::DrawFolderTree()
         }
         ImGui::PopID();
     }
+}
+
+bool FileBrowserWindow::MoveFileOrFolder(const ImGuiPayload* payload, Folder*& folder, bool nodeOpen)
+{
+    UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
+    auto draggedFileSystemEntry = _rootFolder->FindFileSystemEntry(draggedUIDFileSystemEntry);
+    if (draggedFileSystemEntry)
+    {
+        draggedFileSystemEntry->ChangeParent(folder);
+        ImGui::EndDragDropTarget();
+        ImGui::PopID();
+        if (nodeOpen)
+        {
+            ImGui::TreePop();
+        }
+        return true;
+    }
+    return false;
 }
 
 bool FileBrowserWindow::DrawDeleteFolderMenu(Folder* folder)
@@ -401,6 +437,13 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                         return;
                     }
                 }
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
                 break;
 
             case FileType::Scene:
@@ -420,6 +463,13 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                             });
                     }
                 }
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
                 break;
 
             case FileType::Texture:
@@ -429,7 +479,7 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
                 {
                     commandList->TransitionBarrier(file->GetIcon()->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
                     ImGui::Image((ImTextureID)(file->GetIcon()->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr),
-                        ImVec2(64, 64));
+                        ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1), secondaryColor);
                     ImGui::EndTooltip();
                 }
                 if (ImGui::BeginDragDropSource())
@@ -456,15 +506,14 @@ void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& co
             case FileType::UNKNOWN:
                 label = std::string(ICON_FA_QUESTION) + " " + file->GetName();
                 ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
                 break;
-            }
-
-            if (ImGui::BeginDragDropSource())
-            {
-                UID uid = file->GetUID();
-                ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
-                ImGui::Text(file->GetName().c_str());
-                ImGui::EndDragDropSource();
             }
 
             if (ImGui::BeginPopupContextItem("RightClickFile", ImGuiPopupFlags_MouseButtonRight))
