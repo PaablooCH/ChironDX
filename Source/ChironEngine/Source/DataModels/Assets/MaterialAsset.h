@@ -1,6 +1,8 @@
 #pragma once
 #include "Asset.h"
 
+#include "Enums/TextureType.h"
+
 class TextureAsset;
 
 enum MatConfig
@@ -21,6 +23,7 @@ public:
 
     // ------------- GETTERS ----------------------
 
+    inline TextureAsset* GetTexture(TextureType textureType);
     TextureAsset* GetBaseTexture();
     TextureAsset* GetNormalMap();
     TextureAsset* GetPropertyTexture();
@@ -32,6 +35,7 @@ public:
 
     // ------------- SETTERS ----------------------
 
+    inline void SetTexture(const std::shared_ptr<TextureAsset>& texture, TextureType textureType);
     void SetBaseTexture(const std::shared_ptr<TextureAsset>& diffuse);
     void SetNormalMap(const std::shared_ptr<TextureAsset>& normal);
     void SetPropertyTexture(const std::shared_ptr<TextureAsset>& metalness);
@@ -89,6 +93,24 @@ inline bool MaterialAsset::IsValid() const
     return true;
 }
 
+inline TextureAsset* MaterialAsset::GetTexture(TextureType textureType)
+{
+    switch (textureType)
+    {
+    case TextureType::ALBEDO:
+        return GetBaseTexture();
+    case TextureType::METALLIC:
+        return GetPropertyTexture();
+    case TextureType::NORMAL_MAP:
+        return GetNormalMap();
+    case TextureType::EMISSIVE:
+        return GetEmissiveTexture();
+    case TextureType::OCCLUSION:
+        return GetAmbientOcclusion();
+    }
+    return nullptr;
+}
+
 inline const Color& MaterialAsset::GetBaseColor() const
 {
     return _baseColor;
@@ -102,6 +124,28 @@ inline const Color& MaterialAsset::GetSpecularColor() const
 inline UINT MaterialAsset::GetOptions() const
 {
     return _options;
+}
+
+inline void MaterialAsset::SetTexture(const std::shared_ptr<TextureAsset>& texture, TextureType textureType)
+{
+    switch (textureType)
+    {
+    case TextureType::ALBEDO:
+        SetBaseTexture(texture);
+        break;
+    case TextureType::METALLIC:
+        SetPropertyTexture(texture);
+        break;
+    case TextureType::NORMAL_MAP:
+        SetNormalMap(texture);
+        break;
+    case TextureType::EMISSIVE:
+        SetEmissiveTexture(texture);
+        break;
+    case TextureType::OCCLUSION:
+        SetAmbientOcclusion(texture);
+        break;
+    }
 }
 
 inline void MaterialAsset::SetBaseColor(Color& color)
