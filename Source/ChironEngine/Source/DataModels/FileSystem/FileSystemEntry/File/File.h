@@ -12,6 +12,8 @@ public:
     File(const std::string& fileName, Folder* parent);
     ~File() override;
 
+    void LoadAssetIcon();
+
     // ------------- GETTERS ----------------------
 
     inline const std::string& GetSize() const;

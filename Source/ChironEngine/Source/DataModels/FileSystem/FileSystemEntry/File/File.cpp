@@ -25,6 +25,14 @@ File::~File()
 {
 }
 
+void File::LoadAssetIcon()
+{
+    if (_type == FileType::Texture && _icon == nullptr)
+    {
+        _icon = App->GetModule<ModuleResources>()->SearchAsset<TextureAsset>(GetUID()).get();
+    }
+}
+
 TextureAsset* File::GetIcon()
 {
     if (_type == FileType::Texture && _icon == nullptr)

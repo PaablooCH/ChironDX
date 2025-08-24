@@ -6,6 +6,8 @@
 #include "ModuleEditor.h"
 #include "ModuleFileSystem.h"
 
+#include "ThreadPool/ThreadPool.h"
+
 #include "DataModels/FileSystem/Json/Json.h"
 
 #include "DataModels/FileSystem/FileSystemEntry/File/File.h"
@@ -38,6 +40,11 @@ bool ModuleAssets::Init()
 bool ModuleAssets::Start()
 {
     _fileBrowserWindow = static_cast<FileBrowserWindow*>(App->GetModule<ModuleEditor>()->GetWindow(WindowsType::FILE_BROWSER));
+    App->GetMainThreadPool()->AddTask([this]()
+        {
+            LoadAssetsIcons();
+        }
+    );
     return true;
 }
 
@@ -199,6 +206,28 @@ void ModuleAssets::ScanAssetFolder()
             {
                 ProcessMetaFile(path, filePreMeta);
             }
+        }
+    }
+}
+
+void ModuleAssets::LoadAssetsIcons()
+{
+    std::queue<Folder*> foldersToCheck;
+    foldersToCheck.push(_rootFolder.get());
+    while (!foldersToCheck.empty())
+    {
+        auto currentFolder = foldersToCheck.front();
+        foldersToCheck.pop();
+        for (auto& subfolder : currentFolder->GetSubdirectories())
+        {
+            foldersToCheck.push(subfolder.get());
+        }
+        for (auto& file : currentFolder->GetFiles())
+        {
+            App->GetMainThreadPool()->AddTask(
+                [&]() {
+                    file->LoadAssetIcon();
+                });
         }
     }
 }
