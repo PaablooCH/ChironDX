@@ -70,6 +70,11 @@ void RenderComponentWindow::DrawRenderWindow(const std::shared_ptr<CommandList>&
         ImGui::EndDragDropTarget();
     }
 
+    if (!materialAsset)
+    {
+        return;
+    }
+
     // ------------- COLORS ----------------------
 
     if (ImGui::BeginTable("###MaterialTableColors", 2))
