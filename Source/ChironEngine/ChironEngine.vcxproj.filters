@@ -684,6 +684,9 @@
     <ClInclude Include="Source\DataModels\UI\UiIncludes.h">
       <Filter>Source\DataModels\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Enums\TextureType.h">
+      <Filter>Source\Enums</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\DataModels\GameObject\GameObject.inl">

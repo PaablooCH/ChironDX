@@ -111,6 +111,7 @@
     <ClInclude Include="Source\DataModels\UI\UiIncludes.h" />
     <ClInclude Include="Source\DataModels\UI\Windows\EditorWindow\SubWindows\Inspector\RenderComponentWindow.h" />
     <ClInclude Include="Source\DataModels\UI\Windows\EditorWindow\SubWindows\Inspector\MeshComponentWindow.h" />
+    <ClInclude Include="Source\Enums\TextureType.h" />
     <ClInclude Include="Source\Enums\FileType.h" />
     <ClInclude Include="Source\Auxiliar\BidirectionalMap.h" />
     <ClInclude Include="Source\Auxiliar\SceneLoader.h" />

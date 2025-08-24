@@ -1,6 +1,8 @@
 #pragma once
 #include "Asset.h"
 
+#include "Enums/TextureType.h"
+
 class Texture;
 
 struct MyImage
@@ -8,20 +10,6 @@ struct MyImage
     std::vector<uint8_t> pixels;
     size_t rowPitch;
     size_t slicePitch;
-};
-
-enum class TextureType
-{
-    ALBEDO,
-    DIFFUSE = ALBEDO,
-    SPECULAR,
-    METALLIC = SPECULAR,
-    NORMAL_MAP,
-    EMISSIVE,
-    OCCLUSION,
-    HDR,
-    DEPTH,
-    RENDER_TARGET
 };
 
 enum TexConfig
