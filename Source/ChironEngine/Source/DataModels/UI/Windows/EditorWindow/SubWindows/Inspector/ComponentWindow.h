@@ -17,12 +17,12 @@ protected:
 
     bool CollapsingHeader();
 
-protected:
-    Component* _component;
-
 private:
     void DrawEnable();
     void DrawRemoveComponent();
+
+protected:
+    Component* _component;
 
 private:
     UID _windowUID;

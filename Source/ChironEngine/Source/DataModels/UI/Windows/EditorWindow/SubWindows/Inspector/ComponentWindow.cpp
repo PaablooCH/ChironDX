@@ -13,6 +13,7 @@
 
 void ComponentWindow::Draw(const std::shared_ptr<CommandList>& commandList)
 {
+    ImGui::PushID(_windowUID);
     if (CollapsingHeader())
     {
         std::ostringstream childString;
@@ -43,6 +44,7 @@ void ComponentWindow::Draw(const std::shared_ptr<CommandList>& commandList)
         }
         ImGui::EndChild();
     }
+    ImGui::PopID();
 }
 
 ComponentWindow::ComponentWindow(std::string name, Component* component, bool disableEnable, bool disableRemove) :
