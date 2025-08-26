@@ -372,6 +372,9 @@
     <ClCompile Include="Source\DataModels\UI\Components\AssetPicker.cpp">
       <Filter>Source\DataModels\UI\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataModels\Programs\GridProgram.cpp">
+      <Filter>Source\DataModels\Programs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -686,6 +689,9 @@
     </ClInclude>
     <ClInclude Include="Source\Enums\TextureType.h">
       <Filter>Source\Enums</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataModels\Programs\GridProgram.h">
+      <Filter>Source\DataModels\Programs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

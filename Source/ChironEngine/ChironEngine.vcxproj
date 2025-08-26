@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DataModels\Programs\GridProgram.cpp" />
     <ClCompile Include="Source\DataModels\UI\Components\AssetPicker.cpp" />
     <ClCompile Include="Source\DataModels\UI\Windows\EditorWindow\SubWindows\Inspector\RenderComponentWindow.cpp" />
     <ClCompile Include="Source\DataModels\UI\Windows\EditorWindow\SubWindows\Inspector\MeshComponentWindow.cpp" />
@@ -107,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Alias\ComponentsView.h" />
+    <ClInclude Include="Source\DataModels\Programs\GridProgram.h" />
     <ClInclude Include="Source\DataModels\UI\Components\AssetPicker.h" />
     <ClInclude Include="Source\DataModels\UI\UiIncludes.h" />
     <ClInclude Include="Source\DataModels\UI\Windows\EditorWindow\SubWindows\Inspector\RenderComponentWindow.h" />
