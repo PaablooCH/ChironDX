@@ -1,5 +1,13 @@
 # ChironDX
 
+[![License: Apache](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://raw.githubusercontent.com/PaablooCH/ChironDX/master/LICENSE)
+[![Release](https://img.shields.io/github/release/PaablooCH/ChironDX.svg?color=blue)](https://github.com/PaablooCH/ChironDX/releases/latest)
+[![Release Date](https://img.shields.io/github/release-date/PaablooCH/ChironDX?color=orange)](https://github.com/PaablooCH/ChironDX/releases/latest)
+![Build](https://img.shields.io/github/actions/workflow/status/PaablooCH/ChironDX/msbuild.yml?color=success)
+![Size](https://img.shields.io/github/repo-size/PaablooCH/ChironDX.svg?color=blueviolet)
+[![GitHub issues](https://img.shields.io/github/issues/PaablooCH/ChironDX?color=red)](https://github.com/PaablooCH/ChironDX/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/PaablooCH/ChironDX?color=ffc107)](https://github.com/PaablooCH/ChironDX/pulls)
+
 3D Game engine made with C++ and using DirectX12, created and developed by [Pablo Cebollada Hernández](https://github.com/PaablooCH).
 </br>
 You can check the repo with all the code [here](https://github.com/PaablooCH/ChironDX).
