@@ -50,7 +50,8 @@ void Camera::Move()
 
     _forward.Normalize();
     _up.Normalize();
-    Vector3 right = _forward.Cross(_up).Normalized();
+    Vector3 right = _forward.Cross(_up);
+    right.Normalize();
 
     // Movement
     if (keyState.W)
@@ -69,11 +70,11 @@ void Camera::Move()
     {
         _position += right * moveSpeed; // Right
     }
-    if (keyState.Q)
+    if (keyState.E)
     {
         _position += _up * moveSpeed; // Up
     }
-    if (keyState.E)
+    if (keyState.Q)
     {
         _position -= _up * moveSpeed; // Down
     }
@@ -89,7 +90,9 @@ void Camera::FreeLook()
     float xrel = -rel.x * rotationSpeed;
     float yrel = -rel.y * rotationSpeed;
 
-    Vector3 right = _forward.Cross(_up).Normalized();
+    Vector3 right = _forward.Cross(_up);
+    right.Normalize();
+
     Quaternion rotationX = Quaternion::CreateFromAxisAngle(Vector3::UnitY, xrel);
     Quaternion rotationY = Quaternion::CreateFromAxisAngle(right, yrel);
 
@@ -100,9 +103,14 @@ void Camera::FreeLook()
 
 void Camera::ApplyRotationWithFixedUp(const Quaternion& rotationQuat, const Vector3& fixedUp)
 {
-    _forward = Vector3::Transform(_forward, rotationQuat).Normalized();
-    Vector3 newRight = Vector3::UnitY.Cross(_forward).Normalized();
-    _up = _forward.Cross(newRight).Normalized();
+    _forward = Vector3::Transform(_forward, rotationQuat);
+    _forward.Normalize();
+    
+    Vector3 newRight = Vector3::UnitY.Cross(_forward);
+    newRight.Normalize();
+
+    _up = _forward.Cross(newRight);
+    _up.Normalize();
 
     _rotation = rotationQuat;
 }

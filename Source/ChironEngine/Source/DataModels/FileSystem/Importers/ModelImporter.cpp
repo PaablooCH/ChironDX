@@ -3,8 +3,10 @@
 
 #include "Application.h"
 
-#include "Modules/ModuleID3D12.h"
+#include "Modules/ModuleAssets.h"
+#include "Modules/ModuleEditor.h"
 #include "Modules/ModuleFileSystem.h"
+#include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/MaterialAsset.h"
 #include "DataModels/Assets/MeshAsset.h"
@@ -15,11 +17,18 @@
 #include "DataModels/DX12/Resource/IndexBuffer.h"
 #include "DataModels/DX12/Resource/VertexBuffer.h"
 
-#include "Defines/FileSystemDefine.h"
+#include "DataModels/FileSystem/Json/Json.h"
+#include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
+
+#include "DataModels/Window/EditorWindow/FileBrowserWindow.h"
 
 #include "assimp/cimport.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
+
+#ifdef PROFILE
+    #include "Optick/optick.h"
+#endif // OPTICK
 
 ModelImporter::ModelImporter()
 {
@@ -37,7 +46,15 @@ void ModelImporter::Import(const char* filePath, const std::shared_ptr<ModelAsse
         aiImportFile(filePath, aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices);
     if (scene)
     {
+#ifdef PROFILE
+        OPTICK_THREAD("ImportThread");
+        OPTICK_CATEGORY("ImportModel", Optick::Category::Debug);
+#endif // DEBUG
+        model->SetName(ModuleFileSystem::GetFileName(filePath));
         ImportNode(scene, filePath, model, scene->mRootNode, -1, Matrix::Identity);
+
+        Save(model);
+
         aiReleaseImport(scene);
     }
     else
@@ -46,13 +63,298 @@ void ModelImporter::Import(const char* filePath, const std::shared_ptr<ModelAsse
     }
 }
 
+void ModelImporter::Load(const char* libraryPath, const std::shared_ptr<ModelAsset>& model)
+{
+#ifdef PROFILE
+    OPTICK_THREAD("LoadThread");
+    OPTICK_CATEGORY("Load Model", Optick::Category::Debug);
+#endif // OPTICK
+    std::vector<std::unique_ptr<Node>> nodes;
+
+    /* I'm not 100% sure if this is needed
+    if (!ModuleFileSystem::ExistsFile(libraryPath))
+    {
+        LoadFromMeta(App->GetModule<ModuleAssets>()->GetFilePath(model->GetUID()).c_str(), model);
+        return;
+    }
+    */
+
+    char* fileBuffer;
+    ModuleFileSystem::LoadFile(libraryPath, fileBuffer);
+    char* oringinalBuffer = fileBuffer;
+
+    // ------------- BINARY ----------------------
+
+    unsigned int header[2];
+    unsigned int bytes = sizeof(header);
+    memcpy(header, fileBuffer, bytes);
+    fileBuffer += bytes;
+
+    model->SetName(std::string(fileBuffer, header[0]));
+    fileBuffer += header[0];
+
+    nodes.reserve(header[1]);
+
+    for (unsigned int i = 0; i < header[1]; ++i)
+    {
+        std::unique_ptr<Node> node = std::make_unique<Node>();
+
+        unsigned int nodeHeader[2];
+        bytes = sizeof(nodeHeader);
+        memcpy(nodeHeader, fileBuffer, bytes);
+        fileBuffer += bytes;
+
+        node->name = std::string(fileBuffer, nodeHeader[0]);
+        fileBuffer += nodeHeader[0];
+
+        memcpy(&node->transform, fileBuffer, sizeof(Matrix));
+        fileBuffer += sizeof(Matrix);
+
+        memcpy(&node->parent, fileBuffer, sizeof(int));
+        fileBuffer += sizeof(int);
+
+        node->meshMaterial.reserve(nodeHeader[1]);
+
+        // NOT ENGINE
+        std::vector<UID> meshesUIDs(nodeHeader[1]);
+        memcpy(meshesUIDs.data(), fileBuffer, sizeof(UID) * nodeHeader[1]);
+        fileBuffer += sizeof(UID) * nodeHeader[1];
+
+        std::vector<UID> materialsUIDs(nodeHeader[1]);
+        memcpy(materialsUIDs.data(), fileBuffer, sizeof(UID) * nodeHeader[1]);
+        fileBuffer += sizeof(UID) * nodeHeader[1];
+
+        auto moduleResource = App->GetModule<ModuleResources>();
+        for (int i = 0; i < meshesUIDs.size(); ++i)
+        {
+            auto futureMesh = moduleResource->SearchAsset<MeshAsset>(meshesUIDs[i]);
+            auto futureMat = moduleResource->SearchAsset<MaterialAsset>(materialsUIDs[i]);
+
+            node->meshMaterial.emplace_back(futureMesh.get(), futureMat.get());
+        }
+
+        nodes.push_back(std::move(node));
+    }
+    model->SetNodes(nodes);
+
+    delete[] oringinalBuffer;
+}
+
+void ModelImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<ModelAsset>& model)
+{
+    std::string metaPath = std::string(filePath) + META_EXT;
+
+    // ------------- LOAD META ----------------------
+
+    rapidjson::Document doc;
+    Json meta = Json(doc);
+    ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
+
+    int nodesCount = meta["nodeSize"];
+    
+    if (nodesCount == 0)
+    {
+        Import(filePath, model);
+        return;
+    }
+
+    std::vector<std::unique_ptr<Node>> nodes;
+    nodes.reserve(nodesCount);
+    auto metaNodes = meta["nodes"];
+
+    for (int i = 0; i < nodesCount; i++)
+    {
+        std::unique_ptr<Node> node = std::make_unique<Node>();
+
+        node->name = metaNodes[i]["name"];
+
+        Matrix transform;
+        transform._11 = metaNodes[i]["transform"]["11"];
+        transform._12 = metaNodes[i]["transform"]["12"];
+        transform._13 = metaNodes[i]["transform"]["13"];
+        transform._14 = metaNodes[i]["transform"]["14"];
+        transform._21 = metaNodes[i]["transform"]["21"];
+        transform._22 = metaNodes[i]["transform"]["22"];
+        transform._23 = metaNodes[i]["transform"]["23"];
+        transform._24 = metaNodes[i]["transform"]["24"];
+        transform._31 = metaNodes[i]["transform"]["31"];
+        transform._32 = metaNodes[i]["transform"]["32"];
+        transform._33 = metaNodes[i]["transform"]["33"];
+        transform._34 = metaNodes[i]["transform"]["34"];
+        transform._41 = metaNodes[i]["transform"]["41"];
+        transform._42 = metaNodes[i]["transform"]["42"];
+        transform._43 = metaNodes[i]["transform"]["43"];
+        transform._44 = metaNodes[i]["transform"]["44"];
+
+        node->transform = transform;
+
+        node->parent = metaNodes[i]["parent"];
+
+        int meshMaterialSize = metaNodes[i]["meshMaterialSize"];
+        node->meshMaterial.reserve(meshMaterialSize);
+
+        auto moduleResource = App->GetModule<ModuleResources>();
+        for (int j = 0; j < meshMaterialSize; ++j)
+        {
+            auto futureMesh = moduleResource->SearchAsset<MeshAsset>(metaNodes[i]["meshesUIDs"][j]);
+            auto futureMat = moduleResource->SearchAsset<MaterialAsset>(metaNodes[i]["materialsUIDs"][j]);
+
+            auto mesh = futureMesh.get();
+            auto mat = futureMat.get();
+            if (mesh == nullptr || mat == nullptr)
+            {
+                model->ClearNodes();
+                Import(filePath, model);
+                return;
+            }
+            node->meshMaterial.emplace_back(mesh, mat);
+        }
+        nodes.push_back(std::move(node));
+    }
+    model->SetNodes(nodes);
+}
+
+void ModelImporter::Save(const std::shared_ptr<ModelAsset>& model)
+{
+    // ------------- META ----------------------
+
+    std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(model->GetUID()) + META_EXT;
+    rapidjson::Document doc;
+    Json meta = Json(doc);
+    ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
+    meta["nodeSize"] = model->GetNodes().size();
+    auto nodes = meta["nodes"];
+
+    // ------------- BINARY ----------------------
+
+                        //transform         //parent    //name and vector lenght header
+    unsigned int size = (sizeof(Matrix) + sizeof(int) + (sizeof(unsigned int) * 2)) * static_cast<unsigned int>(model->GetNodes().size());
+
+    for (auto& node : model->GetNodes())
+    {
+        size += sizeof(UID) * 2 * static_cast<unsigned int>(node->meshMaterial.size());
+        size += sizeof(char) * static_cast<unsigned int>(node->name.size());
+    }
+
+    unsigned int header[2] = { static_cast<unsigned int>(model->GetName().size()), static_cast<unsigned int>(model->GetNodes().size()) };
+    size += sizeof(header);
+    size += sizeof(char) * static_cast<unsigned int>(model->GetName().size());
+
+    char* fileBuffer = new char[size] {};
+    char* cursor = fileBuffer;
+
+    unsigned int bytes = sizeof(header);
+    memcpy(cursor, header, bytes);
+    cursor += bytes;
+
+    bytes = sizeof(char) * static_cast<unsigned int>(model->GetName().size());
+    memcpy(cursor, &model->GetName()[0], bytes);
+    cursor += bytes;
+
+    for (int i = 0; i < model->GetNodes().size(); i++)
+    {
+        auto& node = model->GetNodes()[i];
+
+        // ------------- META ----------------------
+
+        nodes[i]["name"] = node->name;
+        nodes[i]["parent"] = node->parent;
+
+        nodes[i]["transform"]["11"] = node->transform._11;
+        nodes[i]["transform"]["12"] = node->transform._12;
+        nodes[i]["transform"]["13"] = node->transform._13;
+        nodes[i]["transform"]["14"] = node->transform._14;
+        nodes[i]["transform"]["21"] = node->transform._21;
+        nodes[i]["transform"]["22"] = node->transform._22;
+        nodes[i]["transform"]["23"] = node->transform._23;
+        nodes[i]["transform"]["24"] = node->transform._24;
+        nodes[i]["transform"]["31"] = node->transform._31;
+        nodes[i]["transform"]["32"] = node->transform._32;
+        nodes[i]["transform"]["33"] = node->transform._33;
+        nodes[i]["transform"]["34"] = node->transform._34;
+        nodes[i]["transform"]["41"] = node->transform._41;
+        nodes[i]["transform"]["42"] = node->transform._42;
+        nodes[i]["transform"]["43"] = node->transform._43;
+        nodes[i]["transform"]["44"] = node->transform._44;
+        
+        nodes[i]["meshMaterialSize"] = node->meshMaterial.size();
+        auto meshes = nodes[i]["meshesUIDs"];
+        auto mat = nodes[i]["materialsUIDs"];
+
+        // ------------- BINARY ----------------------
+
+        unsigned int nodeHeader[2] = { static_cast<unsigned int>(node->name.size()),
+                                       static_cast<unsigned int>(node->meshMaterial.size()) };
+
+        bytes = sizeof(nodeHeader);
+        memcpy(cursor, nodeHeader, bytes);
+        cursor += bytes;
+
+        bytes = sizeof(char) * static_cast<unsigned int>(node->name.size());
+        memcpy(cursor, &(node->name[0]), bytes);
+        cursor += bytes;
+
+        bytes = sizeof(Matrix);
+        memcpy(cursor, &(node->transform), bytes);
+        cursor += bytes;
+
+        bytes = sizeof(int);
+        memcpy(cursor, &(node->parent), bytes);
+        cursor += bytes;
+
+        unsigned int countMeshes = 0;
+        unsigned int countMat = 0;
+        for (int j = 0; j < node->meshMaterial.size(); ++j)
+        {
+            UID meshUID = node->meshMaterial[j].first->GetUID();
+            
+            // ------------- META ----------------------
+
+            meshes[countMeshes] = meshUID;
+            ++countMeshes;
+
+            // ------------- BINARY ----------------------
+
+            memcpy(cursor, &meshUID, sizeof(UID));
+            cursor += sizeof(UID);
+        }
+
+        for (int j = 0; j < node->meshMaterial.size(); ++j)
+        {
+            UID materialUID = node->meshMaterial[j].second->GetUID();
+
+            // ------------- META ----------------------
+
+            mat[countMat] = materialUID;
+            ++countMat;
+
+            // ------------- BINARY ----------------------
+
+            memcpy(cursor, &materialUID, sizeof(UID));
+            cursor += sizeof(UID);
+        }
+    }
+
+    // ------------- META ----------------------
+
+    rapidjson::StringBuffer buffer = meta.ToBuffer();
+    ModuleFileSystem::SaveFile(metaPath.c_str(), buffer.GetString(), (unsigned int)buffer.GetSize());
+
+    // ------------- BINARY ----------------------
+
+    std::string libPath = MODELS_LIB_PATH + std::to_string(model->GetUID()) + BINARY_EXT;
+    ModuleFileSystem::SaveFile(libPath.c_str(), fileBuffer, size);
+
+    delete[] fileBuffer;
+}
+
 void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const std::shared_ptr<ModelAsset>& model, const aiNode* node,
     int parentIdx, const Matrix& accTransform)
 {
     std::string name = node->mName.C_Str();
     Matrix transform = (*(Matrix*)&node->mTransformation);
 
-    if (name.find("$AssimpFbx$") != std::string::npos)
+    if (name.find("$AssimpFbx$") != std::string::npos || name.find("RootNode") != std::string::npos)
     {
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
         {
@@ -63,35 +365,16 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
     }
     else
     {
+        Node* modelNode = new Node();
+        modelNode->name = name;
+        modelNode->parent = parentIdx;
+        modelNode->transform = transform * accTransform;
+
         LOG_INFO("Node name: {}", name);
         if (node->mParent)
         {
             LOG_INFO("Parent node name: {}", node->mParent->mName.C_Str());
         }
-        LOG_INFO("Node parentIdx: {}", parentIdx);
-
-        Vector3 pos;
-        Quaternion rot;
-        Vector3 scale;
-
-        transform.Decompose(scale, rot, pos);
-
-        LOG_INFO("Transform:\n\tpos: ({}, {}, {})\trot: ({}, {}, {})\t scale: ({}, {}, {})",
-            pos.x,
-            pos.y,
-            pos.z,
-            Chiron::Utils::RadToDeg(rot.ToEuler().x),
-            Chiron::Utils::RadToDeg(rot.ToEuler().y),
-            Chiron::Utils::RadToDeg(rot.ToEuler().z),
-            scale.x,
-            scale.y,
-            scale.z);
-
-        // loading meshes and materials
-        auto d3d12 = App->GetModule<ModuleID3D12>();
-        CHIRON_TODO("Move this to meshImporter");
-        auto copyCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
-        auto directCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
         for (unsigned int i = 0; i < node->mNumMeshes; ++i)
         {
@@ -101,37 +384,35 @@ void ModelImporter::ImportNode(const aiScene* scene, const char* filePath, const
             LOG_INFO("Importing mesh {}", name);
             LOG_INFO("Importing material {}", material->GetName().C_Str());
 
-            std::shared_ptr<MeshAsset> meshAsset = ImportMesh(mesh, name, i, copyCommandList);
-            std::shared_ptr<MaterialAsset> materialAsset = ImportMaterial(material, name, i);
+            auto futureMeshAsset = ImportMesh(mesh, name, i);
+            auto futureMaterialAsset = ImportMaterial(material, filePath, i);
 
-            CHIRON_TODO("Move this to meshImporter");
-            // Change states
-            directCommandList->TransitionBarrier(meshAsset->GetIndexBuffer(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-            directCommandList->TransitionBarrier(meshAsset->GetVertexBuffer(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-
-            model->AddMaterial(materialAsset);
-            model->AddMesh(meshAsset);
+            std::pair<std::shared_ptr<MeshAsset>, std::shared_ptr<MaterialAsset>> meshMat =
+                std::make_pair(futureMeshAsset.get(), futureMaterialAsset.get());
+            modelNode->meshMaterial.push_back(meshMat);
         }
 
-        // Copy data to resources
-        auto queueType = copyCommandList->GetType();
-        uint64_t initFenceValue = d3d12->ExecuteCommandList(copyCommandList);
-        d3d12->WaitForFenceValue(queueType, initFenceValue);
-
-        initFenceValue = d3d12->ExecuteCommandList(directCommandList);
-        d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, initFenceValue);
+        model->AddNode(modelNode);
+        int newParentId = static_cast<int>(model->GetNodes().size()) - 1;
 
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
         {
-            ImportNode(scene, filePath, model, node->mChildren[i], 0, Matrix::Identity);
+            ImportNode(scene, filePath, model, node->mChildren[i], newParentId, Matrix::Identity);
         }
     }
 }
 
-std::shared_ptr<MeshAsset> ModelImporter::ImportMesh(const aiMesh* mesh, const std::string& fileName, int iteration,
-    const std::shared_ptr<CommandList>& copyCommandList)
+std::future<std::shared_ptr<MeshAsset>> ModelImporter::ImportMesh(const aiMesh* mesh, const std::string& fileName, int iteration)
 {
-    std::shared_ptr<MeshAsset> resourceMesh = std::make_shared<MeshAsset>();
+    auto fileBrowser = static_cast<FileBrowserWindow*>(App->GetModule<ModuleEditor>()->GetWindow(WindowsType::FILE_BROWSER));
+    
+    auto currentFolder = fileBrowser->GetSelectedFolder();
+    std::string meshPath = currentFolder->GetPath() + '/' + fileName + "_" + std::to_string(iteration) + MESH_EXT;
+
+    if (ModuleFileSystem::ExistsFile(meshPath.c_str()))
+    {
+        return App->GetModule<ModuleResources>()->RequestAsset<MeshAsset>(meshPath);
+    }
 
     // -------------- VERTEX ---------------------
 
@@ -162,22 +443,12 @@ std::shared_ptr<MeshAsset> ModelImporter::ImportMesh(const aiMesh* mesh, const s
     }
     const UINT vertexBufferSize = static_cast<UINT>(triangleVertices.size() * sizeof(Vertex));
 
-    std::string newFileName = "Vertex " + fileName + "_" + std::to_string(iteration);
-    resourceMesh->SetVertexBuffer(CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
-        triangleVertices.size(), std::wstring(newFileName.begin(), newFileName.end()));
-
-    D3D12_SUBRESOURCE_DATA subresourceData = {};
-    subresourceData.pData = triangleVertices.data();
-    subresourceData.RowPitch = vertexBufferSize;
-    subresourceData.SlicePitch = vertexBufferSize;
-    copyCommandList->UpdateBufferResource(resourceMesh->GetVertexBuffer(), 0, 1, &subresourceData);
-
     // -------------- INDEX ---------------------
 
-    UINT numIndexes = mesh->mNumFaces * 3;
+    UINT numIndices = mesh->mNumFaces * 3;
 
     std::vector<UINT> indexBufferData;
-    indexBufferData.reserve(numIndexes);
+    indexBufferData.reserve(numIndices);
     for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
     {
         indexBufferData.push_back(mesh->mFaces[i].mIndices[0]);
@@ -186,111 +457,129 @@ std::shared_ptr<MeshAsset> ModelImporter::ImportMesh(const aiMesh* mesh, const s
     }
     const UINT indexBufferSize = static_cast<UINT>(indexBufferData.size() * sizeof(UINT));
 
-    newFileName = "Index " + fileName + "_" + std::to_string(iteration);
-    resourceMesh->SetIndexBuffer(CD3DX12_RESOURCE_DESC::Buffer(indexBufferSize), indexBufferData.size(),
-        DXGI_FORMAT_R32_UINT, std::wstring(newFileName.begin(), newFileName.end()));
+    // ------------- SAVE MESH FILE ----------------------
 
-    D3D12_SUBRESOURCE_DATA subresourceData2 = {};
-    subresourceData2.pData = indexBufferData.data();
-    subresourceData2.RowPitch = indexBufferSize;
-    subresourceData2.SlicePitch = indexBufferSize;
-    copyCommandList->UpdateBufferResource(resourceMesh->GetIndexBuffer(), 0, 1, &subresourceData2);
+                        //Vertex                                //Indices
+    unsigned int size = (sizeof(Vertex) * mesh->mNumVertices) + (sizeof(UINT) * (mesh->mNumFaces * 3));
 
-    return resourceMesh;
+    unsigned int header[2] = { static_cast<unsigned int>(mesh->mNumVertices), mesh->mNumFaces * 3 };
+    size += sizeof(header);
+
+    char* fileBuffer = new char[size] {};
+    char* cursor = fileBuffer;
+
+    unsigned int bytes = sizeof(header);
+    memcpy(cursor, header, bytes);
+    cursor += bytes;
+
+    bytes = sizeof(Vertex) * mesh->mNumVertices;
+    memcpy(cursor, triangleVertices.data(), bytes);
+    cursor += bytes;
+
+    bytes = sizeof(UINT) * (mesh->mNumFaces * 3);
+    memcpy(cursor, indexBufferData.data(), bytes);
+    cursor += bytes;
+
+    App->GetModule<ModuleAssets>()->SaveEngineFile(meshPath, fileBuffer, size, currentFolder);
+
+    delete[] fileBuffer;
+
+    return App->GetModule<ModuleResources>()->RequestAsset<MeshAsset>(meshPath);
 }
 
-std::shared_ptr<MaterialAsset> ModelImporter::ImportMaterial(const aiMaterial* material, const std::string& fileName, int iteration)
+std::future<std::shared_ptr<MaterialAsset>> ModelImporter::ImportMaterial(const aiMaterial* material, const std::string& filePath, int iteration)
 {
-    std::shared_ptr<MaterialAsset> materialAsset = std::make_shared<MaterialAsset>();
+    auto resources = App->GetModule<ModuleResources>();
 
-    auto fileSystem = App->GetModule<ModuleFileSystem>();
+    auto fileBrowser = static_cast<FileBrowserWindow*>(App->GetModule<ModuleEditor>()->GetWindow(WindowsType::FILE_BROWSER));
+    auto currentFolder = fileBrowser->GetSelectedFolder();
+
+    std::string matPath = currentFolder->GetPath() + '/' + ModuleFileSystem::GetFileName(filePath) + "_" +
+        std::to_string(iteration) + MAT_EXT;
+
+    if (ModuleFileSystem::ExistsFile(matPath.c_str()))
+    {
+        return App->GetModule<ModuleResources>()->RequestAsset<MaterialAsset>(matPath);
+    }
 
     aiString file;
 
+    rapidjson::Document doc;
+    Json json = Json(doc);
+    json["baseTextureUID"] = 0;
+    json["normalMapUID"] = 0;
+    json["ambientOcclusionUID"] = 0;
+    json["propertyTextureUID"] = 0;
+    json["emissiveTextureUID"] = 0;
+
     if (material->GetTexture(aiTextureType_DIFFUSE, 0, &file) == AI_SUCCESS)
     {
-        std::string diffusePath = "";
-
-        CheckPathMaterial(nullptr, file, diffusePath);
-
-        if (diffusePath != "")
-        {
-            std::shared_ptr<TextureAsset> textureAsset = std::make_shared<TextureAsset>(TextureType::DIFFUSE);
-
-            fileSystem->Import(diffusePath.c_str(), textureAsset);
-            materialAsset->SetDiffuse(textureAsset);
-        }
+        UID baseTextureUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, baseTextureUID);
+        json["baseTextureUID"] = baseTextureUID;
     }
 
     if (material->GetTexture(aiTextureType_NORMALS, 0, &file) == AI_SUCCESS)
     {
-        std::string normalPath = "";
-
-        CheckPathMaterial(nullptr, file, normalPath);
-
-        if (normalPath != "")
-        {
-            std::shared_ptr<TextureAsset> textureAsset = std::make_shared<TextureAsset>(TextureType::NORMAL_MAP);
-
-            fileSystem->Import(normalPath.c_str(), textureAsset);
-            materialAsset->SetNormal(textureAsset);
-        }
+        UID normalMapUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, normalMapUID);
+        json["normalMapUID"] = normalMapUID;
     }
 
     if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &file) == AI_SUCCESS)
     {
-        std::string occlusionPath = "";
-
-        CheckPathMaterial(nullptr, file, occlusionPath);
-
-        if (occlusionPath != "")
-        {
-            std::shared_ptr<TextureAsset> textureAsset = std::make_shared<TextureAsset>(TextureType::OCCLUSION);
-
-            fileSystem->Import(occlusionPath.c_str(), textureAsset);
-
-            materialAsset->SetOcclusion(textureAsset);
-        }
+        UID ambientOcclusionUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, ambientOcclusionUID);
+        json["ambientOcclusionUID"] = ambientOcclusionUID;
     }
 
     if (material->GetTexture(aiTextureType_METALNESS, 0, &file) == AI_SUCCESS)
     {
-        std::string metalnessPath = "";
-
-        CheckPathMaterial(nullptr, file, metalnessPath);
-
-        if (metalnessPath != "")
-        {
-            std::shared_ptr<TextureAsset> textureAsset = std::make_shared<TextureAsset>(TextureType::METALLIC);
-
-            fileSystem->Import(metalnessPath.c_str(), textureAsset);
-            materialAsset->SetMetalness(textureAsset);
-        }
+        UID propertyTextureUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, propertyTextureUID);
+        json["propertyTextureUID"] = propertyTextureUID;
     }
 
     if (material->GetTexture(aiTextureType_EMISSIVE, 0, &file) == AI_SUCCESS)
     {
-        std::string emissivePath = "";
-
-        CheckPathMaterial(nullptr, file, emissivePath);
-
-        if (emissivePath != "")
-        {
-            std::shared_ptr<TextureAsset> textureAsset = std::make_shared<TextureAsset>(TextureType::EMISSIVE);
-
-            fileSystem->Import(emissivePath.c_str(), textureAsset);
-            materialAsset->SetEmissive(textureAsset);
-        }
+        UID emissiveTextureUID = 0;
+        CheckPathMaterial(filePath.c_str(), file, emissiveTextureUID);
+        json["emissiveTextureUID"] = emissiveTextureUID;
     }
 
-    return materialAsset;
+    // ------------- SAVE MATERIAL FILE ----------------------
+
+    auto fileBuffer = json.ToBuffer();
+
+    App->GetModule<ModuleAssets>()->SaveEngineFile(matPath, fileBuffer.GetString(), fileBuffer.GetSize(), currentFolder);
+
+    return App->GetModule<ModuleResources>()->RequestAsset<MaterialAsset>(matPath);
 }
 
-void ModelImporter::CheckPathMaterial(const char* filePath, const aiString& file, std::string& dataBuffer)
+void ModelImporter::CheckPathMaterial(const char* filePath, const aiString& file, UID& textureUID)
 {
-    CHIRON_TODO("Check textures outside the project");
-    std::string name = ModuleFileSystem::GetFileName(file.data);
-    name += ModuleFileSystem::GetFileExtension(file.data);
+    std::string metaPath;
+    // No exists in its file
+    if (!ModuleFileSystem::ExistsFile(file.data))
+    {
+        std::string name = ModuleFileSystem::GetFile(file.data);
 
-    dataBuffer = TEXTURES_PATH + name;
+        std::string modelPath = ModuleFileSystem::GetPathWithoutFile(filePath);
+        // No exists in its model path
+        if (!ModuleFileSystem::ExistsFile((modelPath + name).c_str()))
+        {
+            LOG_INFO("Texture not found!!!");
+            return;
+        }
+        else
+        {
+            // Exists in its model path
+            textureUID = App->GetModule<ModuleAssets>()->CreateMetaFileC(modelPath + name);
+        }
+    }
+    else
+    {
+        // Exists in its file
+        textureUID = App->GetModule<ModuleAssets>()->CopyAndSaveFile(file.data);
+    }
 }

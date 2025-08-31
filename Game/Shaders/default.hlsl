@@ -11,6 +11,10 @@ struct ModelAttributes
 {
     matrix model;
     int uvCorrector;
+    int hasAlbedo;
+    //int uvCorrectorSpecularMetallnes;
+    //int uvCorrectorNormalMap;
+    //int uvCorrectorOcclusion;
 };
 ConstantBuffer<ModelAttributes> modelAttributes : register(b1);
 
@@ -27,8 +31,8 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-    float4 position : SV_Position;
     float2 texCoord : TEXCOORD;
+    float4 position : SV_Position;
 };
 
 VS_OUTPUT VSmain(VS_INPUT input)
@@ -49,7 +53,6 @@ SamplerState s1 : register(s0);
 
 struct PS_INPUT
 {
-    float4 position : SV_POSITION;
     float2 texCoord : TEXCOORD;
 };
 
@@ -60,5 +63,9 @@ float4 PSmain(PS_INPUT input) : SV_Target
     {
         coord.y = 1.0f - coord.y;
     }
-    return t1.Sample(s1, coord);
+    if (modelAttributes.hasAlbedo == 1)
+    {
+        return t1.Sample(s1, coord);
+    }
+    return float4(1.0f, 0.0f, 1.0f, 1.0f);
 }

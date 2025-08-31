@@ -7,6 +7,17 @@ class MainMenuWindow;
 class Window;
 class DescriptorAllocation;
 
+enum class WindowsType
+{
+    CONFIGURATION,
+    CONSOLE,
+    FILE_BROWSER,
+    HIERARCHY,
+    INSPECTOR,
+    SCENE,
+    SIZE
+};
+
 class ModuleEditor : public Module
 {
 public:
@@ -22,23 +33,19 @@ public:
     UpdateStatus PostUpdate() override;
 
     inline const std::vector<std::unique_ptr<Window>>& GetWindows() const;
+    inline Window* GetWindow(WindowsType wType) const;
 
 private:
     void StartDock() const;
+    void SaveWindowsState() const;
+    void LoadWindowsState();
 
-    void SetStyles();
+    void SetThemes();
     void ApplyTheme(const ThemeColors& theme);
 
-private:
-    enum class WindowsType
-    {
-        SCENE,
-        CONSOLE,
-        CONFIGURATION,
-        ABOUT,
-        SIZE
-    };
+    void SetStyle();
 
+private:
     std::vector<std::unique_ptr<Window>> _windows;
     std::unique_ptr<MainMenuWindow> _mainMenu;
 
@@ -51,9 +58,16 @@ private:
     std::shared_ptr<CommandList> _drawCommandList;
 
     ImGuiWindowFlags _dockFlags;
+
+    bool _startDock;
 };
 
 inline const std::vector<std::unique_ptr<Window>>& ModuleEditor::GetWindows() const
 {
     return _windows;
+}
+
+inline Window* ModuleEditor::GetWindow(WindowsType wType) const
+{
+    return _windows[static_cast<int>(wType)].get();
 }

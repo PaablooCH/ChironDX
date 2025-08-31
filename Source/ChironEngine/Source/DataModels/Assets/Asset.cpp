@@ -1,11 +1,34 @@
 #include "Pch.h"
 #include "Asset.h"
 
-Asset::Asset(AssetType type) : _type(type)
+#include "DataModels/FileSystem/UID/UIDGenerator.h"
+
+Asset::Asset(UID uid, AssetType type) : _uid(uid), _type(type), _loaded(false)
+{
+}
+
+Asset::Asset(AssetType type) : _uid(Chiron::UIDGenerator::GenerateUID()), _type(type), _loaded(false)
 {
 }
 
 Asset::~Asset()
 {
-    CHIRON_TODO("Guardar los binarios cuando se destruyan?");
+}
+
+bool Asset::Load()
+{
+    if (!_loaded)
+    {
+        _loaded = InternalLoad();
+    }
+    return _loaded;
+}
+
+bool Asset::Unload()
+{
+    if (_loaded)
+    {
+        _loaded = InternalUnload();
+    }
+    return _loaded;
 }

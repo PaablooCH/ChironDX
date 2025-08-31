@@ -7,9 +7,12 @@ class ModuleID3D12;
 class ModuleInput;
 class ModuleProgram;
 class ModuleRender;
+class ModuleAssets;
+class ModuleResources;
+class ModuleScene;
 class ModuleWindow;
 
-// Order matters: they will Init/start/update/cleanUp in this order
+// Order matters: they will Init/start/update in this order. CleanUp executes in inverse order
 enum class ModuleType
 {
     WINDOW,
@@ -17,7 +20,10 @@ enum class ModuleType
     FILE_SYSTEM,
     PROGRAM,
     INPUT,
+    ASSETS,
+    RESOURCES,
     CAMERA,
+    SCENE,
     RENDER,
     EDITOR,
     LAST,
@@ -65,9 +71,27 @@ struct ModuleToEnum<ModuleCamera>
 };
 
 template<>
+struct ModuleToEnum<ModuleScene>
+{
+    const static ModuleType value = ModuleType::SCENE;
+};
+
+template<>
 struct ModuleToEnum<ModuleRender>
 {
     const static ModuleType value = ModuleType::RENDER;
+};
+
+template<>
+struct ModuleToEnum<ModuleAssets>
+{
+    const static ModuleType value = ModuleType::ASSETS;
+};
+
+template<>
+struct ModuleToEnum<ModuleResources>
+{
+    const static ModuleType value = ModuleType::RESOURCES;
 };
 
 template<>
