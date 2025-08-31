@@ -18,8 +18,8 @@ Camera::Camera(Vector3 position, Vector3 front, Vector3 up, float fov, float nea
 
     _forward.Normalize();
     _up.Normalize();
-    _view = Matrix::CreateLookAt(_position, _position + _forward, _up);
-    _proj = Matrix::CreatePerspectiveFieldOfView(_fov, _aspectRatio, _nearPlane, _farPlane);
+    _view = DirectX::XMMatrixLookAtLH(_position, _position + _forward, _up);
+    _proj = DirectX::XMMatrixPerspectiveFovLH(_fov, _aspectRatio, _nearPlane, _farPlane);
 }
 
 Camera::~Camera()
