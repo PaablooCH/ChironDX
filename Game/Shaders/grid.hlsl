@@ -81,12 +81,12 @@ float4 grid(float3 fragPos3D, float scale, bool drawAxis)
     float minimumx = min(derivative.x, 1);
     float4 color = float4(0.2, 0.2, 0.2, 1.0 - min(lineGrid, 1.0));
     // z axis
-    if (fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx)
+    if (fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx && drawAxis)
     {
         color.z = 1.0;
     }
     // x axis
-    if (fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz)
+    if (fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz && drawAxis)
     {
         color.x = 1.0;
     }
