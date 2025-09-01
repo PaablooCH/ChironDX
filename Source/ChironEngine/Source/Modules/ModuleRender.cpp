@@ -19,6 +19,8 @@
 #include "DataModels/Programs/Program.h"
 
 #include "Structs/CameraShader.h"
+#include "Structs/InverseViewProj.h"
+#include "Structs/NearFarPlane.h"
 
 #include "DebugDrawPass.h"
 
@@ -57,7 +59,7 @@ UpdateStatus ModuleRender::PreUpdate()
     _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Clear Viewport
-    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f }; // Set color
+    FLOAT clearColor[] = { 0.3f, 0.3f, 0.3f, 1.0f }; // Set color
 
     // send the clear command into the list
     _drawCommandList->ClearRenderTargetView(_sceneTexture.get(), clearColor, 0);
@@ -115,10 +117,11 @@ UpdateStatus ModuleRender::Update()
         gameObject->Render(_drawCommandList);
     }
 
-    // ------------- DEBUG DRAW ----------------------
+    // ------------- INFINITE GRID DRAW ----------------------
 
-    dd::xzSquareGrid(-500.0f, 500.0f, 0.0f, 1.0f, dd::colors::LightGray);
-    dd::axisTriad(Chiron::Utils::ddConvert(Matrix::Identity), 0.5f, 1000.0f);
+    DrawInfiniteGrid();
+
+    // ------------- DEBUG DRAW ----------------------
 
     _debugDraw->record(_drawCommandList->GetGraphicsCommandList().Get(), width, height, view, proj);
 
@@ -178,4 +181,57 @@ void ModuleRender::CreateTextures()
     _sceneTexture = std::make_unique<Texture>(textureDesc, "Scene Texture", true, &clearValue);
 
     _depthStencilTexture = App->GetModule<ModuleID3D12>()->CreateDepthStencil("Scene Depth Stencil Texture", width, height);
+}
+
+void ModuleRender::DrawInfiniteGrid()
+{
+    auto programs = App->GetModule<ModuleProgram>();
+    auto window = App->GetModule<ModuleWindow>();
+    auto moduleCamera = App->GetModule<ModuleCamera>();
+
+    Program* gridP = programs->GetProgram(ProgramType::GRID);
+
+    _drawCommandList->UseProgram(gridP);
+
+    _drawCommandList->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    unsigned width;
+    unsigned height;
+    window->GetWindowSize(width, height);
+
+    D3D12_VIEWPORT viewport{};
+    viewport.TopLeftX = viewport.TopLeftY = 0;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.Width = static_cast<float>(width);
+    viewport.Height = static_cast<float>(height);
+
+    _drawCommandList->SetViewports(1, viewport);
+    _drawCommandList->SetScissorRects(1, _scissor);
+
+    auto camera = moduleCamera->GetCamera();
+    Matrix view = camera->GetViewMatrix();
+    Matrix proj = camera->GetProjMatrix();
+
+    CameraShader cs{};
+    cs.view = view.Transpose();
+    cs.proj = proj.Transpose();
+    cs.pos = camera->GetPosition();
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, cs);
+
+    InverseViewProj ivp{};
+    ivp.invView = view.Invert().Transpose();
+    ivp.invProj = proj.Invert().Transpose();
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(1, ivp);
+
+    NearFarPlane nfp{};
+    nfp.nearPlane = camera->GetNearPlane();
+    nfp.farPlane = camera->GetFarPlane();
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(2, nfp);
+
+    auto rtv = _sceneTexture->GetRenderTargetView().GetCPUDescriptorHandle();
+    auto dsv = _depthStencilTexture->GetDepthStencilView().GetCPUDescriptorHandle();
+    _drawCommandList->SetRenderTargets(1, &rtv, FALSE, &dsv);
+
+    _drawCommandList->Draw(6, 1, 0, 0);
 }

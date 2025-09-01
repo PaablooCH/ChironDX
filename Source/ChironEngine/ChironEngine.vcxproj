@@ -213,6 +213,8 @@
     <ClInclude Include="Source\DataModels\DX12\Resource\VertexBuffer.h" />
     <ClInclude Include="Source\Structs\ThemeColors.h" />
     <ClInclude Include="Source\DataModels\Components\TransformComponent.h" />
+    <ClInclude Include="Source\Structs\InverseViewProj.h" />
+    <ClInclude Include="Source\Structs\NearFarPlane.h" />
     <ClInclude Include="Source\ThreadPool\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>

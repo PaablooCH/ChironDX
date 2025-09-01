@@ -693,6 +693,12 @@
     <ClInclude Include="Source\DataModels\Programs\GridProgram.h">
       <Filter>Source\DataModels\Programs</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Structs\InverseViewProj.h">
+      <Filter>Source\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Structs\NearFarPlane.h">
+      <Filter>Source\Structs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\DataModels\GameObject\GameObject.inl">

@@ -26,6 +26,7 @@ public:
 
 private:
     void CreateTextures();
+    void DrawInfiniteGrid();
 
 private:
     std::unique_ptr<DebugDrawPass> _debugDraw;

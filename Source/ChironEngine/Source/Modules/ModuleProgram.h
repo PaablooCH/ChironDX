@@ -6,7 +6,8 @@ class Program;
 enum class ProgramType
 {
     DEFAULT,
-    GENERATE_MIPS,
+    //GENERATE_MIPS,
+    GRID,
     SIZE
 };
 
