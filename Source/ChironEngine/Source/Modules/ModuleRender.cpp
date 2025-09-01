@@ -59,7 +59,7 @@ UpdateStatus ModuleRender::PreUpdate()
     _drawCommandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     // Clear Viewport
-    FLOAT clearColor[] = { 0.3f, 0.3f, 0.3f, 1.0f }; // Set color
+    FLOAT clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f }; // Set color
 
     // send the clear command into the list
     _drawCommandList->ClearRenderTargetView(_sceneTexture.get(), clearColor, 0);

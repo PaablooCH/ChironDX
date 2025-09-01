@@ -65,6 +65,12 @@ struct NearFarPlane
 };
 ConstantBuffer<NearFarPlane> nearFarPlane : register(b2);
 
+struct PS_INPUT
+{
+    float3 farPoint : FAR_POINT;
+    float3 nearPoint : NEAR_POINT;
+};
+
 float4 grid(float3 fragPos3D, float scale, bool drawAxis)
 {
     float2 coord = fragPos3D.xz * scale;
@@ -102,12 +108,6 @@ float computeLinearDepth(float3 pos, matrix projection, matrix view)
     return linearDepth / nearFarPlane.farPlane; // normalize [0,1]
 }
 
-struct PS_INPUT
-{
-    float3 farPoint : FAR_POINT;
-    float3 nearPoint : NEAR_POINT;
-};
-
 float4 PSmain(PS_INPUT input, out float depth : SV_Depth) : SV_Target
 {       
     float t = -input.nearPoint.y / (input.farPoint.y - input.nearPoint.y);
@@ -116,7 +116,7 @@ float4 PSmain(PS_INPUT input, out float depth : SV_Depth) : SV_Target
     depth = computeDepth(fragPos3D, camera.projection, camera.view);
 
     float linearDepth = computeLinearDepth(fragPos3D, camera.projection, camera.view);
-    float fading = max(0, (0.5 - linearDepth));
+    float fading = saturate(0.8 - linearDepth);
 
     float4 color = (grid(fragPos3D, 10, true) + grid(fragPos3D, 1, true)) * float(t > 0); // adding multiple resolution for the grid
     color.a *= fading;
