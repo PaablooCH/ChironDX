@@ -1,27 +1,20 @@
 #include "Pch.h"
 #include "ModuleInput.h"
 
+#include "Application.h"
+
+#include "ModuleWindow.h"
+
 #ifdef PROFILE
     #include "Optick/optick.h"
 #endif // OPTICK
 
-ModuleInput::ModuleInput(HWND hwnd) : _mousePos(Vector2::Zero), _captureMousePos(false)
+ModuleInput::ModuleInput() : _mousePos(Vector2::Zero), _captureMousePos(false)
 {
-    _keyboard = std::make_unique<DirectX::Keyboard>();
-    _mouse = std::make_unique<DirectX::Mouse>();
-    _mouse->SetWindow(hwnd);
 }
 
 ModuleInput::~ModuleInput()
 {
-}
-
-bool ModuleInput::Init()
-{
-    const auto& mouseState = _mouse->GetState();
-    _mousePos = Vector2(static_cast<float>(mouseState.x), static_cast<float>(mouseState.y));
-
-    return true;
 }
 
 UpdateStatus ModuleInput::PreUpdate()
@@ -60,4 +53,14 @@ UpdateStatus ModuleInput::PostUpdate()
 bool ModuleInput::CleanUp()
 {
     return true;
+}
+
+void ModuleInput::StartCapturing()
+{
+    _keyboard = std::make_unique<DirectX::Keyboard>();
+    _mouse = std::make_unique<DirectX::Mouse>();
+    _mouse->SetWindow(App->GetModule<ModuleWindow>()->GetWindowId());
+
+    const auto& mouseState = _mouse->GetState();
+    _mousePos = Vector2(static_cast<float>(mouseState.x), static_cast<float>(mouseState.y));
 }

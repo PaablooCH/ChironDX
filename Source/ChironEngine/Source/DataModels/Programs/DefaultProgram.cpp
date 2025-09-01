@@ -3,7 +3,7 @@
 
 #include "Structs/ModelAttributes.h"
 
-DefaultProgram::DefaultProgram(const std::string& name) : Program(name, true)
+DefaultProgram::DefaultProgram(const std::string& name) : Program(name)
 {
     InitRootSignature();
     InitPipelineState();
@@ -73,6 +73,7 @@ void DefaultProgram::InitPipelineState()
     if (errorBuff)
     {
         errorBuff->Release();
+        errorBuff = nullptr;
     }
 
     errorBuff.Reset();
@@ -86,6 +87,7 @@ void DefaultProgram::InitPipelineState()
     if (errorBuff)
     {
         errorBuff->Release();
+        errorBuff = nullptr;
     }
 
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =

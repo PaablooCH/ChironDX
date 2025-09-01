@@ -5,30 +5,31 @@
 
 #include "ModuleFileSystem.h"
 #include "ModuleID3D12.h"
+#include "ModuleRender.h"
 #include "ModuleWindow.h"
 
-#include "DataModels/Window/AboutWindow.h"
-#include "DataModels/Window/MainMenuWindow.h"
-#include "DataModels/Window/EditorWindow/ConfigurationWindow.h"
-#include "DataModels/Window/EditorWindow/ConsoleWindow.h"
-#include "DataModels/Window/EditorWindow/FileBrowserWindow.h"
-#include "DataModels/Window/EditorWindow/HierarchyWindow.h"
-#include "DataModels/Window/EditorWindow/InspectorWindow.h"
-#include "DataModels/Window/EditorWindow/SceneWindow.h"
+#include "DataModels/UI/UiIncludes.h"
+#include "DataModels/UI/Fonts/Font.h"
+#include "DataModels/UI/Windows/AboutWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/ConfigurationWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/ConsoleWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/FileBrowserWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/HierarchyWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/InspectorWindow.h"
+#include "DataModels/UI/Windows/EditorWindow/SceneWindow.h"
+#include "DataModels/UI/Windows/MainMenuWindow.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocation.h"
+#include "DataModels/DX12/DescriptorAllocator/DescriptorAllocator.h"
 #include "DataModels/DX12/DescriptorAllocator/DescriptorAllocatorPage.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
 #include "Defines/FileSystemDefine.h"
 
-#include "DataModels/Window/Fonts/Font.h"
-
-#include "ImGui/imgui_internal.h"
 #include "ImGui/imgui_impl_dx12.h"
 #include "ImGui/imgui_impl_win32.h"
+#include "ImGui/imgui_internal.h"
 
 #ifdef PROFILE
     #include "Optick/optick.h"
@@ -158,6 +159,8 @@ UpdateStatus ModuleEditor::Update()
 
     //ImGui::ShowDemoWindow();
     //ImGui::ShowMetricsWindow();
+
+    d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, App->GetModule<ModuleRender>()->GetFrameFenceValue());
 
     for (std::unique_ptr<Window>& window : _windows)
     {

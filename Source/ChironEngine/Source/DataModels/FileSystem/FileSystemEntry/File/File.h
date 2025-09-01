@@ -12,12 +12,13 @@ public:
     File(const std::string& fileName, Folder* parent);
     ~File() override;
 
+    void LoadAssetIcon();
+
     // ------------- GETTERS ----------------------
 
     inline const std::string& GetSize() const;
     inline const std::string& GetExt() const;
     inline FileType GetType() const;
-    inline UID GetMetaUID() const;
     TextureAsset* GetIcon();
     inline Folder* GetParent() const;
 
@@ -35,8 +36,6 @@ private:
     std::string _size;
     std::string _ext;
     FileType _type;
-
-    UID _metaUID;
 
     std::shared_ptr<TextureAsset> _icon;
 };
@@ -56,11 +55,6 @@ inline FileType File::GetType() const
     return _type;
 }
 
-inline UID File::GetMetaUID() const
-{
-    return _metaUID;
-}
-
 inline Folder* File::GetParent() const
 {
     return _parent;
@@ -68,5 +62,5 @@ inline Folder* File::GetParent() const
 
 inline void File::SetMetaUID(UID metaUID)
 {
-    _metaUID = metaUID;
+    SetUID(metaUID);
 }

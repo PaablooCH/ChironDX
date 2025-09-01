@@ -4,9 +4,6 @@ template<typename U>
 class Importer
 {
 public:
-    Importer() = default;
-    virtual ~Importer() {}
-
     /// <summary>
     /// Imports an asset from the specified file path.
     /// </summary>
@@ -28,6 +25,9 @@ public:
     /// <param name="asset">A shared pointer to the asset object to be loaded or updated.</param>
     virtual void LoadFromMeta(const char* filePath, const std::shared_ptr<U>& asset) = 0;
 protected:
+    Importer() = default;
+    virtual ~Importer() {}
+
     /// <summary>
     /// Saves the specified asset.
     /// </summary>

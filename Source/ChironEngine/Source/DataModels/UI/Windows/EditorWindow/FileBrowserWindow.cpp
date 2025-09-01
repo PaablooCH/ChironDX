@@ -1,0 +1,553 @@
+﻿#include "Pch.h"
+#include "FileBrowserWindow.h"
+
+#include "DataModels/UI/UiIncludes.h"
+
+#include "Application.h"
+
+#include "Modules/ModuleAssets.h"
+#include "Modules/ModuleFileSystem.h"
+#include "Modules/ModuleScene.h"
+
+#include "DataModels/Assets/TextureAsset.h"
+#include "DataModels/FileSystem/FileSystemEntry/File/File.h"
+#include "DataModels/FileSystem/FileSystemEntry/Folder/Folder.h"
+
+#include "DataModels/DX12/CommandList/CommandList.h"
+#include "DataModels/DX12/Resource/Texture.h"
+
+#include <sstream>
+
+namespace 
+{
+    const ImVec4 secondaryColor = ImVec4(59.f / 255.f, 186.f / 255.f, 115.f / 255.f, 1.f);
+}
+
+FileBrowserWindow::FileBrowserWindow() : EditorWindow(ICON_FA_FOLDER_TREE " File Browser", ImGuiWindowFlags_AlwaysAutoResize)
+{
+    _rootFolder = App->GetModule<ModuleAssets>()->GetRootFolder();
+    SelectFolder(_rootFolder);
+}
+
+FileBrowserWindow::~FileBrowserWindow()
+{
+}
+
+const std::string& FileBrowserWindow::GetSelectedPath() const
+{
+    return _selectedFolder->GetPath();
+}
+
+void FileBrowserWindow::DrawWindowContent(const std::shared_ptr<CommandList>& commandList)
+{
+    if (ImGui::BeginChild("##FolderTreeChild", ImVec2(300, 0), ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders))
+    {
+        DrawFolderTree();
+    }
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+    
+    ImGui::BeginGroup();
+    if (_selectedFolder)
+    {
+        if (ImGui::BeginChild("##FolderInfoChild", ImVec2(0, 0), ImGuiChildFlags_Borders))
+        {
+            DrawFolderPath();
+
+            ImGui::Separator();
+            
+            DrawFolderContent(commandList);
+        }
+        ImGui::EndChild();
+    }
+    ImGui::EndGroup();
+}
+
+void FileBrowserWindow::DrawFolderTree()
+{
+    std::stack<std::pair<Folder*, bool>> stack;
+    stack.push({ _rootFolder, false});
+
+    while (!stack.empty())
+    {
+        auto& [folder, childrenVisited] = stack.top();
+        stack.pop();
+
+        if (childrenVisited)
+        {
+            ImGui::TreePop();
+            continue;
+        }
+
+        std::ostringstream oss;
+        std::string iconFolder = folder->GetOpen() ? ICON_FA_FOLDER_OPEN : ICON_FA_FOLDER;
+        oss << iconFolder << " " << folder->GetName().c_str() << "###" << folder->GetUID();
+        ImGui::PushID(oss.str().c_str());
+
+        ImGuiTreeNodeFlags treeFlags = ImGuiTreeNodeFlags_OpenOnArrow;
+        if (folder == _selectedFolder)
+        {
+            treeFlags |= ImGuiTreeNodeFlags_Selected;
+        }
+        if (!folder->HasSubdirectories())
+        {
+            if (folder->GetOpen())
+            {
+                folder->SetClosed();
+            }
+            treeFlags |= ImGuiTreeNodeFlags_Leaf;
+        }
+        if (folder == _rootFolder)
+        {
+            treeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+        }
+
+        if (folder->GetOpen())
+        {
+            ImGui::SetNextItemOpen(true);
+        }
+
+        bool nodeOpen = ImGui::TreeNodeEx(oss.str().c_str(), treeFlags);
+
+        if (ImGui::IsItemClicked() && ImGui::IsMouseDoubleClicked(0) && folder != _selectedFolder)
+        {
+            SelectFolder(folder);
+        }
+
+        if (ImGui::BeginPopupContextItem("RightClickFolder", ImGuiPopupFlags_MouseButtonRight)) 
+        {
+            if (ImGui::MenuItem("Create Folder"))
+            {
+                std::string newPath = folder->GetPath() + '/' + "New Folder";
+                if (ModuleFileSystem::CreateUniqueDirectory(newPath))
+                {
+                    new Folder(newPath, folder);
+                }
+            }
+            if (IsDeletable(folder))
+            {
+                ImGui::Separator();
+                if (DrawDeleteFolderMenu(folder))
+                {
+                    ImGui::EndPopup();
+                    ImGui::PopID();
+                    if (nodeOpen)
+                    {
+                        ImGui::TreePop();
+                    }
+                    continue;
+                }
+            }
+            ImGui::EndPopup();
+        }
+
+        if (ImGui::BeginDragDropSource())
+        {
+            UID uid = folder->GetUID();
+            ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+            ImGui::Text(folder->GetName().c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
+                    continue;
+                }
+            }
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_MATERIAL"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
+                    continue;
+                }
+            }
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_MESH"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
+                    continue;
+                }
+            }
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DRAGDROP_TEXTURE"))
+            {
+                if (MoveFileOrFolder(payload, folder, nodeOpen))
+                {
+                    continue;
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        if (nodeOpen)
+        {
+            if (!folder->GetOpen() && folder->HasSubdirectories())
+            {
+                folder->SetOpened();
+            }
+            stack.push({ folder, true });
+            auto& subdirectories = folder->GetSubdirectories();
+            for (int i = static_cast<int>(subdirectories.size()) - 1; i >= 0; i--)
+            {
+                Folder* subdirectory = subdirectories[i].get();
+                stack.push({ subdirectory, false });
+            }
+        }
+        else
+        {
+            if (folder->GetOpen())
+            {
+                folder->SetClosed();
+            }
+        }
+        ImGui::PopID();
+    }
+}
+
+bool FileBrowserWindow::MoveFileOrFolder(const ImGuiPayload* payload, Folder*& folder, bool nodeOpen)
+{
+    UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
+    auto draggedFileSystemEntry = _rootFolder->FindFileSystemEntry(draggedUIDFileSystemEntry);
+    if (draggedFileSystemEntry)
+    {
+        draggedFileSystemEntry->ChangeParent(folder);
+        ImGui::EndDragDropTarget();
+        ImGui::PopID();
+        if (nodeOpen)
+        {
+            ImGui::TreePop();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool FileBrowserWindow::DrawDeleteFolderMenu(Folder* folder)
+{
+    if (ImGui::MenuItem("Delete Folder"))
+    {
+        auto parent = folder->GetParent();
+        App->GetModule<ModuleAssets>()->DeleteFolder(folder);
+        if (_selectedFolder == nullptr)
+        {
+            SelectFolder(parent);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool FileBrowserWindow::DrawDeleteFileMenu(File* file)
+{
+    if (ImGui::MenuItem("Delete File"))
+    {
+        App->GetModule<ModuleAssets>()->DeleteFileC(file);
+        return true;
+    }
+    return false;
+}
+
+void FileBrowserWindow::DrawFolderPath()
+{
+    for (int i = 0; i < _selectablePaths.size(); i++)
+    {
+        if (ImGui::Button(_selectablePaths[i].c_str()))
+        {
+            if (i != _selectablePaths.size() - 1)
+            {
+                std::vector<std::string> extracted(
+                    std::make_move_iterator(_selectablePaths.begin()),
+                    std::make_move_iterator(_selectablePaths.begin() + i + 1));
+                SelectFolder(_rootFolder->FindFolder(extracted));
+            }
+        }
+        if (i < _selectablePaths.size() - 1)
+        {
+            ImGui::SameLine();
+            DrawButtonSubdirectories(i, _selectablePaths[i + 1]);
+            ImGui::SameLine();
+        }
+    }
+}
+
+void FileBrowserWindow::DrawButtonSubdirectories(int iterator, const std::string& actualSubdirectory)
+{
+    std::string popupId = "SubdirectoriesMenu##" + std::to_string(iterator);
+    std::string iconFolder = ICON_FA_GREATER_THAN;
+    std::ostringstream oss;
+    oss << iconFolder << "##" << iterator;
+    if (ImGui::Button(oss.str().c_str()))
+    {
+        ImGui::OpenPopup(popupId.c_str());
+    }
+    if (ImGui::BeginPopup(popupId.c_str()))
+    {
+        if (static_cast<unsigned long long>(iterator) + 1 > _selectablePaths.size())
+        {
+            ImGui::EndPopup();
+            return;
+        }
+        std::vector<std::string> extracted(
+            _selectablePaths.begin(),
+            _selectablePaths.begin() + iterator + 1);
+        auto folder = _rootFolder->FindFolder(extracted);
+
+        auto& subdirectories = folder->GetSubdirectories();
+        for (int i = 0; i < subdirectories.size(); i++)
+        {
+            std::string name = subdirectories[i]->GetName();
+            if (name.empty())
+            {
+                name = "Unnamed Folder";
+            }
+            std::string label = name + "##" + std::to_string(i);
+            bool marked = name == actualSubdirectory;
+            if (ImGui::MenuItem(label.c_str(), NULL, marked))
+            {
+                SelectFolder(subdirectories[i].get());
+            }
+        }
+        ImGui::EndPopup();
+    }
+}
+
+void FileBrowserWindow::DrawFolderContent(const std::shared_ptr<CommandList>& commandList)
+{
+    ImGuiTableFlags flags =
+        ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti
+        | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_NoBordersInBody
+        | ImGuiTableFlags_ScrollY;
+
+    if (ImGui::BeginTable("FolderFileIconTable", 4, flags))
+    {
+        ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
+        ImGui::TableSetupColumn("Date");
+        ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Size", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupScrollFreeze(0, 1);
+        ImGui::TableHeadersRow();
+        for (auto& folder : _selectedFolder->GetSubdirectories())
+        {
+            // Checking if a folder no longer exists before printing
+            if (!folder)
+            {
+                continue;
+            }
+            ImGui::PushID(folder->GetUID());
+
+            ImGui::TableNextRow();
+
+            // NAME
+            ImGui::TableNextColumn();
+            std::string label = std::string(ICON_FA_FOLDER) + " " + folder->GetName();
+            if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+            {
+                if (ImGui::IsMouseDoubleClicked(0))
+                {
+                    SelectFolder(folder.get());
+                }
+            }
+            if (ImGui::BeginDragDropSource())
+            {
+                UID uid = folder->GetUID();
+                ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                ImGui::Text(folder->GetName().c_str());
+                ImGui::EndDragDropSource();
+            }
+
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MOVE_FILES_&_FOLDERS"))
+                {
+                    UID draggedUIDFileSystemEntry = *static_cast<UID*>(payload->Data);
+                    auto draggedFileSystemEntry = _rootFolder->FindFileSystemEntry(draggedUIDFileSystemEntry);
+                    if (draggedFileSystemEntry)
+                    {
+                        draggedFileSystemEntry->ChangeParent(folder.get());
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+
+            if (ImGui::BeginPopupContextItem("RightClickFolderInsideFolder", ImGuiPopupFlags_MouseButtonRight))
+            {
+                if (IsDeletable(folder.get()) && DrawDeleteFolderMenu(folder.get()))
+                {
+                    ImGui::EndPopup();
+                    ImGui::PopID();
+                    continue;
+                }
+                ImGui::EndPopup();
+            }
+
+            // DATE
+            ImGui::TableNextColumn();
+            ImGui::Text(folder->GetDate().c_str());
+
+            // TYPE
+            ImGui::TableNextColumn();
+
+            // SIZE
+            ImGui::TableNextColumn();
+
+            ImGui::PopID();
+        }
+
+        for (auto& file : _selectedFolder->GetFiles())
+        {
+            if (!file)
+            {
+                continue;
+            }
+            ImGui::PushID(file->GetUID());
+
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+
+            // NAME
+            std::string label;
+            switch (file->GetType())
+            {
+            case FileType::Material:
+                label = std::string(ICON_FA_DROPLET) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("DRAGDROP_MATERIAL", &uid, sizeof(UID));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::Model:
+                label = std::string(ICON_FA_PERSON) + " " + file->GetName();
+                if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+                {
+                    if (ImGui::IsMouseDoubleClicked(0))
+                    {
+                        App->GetModule<ModuleScene>()->ModelToGameObject(file->GetPath());
+                        ImGui::PopID();
+                        ImGui::EndTable();
+                        return;
+                    }
+                }
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::Scene:
+                label = std::string(ICON_FA_BOX_OPEN) + " " + file->GetName();
+                ImGui::Text(label.c_str());
+                if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick))
+                {
+                    if (ImGui::IsMouseDoubleClicked(0))
+                    {
+                        auto start = std::chrono::steady_clock::now();
+                        App->GetModule<ModuleScene>()->LoadScene(file->GetPath(),
+                            [start]()
+                            {
+                                auto end = std::chrono::steady_clock::now();
+                                auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+                                LOG_INFO("Scene Loaded! Took {} seconds", static_cast<int>(duration));
+                            });
+                    }
+                }
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::Texture:
+                label = std::string(ICON_FA_PALETTE) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginItemTooltip())
+                {
+                    commandList->TransitionBarrier(file->GetIcon()->GetTexture().get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+                    ImGui::Image((ImTextureID)(file->GetIcon()->GetTexture()->GetShaderResourceView().GetGPUDescriptorHandle().ptr),
+                        ImVec2(64, 64), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, 1), secondaryColor);
+                    ImGui::EndTooltip();
+                }
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("DRAGDROP_TEXTURE", &uid, sizeof(UID));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::Mesh:
+                label = std::string(ICON_FA_VECTOR_SQUARE) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("DRAGDROP_MESH", &uid, sizeof(UID));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+
+            case FileType::UNKNOWN:
+                label = std::string(ICON_FA_QUESTION) + " " + file->GetName();
+                ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups);
+                if (ImGui::BeginDragDropSource())
+                {
+                    UID uid = file->GetUID();
+                    ImGui::SetDragDropPayload("MOVE_FILES_&_FOLDERS", &uid, sizeof(uid));
+                    ImGui::Text(file->GetName().c_str());
+                    ImGui::EndDragDropSource();
+                }
+                break;
+            }
+
+            if (ImGui::BeginPopupContextItem("RightClickFile", ImGuiPopupFlags_MouseButtonRight))
+            {
+                if (DrawDeleteFileMenu(file.get()))
+                {
+                    ImGui::EndPopup();
+                    ImGui::PopID();
+                    continue;
+                }
+                ImGui::EndPopup();
+            }
+
+            // DATE
+            ImGui::TableNextColumn();
+            ImGui::Text(file->GetDate().c_str());
+
+            // TYPE
+            ImGui::TableNextColumn();
+            ImGui::Text(file->GetExt().c_str());
+
+            // SIZE
+            ImGui::TableNextColumn();
+            ImGui::Text(file->GetSize().c_str());
+
+            ImGui::PopID();
+        }
+        ImGui::EndTable();
+    }
+}
+
+void FileBrowserWindow::SelectFolder(Folder* folder)
+{
+    _selectedFolder = folder;
+    _selectedFolder->SetOpened();
+    _selectablePaths = ModuleFileSystem::SplitPath(_selectedFolder->GetPath());
+}

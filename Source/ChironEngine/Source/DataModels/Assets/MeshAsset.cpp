@@ -9,11 +9,16 @@
 #include "DataModels/DX12/Resource/IndexBuffer.h"
 #include "DataModels/DX12/Resource/VertexBuffer.h"
 
-MeshAsset::MeshAsset() : Asset(AssetType::Mesh)
+MeshAsset::MeshAsset() : Asset(AssetType::Mesh), _indexLoaded(false), _vertexLoaded(false)
 {
 }
 
-MeshAsset::MeshAsset(UID uid) : Asset(uid, AssetType::Mesh)
+MeshAsset::MeshAsset(UID uid) : Asset(uid, AssetType::Mesh), _indexLoaded(false), _vertexLoaded(false)
+{
+}
+
+MeshAsset::MeshAsset(MeshAsset& copy) : Asset(copy), _indexBufferData(copy._indexBufferData), _triangleVertices(copy._triangleVertices), 
+_indexLoaded(false), _vertexLoaded(false)
 {
 }
 
@@ -34,18 +39,17 @@ void MeshAsset::SetVertexBuffer(const D3D12_RESOURCE_DESC& resourceDesc, std::ve
     _triangleVertices = triangleVertices;
 }
 
-bool MeshAsset::InternalLoad()
+void MeshAsset::InternalLoad()
 {
-    bool result = true;
     bool commandsUsed = false;
 
     auto id3d12 = App->GetModule<ModuleID3D12>();
     auto copyCommandList = id3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
     auto directCommandList = id3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-    if (_vertexBuffer)
+    if (_vertexBuffer && !_vertexLoaded)
     {
-        result = result && _vertexBuffer->Load();
+        _vertexLoaded = _vertexBuffer->Load();
 
         D3D12_SUBRESOURCE_DATA subresourceData = {};
         subresourceData.pData = _triangleVertices.data();
@@ -56,9 +60,9 @@ bool MeshAsset::InternalLoad()
         commandsUsed = true;
     }
 
-    if (_indexBuffer)
+    if (_indexBuffer && !_indexLoaded)
     {
-        result = result && _indexBuffer->Load();
+        _indexLoaded = _indexBuffer->Load();
 
         D3D12_SUBRESOURCE_DATA subresourceData = {};
         subresourceData.pData = _indexBufferData.data();
@@ -77,21 +81,17 @@ bool MeshAsset::InternalLoad()
         signal = id3d12->ExecuteCommandList(directCommandList);
         //id3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_DIRECT, signal);
     }
-
-    return result;
 }
 
-bool MeshAsset::InternalUnload()
+void MeshAsset::InternalUnload()
 {
-    bool result = false;
-    if (_vertexBuffer)
+    if (_vertexBuffer && _vertexLoaded)
     {
-        result = result || _vertexBuffer->Unload();
+        _vertexLoaded = _vertexBuffer->Unload();
     }
 
-    if (_indexBuffer)
+    if (_indexBuffer && _indexLoaded)
     {
-        result = result || _indexBuffer->Unload();
+        _indexLoaded = _indexBuffer->Unload();
     }
-    return result;
 }

@@ -16,6 +16,8 @@
 #include "DataModels/Assets/ModelAsset.h"
 #include "DataModels/Assets/TextureAsset.h"
 
+#include "Defines/FileSystemDefine.h"
+
 ModuleResources::ModuleResources()
 {
 }
@@ -33,24 +35,34 @@ bool ModuleResources::Init()
 
     _threadPool = std::make_unique<ThreadPool>(8);
 
+    App->GetMainThreadPool()->AddTask([this]()
+        {
+            CreateLibraryFolder();
+            ScanLibraryDirectory();
+        }
+    );
     return true;
 }
 
 bool ModuleResources::Start()
 {
-    CreateLibraryFolder();
-    _threadPool->AddTask([this]() 
-        {
-            ScanLibraryDirectory();
-        }
-    );
-
     return true;
 }
 
 bool ModuleResources::CleanUp()
 {
+    _uidToLibPath.clear();
+
+    {
+        std::unique_lock<std::mutex> lock(_mutex);
+        _assets.clear();
+    }
     return true;
+}
+
+void ModuleResources::WaitForCompletion()
+{
+    _threadPool->WaitForCompletion();
 }
 
 void ModuleResources::ScanLibraryDirectory()
@@ -128,7 +140,6 @@ void ModuleResources::ProcessAsset(const std::shared_ptr<Asset>& asset, AssetOpe
     {
         _uidToLibPath[uid] = path;
     }
-    _assets[uid] = asset;
 }
 
 template<typename TImporter, typename TAsset>
@@ -158,7 +169,7 @@ std::shared_ptr<Asset> ModuleResources::LoadUID(UID uid)
         std::string metaPath = App->GetModule<ModuleAssets>()->GetFilePath(uid) + META_EXT;
 
         if (!ModuleFileSystem::ExistsFile(metaPath.c_str())) {
-            LOG_ERROR("Meta file not found: %s", metaPath.c_str());
+            LOG_ERROR("Meta file not found: {}", metaPath.c_str());
             return nullptr;
         }
 
@@ -218,7 +229,11 @@ std::shared_ptr<Asset> ModuleResources::CreateAssetOfType(AssetType type, UID ui
     if (asset)
     {
         asset->SetName(App->GetModule<ModuleAssets>()->GetFilePath(asset->GetUID()));
-        _assets[uid] = asset;
+        
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            _assets[uid] = asset;
+        }
     }
     return asset;
 }

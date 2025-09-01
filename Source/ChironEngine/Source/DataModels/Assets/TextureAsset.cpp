@@ -8,8 +8,10 @@
 #include "DataModels/DX12/CommandList/CommandList.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
+#include "Defines/FileSystemDefine.h"
+
 TextureAsset::TextureAsset(TextureType type) : Asset(AssetType::Texture), _type(type),
-_texConversionFlags(0), _texConfigFlags(isBottomLeft)
+_texConversionFlags(0), _texConfigFlags(isBottomLeft), _loaded(false)
 {
     if (_type == TextureType::ALBEDO)
     {
@@ -28,7 +30,7 @@ _texConversionFlags(0), _texConfigFlags(isBottomLeft)
 }
 
 TextureAsset::TextureAsset(TextureType type, UID uid) : Asset(uid, AssetType::Texture), _type(type), _texConversionFlags(0),
-_texConfigFlags(isBottomLeft)
+_texConfigFlags(isBottomLeft), _loaded(false)
 {
     if (_type == TextureType::ALBEDO)
     {
@@ -47,11 +49,17 @@ _texConfigFlags(isBottomLeft)
 }
 
 TextureAsset::TextureAsset(UID uid) : Asset(uid, AssetType::Texture), _type(TextureType::ALBEDO), _texConversionFlags(0), 
-_texConfigFlags(isBottomLeft)
+_texConfigFlags(isBottomLeft), _loaded(false)
 {
     _texConversionFlags |= kSRGB;
     _texConversionFlags |= kPreserveAlpha;
     _texConversionFlags |= kDefaultBC;
+}
+
+TextureAsset::TextureAsset(TextureAsset& copy) : Asset(copy), _type(copy._type), _texConversionFlags(copy._texConversionFlags), 
+_images(copy._images), _texConfigFlags(copy._texConfigFlags), _loaded(false)
+{
+    _texConfigFlags = 0;
 }
 
 TextureAsset::~TextureAsset()
@@ -95,43 +103,41 @@ void TextureAsset::SetTexture(std::shared_ptr<Texture>& newTexture)
     SetName(_texture->GetName());
 }
 
-bool TextureAsset::InternalLoad()
+void TextureAsset::InternalLoad()
 {
-    bool result = true;
     if (_texture)
     {
-        result = result && _texture->Load();
-    }
-    if (!_images.empty())
-    {
-        auto d3d12 = App->GetModule<ModuleID3D12>();
+        _loaded = _texture->Load();
 
-        auto commandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
-
-        std::vector<D3D12_SUBRESOURCE_DATA> subresources(_images.size());
-        for (uint32_t i = 0; i < _images.size(); ++i)
+        if (!_images.empty())
         {
-            auto& subresource = subresources[i];
-            subresource.pData = _images[i].pixels.data();
-            subresource.RowPitch = _images[i].rowPitch;
-            subresource.SlicePitch = _images[i].slicePitch;
+            auto d3d12 = App->GetModule<ModuleID3D12>();
+
+            auto commandList = d3d12->GetCommandList(D3D12_COMMAND_LIST_TYPE_COPY);
+
+            std::vector<D3D12_SUBRESOURCE_DATA> subresources(_images.size());
+            for (uint32_t i = 0; i < _images.size(); ++i)
+            {
+                auto& subresource = subresources[i];
+                subresource.pData = _images[i].pixels.data();
+                subresource.RowPitch = _images[i].rowPitch;
+                subresource.SlicePitch = _images[i].slicePitch;
+            }
+
+            commandList->UpdateBufferResource(_texture.get(), 0, static_cast<uint32_t>(subresources.size()), subresources.data());
+
+            auto signal = d3d12->ExecuteCommandList(commandList);
+            //d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_COPY, signal);
+
+            _loaded = _loaded && true;
         }
-
-        commandList->UpdateBufferResource(_texture.get(), 0, static_cast<uint32_t>(subresources.size()), subresources.data());
-
-        auto signal = d3d12->ExecuteCommandList(commandList);
-        //d3d12->WaitForFenceValue(D3D12_COMMAND_LIST_TYPE_COPY, signal);
-
-        result = result && true;
     }
-    return result;
 }
 
-bool TextureAsset::InternalUnload()
+void TextureAsset::InternalUnload()
 {
-    if (_texture)
+    if (_texture && _loaded)
     {
-        return _texture->Unload();
+        _loaded = _texture->Unload();
     }
-    return false;
 }

@@ -1,12 +1,13 @@
 #pragma once
 
-class Component;
+#include "Alias/ComponentsView.h"
+
 class ComponentWindow;
 
 class ComponentWindowFactory
 {
 public:
-    static std::unique_ptr<ComponentWindow> CreateComponentWindow(Component* component);
+   static std::vector<std::unique_ptr<ComponentWindow>> CreateComponentsWindow(const ComponentsView& component);
 
 private:
     ComponentWindowFactory() = delete;

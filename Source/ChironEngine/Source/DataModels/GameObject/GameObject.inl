@@ -1,5 +1,3 @@
-#include <concepts>
-
 namespace Chiron::detail
 {
     template<typename T>

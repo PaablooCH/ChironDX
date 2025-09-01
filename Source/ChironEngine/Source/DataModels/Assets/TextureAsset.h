@@ -1,6 +1,8 @@
 #pragma once
 #include "Asset.h"
 
+#include "Enums/TextureType.h"
+
 class Texture;
 
 struct MyImage
@@ -8,20 +10,6 @@ struct MyImage
     std::vector<uint8_t> pixels;
     size_t rowPitch;
     size_t slicePitch;
-};
-
-enum class TextureType
-{
-    ALBEDO,
-    DIFFUSE = ALBEDO,
-    SPECULAR,
-    METALLIC = SPECULAR,
-    NORMAL_MAP,
-    EMISSIVE,
-    OCCLUSION,
-    HDR,
-    DEPTH,
-    RENDER_TARGET
 };
 
 enum TexConfig
@@ -47,7 +35,10 @@ public:
     TextureAsset(TextureType type);
     TextureAsset(TextureType type, UID uid);
     TextureAsset(UID uid);
+    TextureAsset(TextureAsset& copy);
     ~TextureAsset() override;
+
+    inline bool IsValid() const override;
 
     inline void AddConfigFlags(unsigned int flags);
     inline void RemoveConfigFlags(unsigned int flags);
@@ -70,8 +61,8 @@ public:
     inline void SetImages(const std::vector<MyImage>& images);
 
 private:
-    bool InternalLoad() override;
-    bool InternalUnload() override;
+    void InternalLoad() override;
+    void InternalUnload() override;
 
 private:
     std::shared_ptr<Texture> _texture;
@@ -81,6 +72,8 @@ private:
     unsigned int _texConversionFlags;
 
     std::vector<MyImage> _images;
+
+    bool _loaded;
 };
 
 void TextureAsset::AddConfigFlags(unsigned int flags)
@@ -95,7 +88,7 @@ void TextureAsset::RemoveConfigFlags(unsigned int flags)
 
 inline std::shared_ptr<Texture> TextureAsset::GetTexture()
 {
-    if (!IsValid())
+    if (_texture && !IsValid())
     {
         Load();
     }
@@ -145,4 +138,9 @@ inline void TextureAsset::SetTextureType(TextureType newType)
 inline void TextureAsset::SetImages(const std::vector<MyImage>& images)
 {
     _images = images;
+}
+
+inline bool TextureAsset::IsValid() const
+{
+    return _loaded;
 }
