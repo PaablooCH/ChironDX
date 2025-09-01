@@ -18,7 +18,7 @@
 
 #include "DataModels/Programs/Program.h"
 
-#include "Structs/ViewProjection.h"
+#include "Structs/CameraShader.h"
 
 #include "DebugDrawPass.h"
 
@@ -100,10 +100,11 @@ UpdateStatus ModuleRender::Update()
     Matrix view = camera->GetViewMatrix();
     Matrix proj = camera->GetProjMatrix();
 
-    ViewProjection vp;
-    vp.view = view.Transpose();
-    vp.proj = proj.Transpose();
-    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, vp);
+    CameraShader cs;
+    cs.view = view.Transpose();
+    cs.proj = proj.Transpose();
+    cs.pos = camera->GetPosition();
+    _drawCommandList->SetGraphicsDynamicConstantBuffer(0, cs);
 
     auto rtv = _sceneTexture->GetRenderTargetView().GetCPUDescriptorHandle();
     auto dsv = _depthStencilTexture->GetDepthStencilView().GetCPUDescriptorHandle();

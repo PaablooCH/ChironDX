@@ -1,11 +1,12 @@
 // ------------- BUFFERS ----------------------
 
-struct ViewProjection
+struct Camera
 {
     matrix view;
     matrix projection;
+    float3 position;
 };
-ConstantBuffer<ViewProjection> viewProjection : register(b0);
+ConstantBuffer<Camera> camera : register(b0);
 
 struct ModelAttributes
 {
@@ -39,7 +40,7 @@ VS_OUTPUT VSmain(VS_INPUT input)
 {
     VS_OUTPUT OUT;
     float4 position = float4(input.position, 1.0f);
-    matrix mvp = mul(modelAttributes.model, mul(viewProjection.view, viewProjection.projection));
+    matrix mvp = mul(modelAttributes.model, mul(camera.view, camera.projection));
     OUT.position = mul(position, mvp);
     OUT.texCoord = input.texCoord;
 

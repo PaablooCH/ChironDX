@@ -516,7 +516,7 @@
     <ClInclude Include="Source\Defines\FileSystemDefine.h">
       <Filter>Source\Defines</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Structs\ViewProjection.h">
+    <ClInclude Include="Source\Structs\CameraShader.h">
       <Filter>Source\Structs</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h">

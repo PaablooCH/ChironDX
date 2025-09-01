@@ -162,7 +162,7 @@
     <ClInclude Include="Source\Structs\AddComponentAction.h" />
     <ClInclude Include="Source\Structs\ModelAttributes.h" />
     <ClInclude Include="Source\DataModels\DX12\Resource\ConstantBuffer.h" />
-    <ClInclude Include="Source\Structs\ViewProjection.h" />
+    <ClInclude Include="Source\Structs\CameraShader.h" />
     <ClInclude Include="Source\Defines\FileSystemDefine.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Auxiliar\ChironTodo.h" />

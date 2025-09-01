@@ -2,8 +2,9 @@
 
 #include <SimpleMath.h>
 
-struct ViewProjection
+struct CameraShader
 {
     DirectX::SimpleMath::Matrix view;
     DirectX::SimpleMath::Matrix proj;
+    DirectX::SimpleMath::Vector3 pos;
 };
