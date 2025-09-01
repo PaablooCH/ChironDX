@@ -306,7 +306,7 @@ void TextureImporter::Import(const char* filePath, const std::shared_ptr<Texture
         break;
     }
 
-    std::string textureName = ModuleFileSystem::GetFileName(sFilePath) + ext;
+    std::string textureName = sFilePath;
     std::shared_ptr<Texture> newTexture = std::make_shared<Texture>(textureDesc, textureName);
     texture->SetTexture(newTexture);
 

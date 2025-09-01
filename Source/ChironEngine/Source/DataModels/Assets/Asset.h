@@ -1,16 +1,15 @@
 #pragma once
 
-#include "Enums/AssetType.h"
 #include "DataModels/FileSystem/UID/UID.h"
-#include "Defines/FileSystemDefine.h"
+#include "Enums/AssetType.h"
 
 class Asset
 {
 public:
-    inline bool IsValid() const;
-
     bool Load();
     bool Unload();
+
+    virtual bool IsValid() const = 0;
 
     // ------------- GETTERS ----------------------
 
@@ -25,10 +24,11 @@ public:
 protected:
     Asset(UID uid, AssetType type);
     Asset(AssetType type);
+    Asset(Asset& copy);
     virtual ~Asset();
 
-    virtual bool InternalLoad() { return true; };
-    virtual bool InternalUnload() { return false; };
+    virtual void InternalLoad() {};
+    virtual void InternalUnload() {};
 
 private:
     Asset();
@@ -37,14 +37,7 @@ private:
     UID _uid;
     std::string _name;
     AssetType _type;
-
-    bool _loaded;
 };
-
-inline bool Asset::IsValid() const
-{
-    return _loaded;
-}
 
 inline const UID Asset::GetUID() const
 {

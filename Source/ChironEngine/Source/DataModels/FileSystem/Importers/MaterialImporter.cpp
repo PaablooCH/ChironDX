@@ -4,11 +4,13 @@
 #include "Application.h"
 
 #include "Modules/ModuleAssets.h"
-#include "Modules/ModuleResources.h"
 #include "Modules/ModuleFileSystem.h"
+#include "Modules/ModuleResources.h"
 
 #include "DataModels/Assets/MaterialAsset.h"
 #include "DataModels/Assets/TextureAsset.h"
+
+#include "Defines/FileSystemDefine.h"
 
 MaterialImporter::MaterialImporter()
 {
@@ -20,7 +22,7 @@ MaterialImporter::~MaterialImporter()
 
 void MaterialImporter::Import(const char* filePath, const std::shared_ptr<MaterialAsset>& material)
 {
-    material->SetName(ModuleFileSystem::GetFile(filePath));
+    material->SetName(filePath);
 
     rapidjson::Document doc;
     Json json = Json(doc);
@@ -95,6 +97,11 @@ void MaterialImporter::Import(const char* filePath, const std::shared_ptr<Materi
     {
         material->SetEmissiveTexture(futureEmissive.get());
     }
+
+    Color baseColor = Color(json["baseColor"]["r"], json["baseColor"]["g"], json["baseColor"]["b"], json["baseColor"]["a"]);
+    material->SetBaseColor(baseColor);
+    Color specularColor = Color(json["specularColor"]["r"], json["specularColor"]["g"], json["specularColor"]["b"], json["specularColor"]["a"]);
+    material->SetSpecularColor(specularColor);
 
     Save(material);
 }
@@ -229,10 +236,6 @@ void MaterialImporter::LoadFromMeta(const char* filePath, const std::shared_ptr<
     Json meta = Json(doc);
     ModuleFileSystem::LoadJson(metaPath.c_str(), meta);
 
-    Color baseColor = Color(meta["baseColor"]["r"], meta["baseColor"]["g"], meta["baseColor"]["b"], meta["baseColor"]["a"]);
-    material->SetBaseColor(baseColor);
-    Color specularColor = Color(meta["specularColor"]["r"], meta["specularColor"]["g"], meta["specularColor"]["b"], meta["specularColor"]["a"]);
-    material->SetSpecularColor(specularColor);
     UINT options = meta["Options"];
     material->SetOptions(options);
 
@@ -250,16 +253,6 @@ void MaterialImporter::Save(const std::shared_ptr<MaterialAsset>& material)
     rapidjson::Document doc;
     Json json = Json(doc);
     ModuleFileSystem::LoadJson(metaPath.c_str(), json);
-
-    json["baseColor"]["r"] = material->GetBaseColor().R();
-    json["baseColor"]["g"] = material->GetBaseColor().G();
-    json["baseColor"]["b"] = material->GetBaseColor().B();
-    json["baseColor"]["a"] = material->GetBaseColor().A();
-
-    json["specularColor"]["r"] = material->GetSpecularColor().R();
-    json["specularColor"]["g"] = material->GetSpecularColor().G();
-    json["specularColor"]["b"] = material->GetSpecularColor().B();
-    json["specularColor"]["a"] = material->GetSpecularColor().A();
 
     json["options"] = material->GetOptions();
 

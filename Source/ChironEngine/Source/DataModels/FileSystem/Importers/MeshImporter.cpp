@@ -4,14 +4,9 @@
 #include "Application.h"
 
 #include "Modules/ModuleAssets.h"
-#include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleFileSystem.h"
 
 #include "DataModels/Assets/MeshAsset.h"
-
-#include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/Resource/IndexBuffer.h"
-#include "DataModels/DX12/Resource/VertexBuffer.h"
 
 #include "Defines/FileSystemDefine.h"
 

@@ -4,9 +4,10 @@
 
 #include "Application.h"
 
+#include "Modules/ModuleAssets.h"
 #include "Modules/ModuleID3D12.h"
 #include "Modules/ModuleWindow.h"
-#include "Modules/ModuleAssets.h"
+
 #include <ImGui/imgui.h>
 
 #ifdef PROFILE

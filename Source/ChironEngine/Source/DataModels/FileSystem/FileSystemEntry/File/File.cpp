@@ -11,10 +11,9 @@
 
 #include "../Folder/Folder.h"
 
-#include "DataModels/FileSystem/UID/UIDGenerator.h"
 #include "Defines/FileSystemDefine.h"
 
-File::File(const std::string& fileName, Folder* parent) : FileSystemEntry(fileName, parent), _metaUID(0)
+File::File(const std::string& fileName, Folder* parent) : FileSystemEntry(fileName, parent)
 {
     _parent->LinkFile(this);
     _date = ModuleFileSystem::GetModificationDateString(_path.c_str());
@@ -26,11 +25,19 @@ File::~File()
 {
 }
 
+void File::LoadAssetIcon()
+{
+    if (_type == FileType::Texture && _icon == nullptr)
+    {
+        _icon = App->GetModule<ModuleResources>()->SearchAsset<TextureAsset>(GetUID()).get();
+    }
+}
+
 TextureAsset* File::GetIcon()
 {
     if (_type == FileType::Texture && _icon == nullptr)
     {
-        _icon = App->GetModule<ModuleResources>()->RequestAsset<TextureAsset>(_path).get();
+        _icon = App->GetModule<ModuleResources>()->SearchAsset<TextureAsset>(GetUID()).get();
     }
     return _icon.get();
 }
@@ -64,7 +71,7 @@ void File::ChangeParent(Folder* parent)
 void File::SetPath(const std::string& path)
 {
     _path = path + _name;
-    App->GetModule<ModuleAssets>()->UpdateUID(_metaUID, _path);
+    App->GetModule<ModuleAssets>()->UpdateUID(GetUID(), _path);
 }
 
 void File::CheckType()

@@ -5,6 +5,8 @@
 
 #include "DataModels/FileSystem/Json/Field.h"
 
+#include "Alias/ComponentsView.h"
+
 class CommandList;
 
 enum class HierarchyState
@@ -20,9 +22,6 @@ public:
     using GameObjectView =
         std::ranges::transform_view<std::ranges::ref_view<const std::vector<std::unique_ptr<GameObject>>>,
         std::function<GameObject* (const std::unique_ptr<GameObject>&)>>;
-    using ComponentsView =
-        std::ranges::transform_view<std::ranges::ref_view<const std::vector<std::unique_ptr<Component>>>,
-        std::function<Component* (const std::unique_ptr<Component>&)>>;
 
     explicit GameObject(const std::string& name);
     GameObject(const Field& meta);
@@ -37,6 +36,8 @@ public:
     void OnAwake();
 
     void Render(const std::shared_ptr<CommandList>& commandList) const;
+
+    size_t HowManyWindowsNeed() const;
 
     // ------------- CHILDREN METHODS ----------------------
 
@@ -203,7 +204,7 @@ inline std::list<GameObject*> GameObject::GetAllAscendants()
     return ascendants;
 }
 
-inline GameObject::ComponentsView GameObject::GetComponents() const
+inline ComponentsView GameObject::GetComponents() const
 {
     std::function<Component* (const std::unique_ptr<Component>&)> lambda = [](const std::unique_ptr<Component>& component)
         {

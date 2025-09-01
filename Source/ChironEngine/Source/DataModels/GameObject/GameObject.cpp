@@ -5,10 +5,9 @@
 
 #include "Modules/ModuleScene.h"
 
-#include "DataModels/Components/TransformComponent.h"
 #include "DataModels/Components/MeshRendererComponent.h"
-#include "DataModels/Components/Interfaces/Drawable.h"
-#include "DataModels/Components/Interfaces/Updatable.h"
+#include "DataModels/Components/TransformComponent.h"
+
 #include "DataModels/Components/Interfaces/Renderable.h"
 
 #include "DataModels/FileSystem/UID/UIDGenerator.h"
@@ -123,6 +122,12 @@ void GameObject::Render(const std::shared_ptr<CommandList>& commandList) const
             renderable->Render(commandList);
         }
     }
+}
+
+size_t GameObject::HowManyWindowsNeed() const
+{
+    size_t windowsNeeded = _components.size() + GetInternalComponents<MeshRendererComponent>().size();
+    return windowsNeeded;
 }
 
 void GameObject::SetParent(GameObject* parent)

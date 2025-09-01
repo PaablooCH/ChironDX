@@ -29,6 +29,9 @@ public:
     inline int& GetMaxFrameRate();
 
 private:
+    void WaitThreadPools();
+
+private:
     std::vector<std::unique_ptr<Module>> _modules;
 
     std::unique_ptr<Timer> _timer;

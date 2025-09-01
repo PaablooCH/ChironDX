@@ -29,6 +29,7 @@ public:
     static DXGI_FORMAT GetUAVCompatibleFormat(DXGI_FORMAT format);
     inline static DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
     inline static bool IsSRGBFormat(DXGI_FORMAT format);
+    inline static bool IsCompressedFormat(DXGI_FORMAT format);
 
     // ------------- GETTERS ----------------------
 
@@ -119,8 +120,40 @@ inline bool Texture::IsSRGBFormat(DXGI_FORMAT format)
     case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
     case DXGI_FORMAT_BC7_UNORM_SRGB:
         return true;
+    default:
+        return false;
     }
-    return false;
+}
+
+inline bool Texture::IsCompressedFormat(DXGI_FORMAT format)
+{
+    switch (format)
+    {
+    case DXGI_FORMAT_BC1_TYPELESS:
+    case DXGI_FORMAT_BC1_UNORM:
+    case DXGI_FORMAT_BC1_UNORM_SRGB:
+    case DXGI_FORMAT_BC2_TYPELESS:
+    case DXGI_FORMAT_BC2_UNORM:
+    case DXGI_FORMAT_BC2_UNORM_SRGB:
+    case DXGI_FORMAT_BC3_TYPELESS:
+    case DXGI_FORMAT_BC3_UNORM:
+    case DXGI_FORMAT_BC3_UNORM_SRGB:
+    case DXGI_FORMAT_BC4_TYPELESS:
+    case DXGI_FORMAT_BC4_UNORM:
+    case DXGI_FORMAT_BC4_SNORM:
+    case DXGI_FORMAT_BC5_TYPELESS:
+    case DXGI_FORMAT_BC5_UNORM:
+    case DXGI_FORMAT_BC5_SNORM:
+    case DXGI_FORMAT_BC6H_TYPELESS:
+    case DXGI_FORMAT_BC6H_UF16:
+    case DXGI_FORMAT_BC6H_SF16:
+    case DXGI_FORMAT_BC7_TYPELESS:
+    case DXGI_FORMAT_BC7_UNORM:
+    case DXGI_FORMAT_BC7_UNORM_SRGB:
+        return true;
+    default:
+        return false;
+    }
 }
 
 //inline D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetCPURenderTargetView() const

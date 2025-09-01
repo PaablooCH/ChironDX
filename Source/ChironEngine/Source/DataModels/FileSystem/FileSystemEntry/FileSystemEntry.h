@@ -26,6 +26,10 @@ public:
     virtual void ChangeParent(Folder* parent) = 0;
 
 protected:
+    inline void SetUID(UID uid);
+
+protected:
+
     std::string _name;
     std::string _date;
     std::string _path;
@@ -59,4 +63,9 @@ inline const std::string& FileSystemEntry::GetPath() const
 inline Folder* FileSystemEntry::GetParent() const
 {
     return _parent;
+}
+
+inline void FileSystemEntry::SetUID(UID uid)
+{
+    _uid = uid;
 }

@@ -14,7 +14,6 @@
 #include "DataModels/Scene/Scene.h"
 
 #include "DataModels/DX12/CommandList/CommandList.h"
-#include "DataModels/DX12/RootSignature/RootSignature.h"
 #include "DataModels/DX12/Resource/Texture.h"
 
 #include "DataModels/Programs/Program.h"
@@ -28,7 +27,7 @@
 #endif // OPTICK
 
 ModuleRender::ModuleRender() : _scissor(CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX)), _sceneTexture(nullptr),
-_depthStencilTexture(nullptr)
+_depthStencilTexture(nullptr), _frameFenceValue(0)
 {
 }
 
@@ -124,7 +123,7 @@ UpdateStatus ModuleRender::Update()
 
     // ------------- CLOSE COMMANDLIST ----------------------
 
-    d3d12->ExecuteCommandList(_drawCommandList);
+     _frameFenceValue = d3d12->ExecuteCommandList(_drawCommandList);
 
     return UpdateStatus::UPDATE_CONTINUE;
 }
