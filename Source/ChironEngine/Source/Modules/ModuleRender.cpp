@@ -150,7 +150,7 @@ bool ModuleRender::CleanUp()
 
 void ModuleRender::ResizeBuffers(unsigned newWidth, unsigned newHeight)
 {
-    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+    FLOAT clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     memcpy(clearValue.Color, clearColor, sizeof(clearColor));
@@ -170,7 +170,7 @@ void ModuleRender::CreateTextures()
     unsigned height;
     App->GetModule<ModuleWindow>()->GetWindowSize(width, height);
 
-    FLOAT clearColor[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+    FLOAT clearColor[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     D3D12_CLEAR_VALUE clearValue = {};
     clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     memcpy(clearValue.Color, clearColor, sizeof(clearColor));
