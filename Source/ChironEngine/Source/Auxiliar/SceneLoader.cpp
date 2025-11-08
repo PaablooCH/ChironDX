@@ -69,7 +69,7 @@ namespace Chiron::Loader
 
                 auto components = gameObjectField["Components"];
                 mainTreadPool->AddTask(
-                    [&]() {
+                    [gameObject, components]() {
                         gameObject->Load(components);
                     });
 
@@ -162,11 +162,11 @@ namespace Chiron::Loader
         }
 
         // Async Load
-        auto mainTreadPool = App->GetMainThreadPool();
-        mainTreadPool->AddTask(
-            [&]() {
+        //auto mainTreadPool = App->GetMainThreadPool();
+        //mainTreadPool->AddTask(
+            //[&]() {
                 StartLoading();
-            });
+            //});
     }
 
     bool LoadInProcess()
